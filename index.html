@@ -157,18 +157,19 @@
 
     .success-title {
       font-size: 24px;
-      line-height: 1.4;
+      line-height: 1.5;
       font-weight: 800;
       color: #065f46;
       margin-bottom: 14px;
       word-break: keep-all;
+      white-space: pre-line;
     }
 
     .success-text {
       font-size: 18px;
       color: #374151;
-      line-height: 1.7;
-      white-space: normal;
+      line-height: 1.8;
+      white-space: pre-line;
       margin: 0 auto;
       max-width: 420px;
     }
@@ -211,7 +212,7 @@
 
     <div id="successView" class="hidden">
       <div class="success-box">
-        <div class="success-title">お申し込みありがとうございました！</div>
+        <div class="success-title">お申し込み\nありがとうございます！</div>
         <div id="successText" class="success-text"></div>
         <button class="secondary-button" onclick="resetFormView()">戻る</button>
       </div>
@@ -392,7 +393,7 @@
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
         document.getElementById('successText').textContent =
-          `${selectedPractices.length}件のお申し込みを受け付けました。当日お気をつけてお越しください。`;
+          `${selectedPractices.length}件のお申し込みを受け付けました。\n当日お気をつけてお越し下さい。`;
         setStatus('');
       } catch (error) {
         setStatus(`送信エラー: ${error.message}`);

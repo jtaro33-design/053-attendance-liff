@@ -16,7 +16,7 @@
     }
 
     .container {
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
       background: #ffffff;
       padding: 20px;
@@ -56,17 +56,19 @@
     }
 
     .practice-option label {
-      display: block;
+      display: flex;
+      align-items: flex-start;
       cursor: pointer;
+      gap: 10px;
     }
 
-    .practice-option input[type="radio"] {
+    .practice-option input[type="checkbox"] {
       transform: scale(1.3);
-      margin-right: 10px;
+      margin-top: 4px;
+      flex-shrink: 0;
     }
 
     .practice-meta {
-      margin-left: 28px;
       font-size: 16px;
     }
 
@@ -125,6 +127,7 @@
       background: #2563eb;
       color: #ffffff;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     button:disabled {
@@ -132,44 +135,82 @@
       cursor: not-allowed;
     }
 
+    .secondary-button {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
     .status {
       margin-top: 16px;
       font-size: 15px;
+      white-space: pre-wrap;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .success-box {
+      text-align: center;
+      padding: 24px 12px;
+    }
+
+    .success-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #065f46;
+      margin-bottom: 12px;
+    }
+
+    .success-text {
+      font-size: 18px;
+      color: #374151;
       white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>通常練習 出席申込</h1>
-    <div class="sub">参加する練習を選んでお申し込みください</div>
+    <div id="formView">
+      <h1>通常練習 出席申込</h1>
+      <div class="sub">参加する練習を選んでお申し込みください</div>
 
-    <div class="section-title">対象練習</div>
-    <div id="practiceList"></div>
+      <div class="section-title">対象練習</div>
+      <div id="practiceList"></div>
 
-    <div class="field">
-      <label for="childName">子ども氏名</label>
-      <input id="childName" type="text" placeholder="例）山田 太郎">
+      <div class="field">
+        <label for="childName">子ども氏名</label>
+        <input id="childName" type="text" placeholder="例）山田 太郎">
+      </div>
+
+      <div class="field">
+        <label for="parentName">保護者氏名</label>
+        <input id="parentName" type="text" placeholder="例）山田 花子">
+      </div>
+
+      <div class="field">
+        <label for="note">備考（任意）</label>
+        <textarea id="note" placeholder="遅れて参加、見学あり など"></textarea>
+      </div>
+
+      <div class="notice">
+        ・複数の日程をまとめて申し込みできます<br>
+        ・事前申込は前日23:59までです<br>
+        ・当日申込も可能です<br>
+        ・練習内容構成のため、できるだけ事前申込にご協力ください
+      </div>
+
+      <button id="submitBtn" onclick="submitAttendance()">この内容で申し込む</button>
+      <div id="status" class="status"></div>
     </div>
 
-    <div class="field">
-      <label for="parentName">保護者氏名</label>
-      <input id="parentName" type="text" placeholder="例）山田 花子">
+    <div id="successView" class="hidden">
+      <div class="success-box">
+        <div class="success-title">お申し込みありがとうございました！</div>
+        <div id="successText" class="success-text"></div>
+        <button class="secondary-button" onclick="resetFormView()">戻る</button>
+      </div>
     </div>
-
-    <div class="field">
-      <label for="note">備考（任意）</label>
-      <textarea id="note" placeholder="遅れて参加、見学あり など"></textarea>
-    </div>
-
-    <div class="notice">
-      ・事前申込は前日23:59までです<br>
-      ・当日申込も可能です<br>
-      ・練習内容構成のため、できるだけ事前申込にご協力ください
-    </div>
-
-    <button id="submitBtn" onclick="submitAttendance()">この内容で申し込む</button>
-    <div id="status" class="status"></div>
   </div>
 
   <script>
@@ -224,7 +265,7 @@
         wrapper.innerHTML = `
           <label>
             <input
-              type="radio"
+              type="checkbox"
               name="practice"
               value="${practice.id}"
               data-date="${practice.date}"
@@ -240,32 +281,59 @@
 
         container.appendChild(wrapper);
       });
-
-      const firstEnabled = document.querySelector('input[name="practice"]:not(:disabled)');
-      if (firstEnabled) {
-        firstEnabled.checked = true;
-      }
     }
 
-    function getSelectedPractice() {
-      const selected = document.querySelector('input[name="practice"]:checked');
-      if (!selected) return null;
-
-      return {
-        practiceId: selected.value,
-        practiceDate: selected.dataset.date,
-        practiceLabel: selected.dataset.label
-      };
+    function getSelectedPractices() {
+      const selected = document.querySelectorAll('input[name="practice"]:checked');
+      return Array.from(selected).map((item) => ({
+        practiceId: item.value,
+        practiceDate: item.dataset.date,
+        practiceLabel: item.dataset.label
+      }));
     }
 
-    function submitAttendance() {
+    function postOnePractice(payload) {
+      return new Promise((resolve) => {
+        const iframeName = 'hiddenSubmitFrame_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const iframe = document.createElement('iframe');
+        iframe.name = iframeName;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = WEB_APP_URL;
+        form.target = iframeName;
+        form.style.display = 'none';
+
+        Object.keys(payload).forEach((key) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = payload[key];
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+
+        setTimeout(() => {
+          form.remove();
+          iframe.remove();
+          resolve(true);
+        }, 800);
+      });
+    }
+
+    async function submitAttendance() {
+      const submitBtn = document.getElementById('submitBtn');
       const childName = document.getElementById('childName').value.trim();
       const parentName = document.getElementById('parentName').value.trim();
       const note = document.getElementById('note').value.trim();
-      const selectedPractice = getSelectedPractice();
+      const selectedPractices = getSelectedPractices();
 
-      if (!selectedPractice) {
-        setStatus('対象練習を選択してください');
+      if (selectedPractices.length === 0) {
+        setStatus('対象練習を1つ以上選択してください');
         return;
       }
 
@@ -280,35 +348,41 @@
       }
 
       saveNames();
-      setStatus('送信中です...');
+      submitBtn.disabled = true;
+      setStatus(`送信中です...（${selectedPractices.length}件）`);
 
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = WEB_APP_URL;
-      form.target = '_self';
-      form.style.display = 'none';
+      try {
+        for (const practice of selectedPractices) {
+          const payload = {
+            lineUserId: TEST_LINE_USER_ID,
+            practiceId: practice.practiceId,
+            practiceDate: practice.practiceDate,
+            practiceLabel: practice.practiceLabel,
+            childName: childName,
+            parentName: parentName,
+            note: note,
+            submittedAt: new Date().toISOString()
+          };
 
-      const payload = {
-        lineUserId: TEST_LINE_USER_ID,
-        practiceId: selectedPractice.practiceId,
-        practiceDate: selectedPractice.practiceDate,
-        practiceLabel: selectedPractice.practiceLabel,
-        childName: childName,
-        parentName: parentName,
-        note: note,
-        submittedAt: new Date().toISOString()
-      };
+          await postOnePractice(payload);
+        }
 
-      Object.keys(payload).forEach((key) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = payload[key];
-        form.appendChild(input);
-      });
+        document.getElementById('formView').classList.add('hidden');
+        document.getElementById('successView').classList.remove('hidden');
+        document.getElementById('successText').textContent =
+          `${selectedPractices.length}件のお申し込みを受け付けました。\n当日お気をつけてお越しください。`;
+        setStatus('');
+      } catch (error) {
+        setStatus(`送信エラー: ${error.message}`);
+        submitBtn.disabled = false;
+      }
+    }
 
-      document.body.appendChild(form);
-      form.submit();
+    function resetFormView() {
+      document.getElementById('successView').classList.add('hidden');
+      document.getElementById('formView').classList.remove('hidden');
+      document.getElementById('submitBtn').disabled = false;
+      setStatus('画面の読み込みが完了しました。');
     }
 
     window.addEventListener('load', () => {

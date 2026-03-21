@@ -204,7 +204,6 @@
     function loadSavedNames() {
       const savedChildName = localStorage.getItem('attendance_childName') || '';
       const savedParentName = localStorage.getItem('attendance_parentName') || '';
-
       document.getElementById('childName').value = savedChildName;
       document.getElementById('parentName').value = savedParentName;
     }
@@ -259,58 +258,64 @@
       };
     }
 
-<script>
-function submitAttendance() {
-  const childName = document.getElementById('childName').value.trim();
-  const parentName = document.getElementById('parentName').value.trim();
-  const note = document.getElementById('note').value.trim();
-  const selectedPractice = getSelectedPractice();
+    function submitAttendance() {
+      const childName = document.getElementById('childName').value.trim();
+      const parentName = document.getElementById('parentName').value.trim();
+      const note = document.getElementById('note').value.trim();
+      const selectedPractice = getSelectedPractice();
 
-  if (!selectedPractice) {
-    setStatus('対象練習を選択してください');
-    return;
-  }
+      if (!selectedPractice) {
+        setStatus('対象練習を選択してください');
+        return;
+      }
 
-  if (!childName) {
-    setStatus('子ども氏名を入力してください');
-    return;
-  }
+      if (!childName) {
+        setStatus('子ども氏名を入力してください');
+        return;
+      }
 
-  if (!parentName) {
-    setStatus('保護者氏名を入力してください');
-    return;
-  }
+      if (!parentName) {
+        setStatus('保護者氏名を入力してください');
+        return;
+      }
 
-  setStatus('送信中です...');
+      saveNames();
+      setStatus('送信中です...');
 
-  const payload = {
-    lineUserId: TEST_LINE_USER_ID,
-    practiceId: selectedPractice.practiceId,
-    practiceDate: selectedPractice.practiceDate,
-    practiceLabel: selectedPractice.practiceLabel,
-    childName: childName,
-    parentName: parentName,
-    note: note,
-    submittedAt: new Date().toISOString()
-  };
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = WEB_APP_URL;
+      form.target = '_self';
+      form.style.display = 'none';
 
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = WEB_APP_URL;
-  form.target = '_self';
-  form.style.display = 'none';
+      const payload = {
+        lineUserId: TEST_LINE_USER_ID,
+        practiceId: selectedPractice.practiceId,
+        practiceDate: selectedPractice.practiceDate,
+        practiceLabel: selectedPractice.practiceLabel,
+        childName: childName,
+        parentName: parentName,
+        note: note,
+        submittedAt: new Date().toISOString()
+      };
 
-  Object.keys(payload).forEach((key) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = payload[key];
-    form.appendChild(input);
-  });
+      Object.keys(payload).forEach((key) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = payload[key];
+        form.appendChild(input);
+      });
 
-  document.body.appendChild(form);
-  form.submit();
-}
-</script>
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    window.addEventListener('load', () => {
+      loadSavedNames();
+      renderPracticeList();
+      setStatus('画面の読み込みが完了しました。');
+    });
+  </script>
 </body>
 </html>

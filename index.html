@@ -257,66 +257,86 @@
       };
     }
 
-    async function submitAttendance() {
-      const submitBtn = document.getElementById('submitBtn');
-      const childName = document.getElementById('childName').value.trim();
-      const parentName = document.getElementById('parentName').value.trim();
-      const note = document.getElementById('note').value.trim();
-      const selectedPractice = getSelectedPractice();
+    <script>
+  async function submitAttendance() {
+    const submitBtn = document.getElementById('submitBtn');
+    const childName = document.getElementById('childName').value.trim();
+    const parentName = document.getElementById('parentName').value.trim();
+    const note = document.getElementById('note').value.trim();
+    const selectedPractice = getSelectedPractice();
 
-      if (!selectedPractice) {
-        setStatus('対象練習を選択してください');
-        return;
-      }
-
-      if (!childName) {
-        setStatus('子ども氏名を入力してください');
-        return;
-      }
-
-      if (!parentName) {
-        setStatus('保護者氏名を入力してください');
-        return;
-      }
-
-      const payload = {
-        lineUserId: TEST_LINE_USER_ID,
-        practiceId: selectedPractice.practiceId,
-        practiceDate: selectedPractice.practiceDate,
-        practiceLabel: selectedPractice.practiceLabel,
-        childName,
-        parentName,
-        note,
-        submittedAt: new Date().toISOString()
-      };
-
-      try {
-        submitBtn.disabled = true;
-        setStatus('送信中です...');
-
-        const response = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (result.ok) {
-          saveNames();
-          setStatus('申込を受け付けました。\n当日お気をつけてお越しください。');
-        } else {
-          setStatus(`申込エラー: ${result.message}`);
-        }
-      } catch (error) {
-        setStatus(`送信エラー: ${error.message}`);
-      } finally {
-        submitBtn.disabled = false;
-      }
+    if (!selectedPractice) {
+      setStatus('対象練習を選択してください');
+      return;
     }
 
+    if (!childName) {
+      setStatus('子ども氏名を入力してください');
+      return;
+    }
+
+    if (!parentName) {
+      setStatus('保護者氏名を入力してください');
+      return;
+    }
+
+    const payload = {
+      lineUserId: TEST_LINE_USER_ID,
+      practiceId: selectedPractice.practiceId,
+      practiceDate: selectedPractice.practiceDate,
+      practiceLabel: selectedPractice.practiceLabel,
+      childName,
+      parentName,
+      note,
+      submittedAt: new Date().toISOString()
+    };
+
+    try {
+      submitBtn.disabled = true;
+      setStatus('送信中です...');
+
+      // hidden iframe を作成
+      let iframe = document.getElementById('hiddenSubmitFrame');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.name = 'hiddenSubmitFrame';
+        iframe.id = 'hiddenSubmitFrame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+
+      // form を作成
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = WEB_APP_URL;
+      form.target = 'hiddenSubmitFrame';
+      form.style.display = 'none';
+
+      Object.keys(payload).forEach((key) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = payload[key];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+
+      saveNames();
+      setStatus('申込を送信しました。\nLIFF申込ログへの反映を確認してください。');
+
+      setTimeout(() => {
+        form.remove();
+        submitBtn.disabled = false;
+      }, 1000);
+
+    } catch (error) {
+      setStatus(`送信エラー: ${error.message}`);
+      submitBtn.disabled = false;
+    }
+  }
+</script>
     function setStatus(message) {
       document.getElementById('status').textContent = message;
     }

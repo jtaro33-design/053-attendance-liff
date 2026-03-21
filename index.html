@@ -152,20 +152,25 @@
 
     .success-box {
       text-align: center;
-      padding: 24px 12px;
+      padding: 28px 16px;
     }
 
     .success-title {
-      font-size: 28px;
+      font-size: 24px;
+      line-height: 1.4;
       font-weight: 800;
       color: #065f46;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      word-break: keep-all;
     }
 
     .success-text {
       font-size: 18px;
       color: #374151;
-      white-space: pre-wrap;
+      line-height: 1.7;
+      white-space: normal;
+      margin: 0 auto;
+      max-width: 420px;
     }
   </style>
 </head>
@@ -226,7 +231,7 @@
       },
       {
         id: '3288eb24b08d80d9afdcc866f3253c33',
-        date: '2026-03-27',
+        date: '3/27',
         label: '3/27（金）19:00〜21:00｜草間地区体育館',
         disabled: true
       },
@@ -370,7 +375,7 @@
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
         document.getElementById('successText').textContent =
-          `${selectedPractices.length}件のお申し込みを受け付けました。\n当日お気をつけてお越しください。`;
+          `${selectedPractices.length}件のお申し込みを受け付けました。当日お気をつけてお越しください。`;
         setStatus('');
       } catch (error) {
         setStatus(`送信エラー: ${error.message}`);

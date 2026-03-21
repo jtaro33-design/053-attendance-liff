@@ -21,7 +21,7 @@
       background: #ffffff;
       padding: 20px;
       border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
@@ -149,12 +149,12 @@
 
     <div class="field">
       <label for="childName">子ども氏名</label>
-      <input id="childName" type="text" placeholder="例）山田 太郎" />
+      <input id="childName" type="text" placeholder="例）山田 太郎">
     </div>
 
     <div class="field">
       <label for="parentName">保護者氏名</label>
-      <input id="parentName" type="text" placeholder="例）山田 花子" />
+      <input id="parentName" type="text" placeholder="例）山田 花子">
     </div>
 
     <div class="field">
@@ -174,8 +174,6 @@
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
-
-    // LIFFなしテスト用の仮userId
     const TEST_LINE_USER_ID = 'U_BROWSER_TEST_001';
 
     const PRACTICES = [
@@ -198,6 +196,10 @@
         disabled: false
       }
     ];
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
 
     function loadSavedNames() {
       const savedChildName = localStorage.getItem('attendance_childName') || '';
@@ -229,7 +231,7 @@
               data-date="${practice.date}"
               data-label="${practice.label}"
               ${practice.disabled ? 'disabled' : ''}
-            />
+            >
             <div class="practice-meta">
               <div>${practice.label}</div>
               ${practice.disabled ? '<div class="badge">申込済み</div>' : ''}
@@ -257,45 +259,42 @@
       };
     }
 
-    <script>
-  async function submitAttendance() {
-    const submitBtn = document.getElementById('submitBtn');
-    const childName = document.getElementById('childName').value.trim();
-    const parentName = document.getElementById('parentName').value.trim();
-    const note = document.getElementById('note').value.trim();
-    const selectedPractice = getSelectedPractice();
+    function submitAttendance() {
+      const submitBtn = document.getElementById('submitBtn');
+      const childName = document.getElementById('childName').value.trim();
+      const parentName = document.getElementById('parentName').value.trim();
+      const note = document.getElementById('note').value.trim();
+      const selectedPractice = getSelectedPractice();
 
-    if (!selectedPractice) {
-      setStatus('対象練習を選択してください');
-      return;
-    }
+      if (!selectedPractice) {
+        setStatus('対象練習を選択してください');
+        return;
+      }
 
-    if (!childName) {
-      setStatus('子ども氏名を入力してください');
-      return;
-    }
+      if (!childName) {
+        setStatus('子ども氏名を入力してください');
+        return;
+      }
 
-    if (!parentName) {
-      setStatus('保護者氏名を入力してください');
-      return;
-    }
+      if (!parentName) {
+        setStatus('保護者氏名を入力してください');
+        return;
+      }
 
-    const payload = {
-      lineUserId: TEST_LINE_USER_ID,
-      practiceId: selectedPractice.practiceId,
-      practiceDate: selectedPractice.practiceDate,
-      practiceLabel: selectedPractice.practiceLabel,
-      childName,
-      parentName,
-      note,
-      submittedAt: new Date().toISOString()
-    };
-
-    try {
       submitBtn.disabled = true;
       setStatus('送信中です...');
 
-      // hidden iframe を作成
+      const payload = {
+        lineUserId: TEST_LINE_USER_ID,
+        practiceId: selectedPractice.practiceId,
+        practiceDate: selectedPractice.practiceDate,
+        practiceLabel: selectedPractice.practiceLabel,
+        childName: childName,
+        parentName: parentName,
+        note: note,
+        submittedAt: new Date().toISOString()
+      };
+
       let iframe = document.getElementById('hiddenSubmitFrame');
       if (!iframe) {
         iframe = document.createElement('iframe');
@@ -305,7 +304,6 @@
         document.body.appendChild(iframe);
       }
 
-      // form を作成
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = WEB_APP_URL;
@@ -324,20 +322,12 @@
       form.submit();
 
       saveNames();
-      setStatus('申込を送信しました。\nLIFF申込ログへの反映を確認してください。');
+      setStatus('申込を送信しました。LIFF申込ログを確認してください。');
 
       setTimeout(() => {
         form.remove();
         submitBtn.disabled = false;
       }, 1000);
-
-    } catch (error) {
-      setStatus(`送信エラー: ${error.message}`);
-      submitBtn.disabled = false;
-    }
-  }
-    function setStatus(message) {
-      document.getElementById('status').textContent = message;
     }
 
     window.addEventListener('load', () => {

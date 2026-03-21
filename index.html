@@ -226,22 +226,21 @@
       {
         id: '3288eb24b08d8076a73ffa01ca30432a',
         date: '2026-03-25',
-        label: '3/25（水）19:00〜21:00｜下五井地区体育館',
-        disabled: false
+        label: '3/25（水）19:00〜21:00｜下五井地区体育館'
       },
       {
         id: '3288eb24b08d80d9afdcc866f3253c33',
-        date: '3/27',
-        label: '3/27（金）19:00〜21:00｜草間地区体育館',
-        disabled: true
+        date: '2026-03-27',
+        label: '3/27（金）19:00〜21:00｜草間地区体育館'
       },
       {
         id: '3288eb24b08d806eb64cff12c7d6c0ea',
         date: '2026-03-28',
-        label: '3/28（土）9:00〜12:00｜下五井地区体育館',
-        disabled: false
+        label: '3/28（土）9:00〜12:00｜下五井地区体育館'
       }
     ];
+
+    let activeSignupPracticeIds = [];
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -259,13 +258,31 @@
       localStorage.setItem('attendance_parentName', document.getElementById('parentName').value.trim());
     }
 
+    async function loadActiveSignupPracticeIds() {
+      try {
+        const url = `${WEB_APP_URL}?mode=activeSignupPracticeIds&lineUserId=${encodeURIComponent(TEST_LINE_USER_ID)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.ok && Array.isArray(result.practiceIds)) {
+          activeSignupPracticeIds = result.practiceIds;
+        } else {
+          activeSignupPracticeIds = [];
+        }
+      } catch (error) {
+        console.error(error);
+        activeSignupPracticeIds = [];
+      }
+    }
+
     function renderPracticeList() {
       const container = document.getElementById('practiceList');
       container.innerHTML = '';
 
       PRACTICES.forEach((practice) => {
+        const isDisabled = activeSignupPracticeIds.includes(practice.id);
         const wrapper = document.createElement('div');
-        wrapper.className = `practice-option ${practice.disabled ? 'disabled' : ''}`;
+        wrapper.className = `practice-option ${isDisabled ? 'disabled' : ''}`;
 
         wrapper.innerHTML = `
           <label>
@@ -275,11 +292,11 @@
               value="${practice.id}"
               data-date="${practice.date}"
               data-label="${practice.label}"
-              ${practice.disabled ? 'disabled' : ''}
+              ${isDisabled ? 'disabled' : ''}
             >
             <div class="practice-meta">
               <div>${practice.label}</div>
-              ${practice.disabled ? '<div class="badge">申込済み</div>' : ''}
+              ${isDisabled ? '<div class="badge">申込済み</div>' : ''}
             </div>
           </label>
         `;
@@ -383,15 +400,21 @@
       }
     }
 
-    function resetFormView() {
+    async function resetFormView() {
       document.getElementById('successView').classList.add('hidden');
       document.getElementById('formView').classList.remove('hidden');
       document.getElementById('submitBtn').disabled = false;
+      setStatus('読み込み中です...');
+
+      await loadActiveSignupPracticeIds();
+      renderPracticeList();
       setStatus('画面の読み込みが完了しました。');
     }
 
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       loadSavedNames();
+      setStatus('読み込み中です...');
+      await loadActiveSignupPracticeIds();
       renderPracticeList();
       setStatus('画面の読み込みが完了しました。');
     });

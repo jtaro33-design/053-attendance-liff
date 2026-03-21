@@ -27,12 +27,14 @@
     h1 {
       font-size: 24px;
       margin: 0 0 8px;
+      text-align: center;
     }
 
     .sub {
       font-size: 15px;
       color: #4b5563;
       margin-bottom: 20px;
+      text-align: center;
     }
 
     .section-title {
@@ -138,6 +140,9 @@
     .secondary-button {
       background: #e5e7eb;
       color: #111827;
+      max-width: 360px;
+      margin: 18px auto 0;
+      display: block;
     }
 
     .status {
@@ -160,18 +165,20 @@
       line-height: 1.5;
       font-weight: 800;
       color: #065f46;
-      margin-bottom: 14px;
-      word-break: keep-all;
-      white-space: pre-line;
+      margin-bottom: 16px;
     }
 
     .success-text {
       font-size: 18px;
       color: #374151;
-      line-height: 1.8;
-      white-space: pre-line;
+      line-height: 1.9;
       margin: 0 auto;
       max-width: 420px;
+    }
+
+    .success-title-line,
+    .success-text-line {
+      display: block;
     }
   </style>
 </head>
@@ -212,7 +219,10 @@
 
     <div id="successView" class="hidden">
       <div class="success-box">
-        <div class="success-title">お申し込み\nありがとうございます！</div>
+        <div class="success-title">
+          <span class="success-title-line">お申し込み</span>
+          <span class="success-title-line">ありがとうございます！</span>
+        </div>
         <div id="successText" class="success-text"></div>
         <button class="secondary-button" onclick="resetFormView()">戻る</button>
       </div>
@@ -392,8 +402,9 @@
 
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
-        document.getElementById('successText').textContent =
-          `${selectedPractices.length}件のお申し込みを受け付けました。\n当日お気をつけてお越し下さい。`;
+        document.getElementById('successText').innerHTML =
+          `<span class="success-text-line">${selectedPractices.length}件のお申し込みを受け付けました。</span>` +
+          `<span class="success-text-line">当日お気をつけてお越し下さい。</span>`;
         setStatus('');
       } catch (error) {
         setStatus(`送信エラー: ${error.message}`);

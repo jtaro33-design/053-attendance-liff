@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIFF確認</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 24px;
+      font-size: 18px;
+      background: #f7f9fc;
+      color: #111827;
+    }
+    .box {
+      max-width: 520px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+    }
+    .status {
+      margin-top: 16px;
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>LIFF確認画面</h1>
+    <div id="status" class="status">初期化前...</div>
+  </div>
+
+  <script>
+    const LIFF_ID = '2009553339-B6WeOFlT';
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
+
+    async function initApp() {
+      try {
+        setStatus('LIFF初期化中...');
+        await liff.init({ liffId: LIFF_ID });
+        setStatus('LIFF初期化完了');
+
+        if (!liff.isLoggedIn()) {
+          setStatus('loggedIn=false\nLINEアプリ内のLIFF URLから開いてください');
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        setStatus(
+          'loggedIn=true\n' +
+          'userId=' + profile.userId + '\n' +
+          'displayName=' + profile.displayName
+        );
+      } catch (error) {
+        setStatus('LIFF初期化エラー:\n' + error.message);
+      }
+    }
+
+    window.addEventListener('load', initApp);
+  </script>
+</body>
+</html>

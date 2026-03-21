@@ -3,71 +3,329 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LIFF確認</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <title>通常練習 出席申込</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
       font-size: 18px;
       background: #f7f9fc;
-      color: #111827;
+      color: #1f2937;
     }
-    .box {
+
+    .container {
       max-width: 520px;
       margin: 0 auto;
-      background: #fff;
-      border-radius: 16px;
+      background: #ffffff;
       padding: 20px;
+      border-radius: 16px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
+
     h1 {
       font-size: 24px;
-      margin-top: 0;
+      margin: 0 0 8px;
     }
+
+    .sub {
+      font-size: 15px;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 20px 0 10px;
+    }
+
+    .practice-option {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #ffffff;
+    }
+
+    .practice-option.disabled {
+      background: #e5e7eb;
+      color: #6b7280;
+      border-color: #d1d5db;
+    }
+
+    .practice-option label {
+      display: block;
+      cursor: pointer;
+    }
+
+    .practice-option input[type="radio"] {
+      transform: scale(1.3);
+      margin-right: 10px;
+    }
+
+    .practice-meta {
+      margin-left: 28px;
+      font-size: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: #d1d5db;
+      color: #374151;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 18px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .notice {
+      margin: 20px 0;
+      padding: 14px;
+      background: #eff6ff;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #1e3a8a;
+    }
+
+    button {
+      width: 100%;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
     .status {
       margin-top: 16px;
+      font-size: 15px;
       white-space: pre-wrap;
-      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>LIFF確認画面</h1>
-    <div id="status" class="status">初期化前...</div>
+  <div class="container">
+    <h1>通常練習 出席申込</h1>
+    <div class="sub">参加する練習を選んでお申し込みください</div>
+
+    <div class="section-title">対象練習</div>
+    <div id="practiceList"></div>
+
+    <div class="field">
+      <label for="childName">子ども氏名</label>
+      <input id="childName" type="text" placeholder="例）山田 太郎" />
+    </div>
+
+    <div class="field">
+      <label for="parentName">保護者氏名</label>
+      <input id="parentName" type="text" placeholder="例）山田 花子" />
+    </div>
+
+    <div class="field">
+      <label for="note">備考（任意）</label>
+      <textarea id="note" placeholder="遅れて参加、見学あり など"></textarea>
+    </div>
+
+    <div class="notice">
+      ・事前申込は前日23:59までです<br>
+      ・当日申込も可能です<br>
+      ・練習内容構成のため、できるだけ事前申込にご協力ください
+    </div>
+
+    <button id="submitBtn" onclick="submitAttendance()">この内容で申し込む</button>
+    <div id="status" class="status"></div>
   </div>
 
   <script>
-    const LIFF_ID = '2009553721-FwRdgINt';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+
+    // LIFFなしテスト用の仮userId
+    const TEST_LINE_USER_ID = 'U_BROWSER_TEST_001';
+
+    const PRACTICES = [
+      {
+        id: 'practice_test_101',
+        date: '2026-03-25',
+        label: '3/25（水）19:00〜21:00｜下五井地区体育館',
+        disabled: false
+      },
+      {
+        id: 'practice_test_102',
+        date: '2026-03-27',
+        label: '3/27（金）19:00〜21:00｜草間地区体育館',
+        disabled: true
+      },
+      {
+        id: 'practice_test_103',
+        date: '2026-03-28',
+        label: '3/28（土）9:00〜12:00｜下五井地区体育館',
+        disabled: false
+      }
+    ];
+
+    function loadSavedNames() {
+      const savedChildName = localStorage.getItem('attendance_childName') || '';
+      const savedParentName = localStorage.getItem('attendance_parentName') || '';
+
+      document.getElementById('childName').value = savedChildName;
+      document.getElementById('parentName').value = savedParentName;
+    }
+
+    function saveNames() {
+      localStorage.setItem('attendance_childName', document.getElementById('childName').value.trim());
+      localStorage.setItem('attendance_parentName', document.getElementById('parentName').value.trim());
+    }
+
+    function renderPracticeList() {
+      const container = document.getElementById('practiceList');
+      container.innerHTML = '';
+
+      PRACTICES.forEach((practice) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `practice-option ${practice.disabled ? 'disabled' : ''}`;
+
+        wrapper.innerHTML = `
+          <label>
+            <input
+              type="radio"
+              name="practice"
+              value="${practice.id}"
+              data-date="${practice.date}"
+              data-label="${practice.label}"
+              ${practice.disabled ? 'disabled' : ''}
+            />
+            <div class="practice-meta">
+              <div>${practice.label}</div>
+              ${practice.disabled ? '<div class="badge">申込済み</div>' : ''}
+            </div>
+          </label>
+        `;
+
+        container.appendChild(wrapper);
+      });
+
+      const firstEnabled = document.querySelector('input[name="practice"]:not(:disabled)');
+      if (firstEnabled) {
+        firstEnabled.checked = true;
+      }
+    }
+
+    function getSelectedPractice() {
+      const selected = document.querySelector('input[name="practice"]:checked');
+      if (!selected) return null;
+
+      return {
+        practiceId: selected.value,
+        practiceDate: selected.dataset.date,
+        practiceLabel: selected.dataset.label
+      };
+    }
+
+    async function submitAttendance() {
+      const submitBtn = document.getElementById('submitBtn');
+      const childName = document.getElementById('childName').value.trim();
+      const parentName = document.getElementById('parentName').value.trim();
+      const note = document.getElementById('note').value.trim();
+      const selectedPractice = getSelectedPractice();
+
+      if (!selectedPractice) {
+        setStatus('対象練習を選択してください');
+        return;
+      }
+
+      if (!childName) {
+        setStatus('子ども氏名を入力してください');
+        return;
+      }
+
+      if (!parentName) {
+        setStatus('保護者氏名を入力してください');
+        return;
+      }
+
+      const payload = {
+        lineUserId: TEST_LINE_USER_ID,
+        practiceId: selectedPractice.practiceId,
+        practiceDate: selectedPractice.practiceDate,
+        practiceLabel: selectedPractice.practiceLabel,
+        childName,
+        parentName,
+        note,
+        submittedAt: new Date().toISOString()
+      };
+
+      try {
+        submitBtn.disabled = true;
+        setStatus('送信中です...');
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+          saveNames();
+          setStatus('申込を受け付けました。\n当日お気をつけてお越しください。');
+        } else {
+          setStatus(`申込エラー: ${result.message}`);
+        }
+      } catch (error) {
+        setStatus(`送信エラー: ${error.message}`);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
     }
 
-    async function initApp() {
-      try {
-        setStatus('LIFF初期化中...');
-        await liff.init({ liffId: LIFF_ID });
-        setStatus('LIFF初期化完了');
-
-        if (!liff.isLoggedIn()) {
-          setStatus('loggedIn=false\nLINEアプリ内のLIFF URLから開いてください');
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        setStatus(
-          'loggedIn=true\n' +
-          'userId=' + profile.userId + '\n' +
-          'displayName=' + profile.displayName
-        );
-      } catch (error) {
-        setStatus('LIFF初期化エラー:\n' + error.message);
-      }
-    }
-
-    window.addEventListener('load', initApp);
+    window.addEventListener('load', () => {
+      loadSavedNames();
+      renderPracticeList();
+      setStatus('画面の読み込みが完了しました。');
+    });
   </script>
 </body>
 </html>

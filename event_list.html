@@ -282,9 +282,7 @@
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
-
-    // 仮運用。LIFF復帰後に本物のLINE userIDへ置換
-    const TEST_LINE_USER_ID = localStorage.getItem('lineUserId') || '';
+    const LINE_USER_ID = localStorage.getItem('lineUserId') || '';
 
     let viewerCategory = '一般';
     let eventItems = [];
@@ -343,7 +341,7 @@
     async function loadViewerCategory() {
       try {
         const response = await fetch(
-          `${WEB_APP_URL}?mode=viewerCategory&lineUserId=${encodeURIComponent(TEST_LINE_USER_ID)}`
+          `${WEB_APP_URL}?mode=viewerCategory&lineUserId=${encodeURIComponent(LINE_USER_ID)}`
         );
         const result = await response.json();
 
@@ -362,7 +360,7 @@
     async function loadAppliedEventIds() {
       try {
         const response = await fetch(
-          `${WEB_APP_URL}?mode=appliedEventIds&lineUserId=${encodeURIComponent(TEST_LINE_USER_ID)}`
+          `${WEB_APP_URL}?mode=appliedEventIds&lineUserId=${encodeURIComponent(LINE_USER_ID)}`
         );
         const result = await response.json();
 
@@ -422,7 +420,7 @@
         form.append('eventPageId', item.pageId);
         form.append('childName', childName);
         form.append('parentName', parentName);
-        form.append('lineUserId', TEST_LINE_USER_ID);
+        form.append('lineUserId', LINE_USER_ID);
         form.append('appliedAt', new Date().toISOString());
         form.append('note', note);
 

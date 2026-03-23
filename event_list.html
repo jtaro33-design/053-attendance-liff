@@ -160,6 +160,23 @@
       margin-top: 10px;
     }
 
+    .notice {
+      margin: 20px 0;
+      padding: 14px;
+      background: #eff6ff;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #1e3a8a;
+    }
+
+    .comment-note {
+      margin-top: 0;
+      margin-bottom: 16px;
+      background: #f8fafc;
+      color: #374151;
+      border: 1px solid #e2e8f0;
+    }
+
     .primary-button {
       width: 100%;
       box-sizing: border-box;
@@ -560,6 +577,10 @@
             <div class="field">
               <label for="parentName_${index}">保護者氏名</label>
               <input id="parentName_${index}" type="text" placeholder="例）山田 花子" value="${viewerProfile.parentName || ''}">
+            </div>
+
+            <div class="notice comment-note">
+              キャンセル・変更がある場合は、コメントでお知らせください。
             </div>
 
             <div class="field">

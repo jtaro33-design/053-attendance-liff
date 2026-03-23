@@ -283,6 +283,31 @@
       }
     }
 
+    function formatDateShort(dateString) {
+      if (!dateString) return '';
+      const d = new Date(dateString + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(d);
+    }
+
+    function buildPracticeLabel(practice) {
+      const parts = [];
+      const dateLabel = formatDateShort(practice.date);
+      if (dateLabel) parts.push(dateLabel);
+      if (practice.startTime || practice.endTime) {
+        parts.push(`${practice.startTime || ''}${practice.startTime && practice.endTime ? '〜' : ''}${practice.endTime || ''}`);
+      }
+      if (practice.place) parts.push(practice.place);
+      if (practice.title) parts.push(practice.title);
+      return parts.join('｜');
+    }
+
     function loadSavedNames() {
       const savedChildName = localStorage.getItem('attendance_childName') || '';
       const savedParentName = localStorage.getItem('attendance_parentName') || '';
@@ -390,6 +415,8 @@
         const wrapper = document.createElement('div');
         wrapper.className = `practice-option ${isDisabled ? 'disabled' : ''}`;
 
+        const displayLabel = buildPracticeLabel(practice);
+
         wrapper.innerHTML = `
           <label>
             <input
@@ -397,11 +424,11 @@
               name="practice"
               value="${practice.id}"
               data-date="${practice.date}"
-              data-label="${practice.label}"
+              data-label="${displayLabel}"
               ${isDisabled ? 'disabled' : ''}
             >
             <div class="practice-meta">
-              <div>${practice.label}</div>
+              <div>${displayLabel}</div>
               ${isDisabled ? '<div class="badge">申込済み</div>' : ''}
             </div>
           </label>

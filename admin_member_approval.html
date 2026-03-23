@@ -1,214 +1,308 @@
-function doPost(e) {
-  try {
-    if (!e || !e.parameter) {
-      throw new Error('POSTデータがありません');
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員申込 承認管理</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      font-size: 16px;
+      background: #f7f9fc;
+      color: #1f2937;
     }
 
-    const formType = e.parameter.formType || '';
-    const action = e.parameter.action || '';
-
-    if (action === 'updateMemberApplicationStatus') {
-      const pageId = e.parameter.pageId || '';
-      const applicationStatus = e.parameter.applicationStatus || '';
-      const approvedCategory = e.parameter.approvedCategory || '';
-
-      const result = updateMemberApplicationStatus_(pageId, applicationStatus, approvedCategory);
-
-      return ContentService
-        .createTextOutput(JSON.stringify(result))
-        .setMimeType(ContentService.MimeType.JSON);
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
     }
 
-    if (action === 'approveMemberApplication') {
-      const pageId = e.parameter.pageId || '';
-      const approvedCategory = e.parameter.approvedCategory || '';
-
-      if (!pageId) {
-        throw new Error('pageId がありません');
-      }
-      if (!approvedCategory) {
-        throw new Error('approvedCategory がありません');
-      }
-
-      const notionApiKey = PropertiesService.getScriptProperties().getProperty('NOTION_API_KEY');
-      if (!notionApiKey) {
-        throw new Error('NOTION_API_KEY が未設定です');
-      }
-
-      const updateBody = {
-        properties: {
-          '承認区分': {
-            select: {
-              name: approvedCategory
-            }
-          },
-          '申込ステータス': {
-            select: {
-              name: '承認'
-            }
-          }
-        }
-      };
-
-      const updateResponse = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-        method: 'patch',
-        contentType: 'application/json',
-        headers: {
-          Authorization: `Bearer ${notionApiKey}`,
-          'Notion-Version': '2022-06-28'
-        },
-        payload: JSON.stringify(updateBody),
-        muteHttpExceptions: true
-      });
-
-      const updateStatus = updateResponse.getResponseCode();
-      const updateText = updateResponse.getContentText();
-
-      Logger.log(`[doPost approveMemberApplication] update status=${updateStatus}`);
-      Logger.log(updateText);
-
-      if (updateStatus < 200 || updateStatus >= 300) {
-        throw new Error(`承認区分更新エラー status=${updateStatus} body=${updateText}`);
-      }
-
-      const result = approveMemberApplicationByPageId(pageId);
-
-      return ContentService
-        .createTextOutput(JSON.stringify(result))
-        .setMimeType(ContentService.MimeType.JSON);
+    h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+      text-align: center;
     }
 
-    const isMemberApplication =
-      formType === 'memberApplication' ||
-      (
-        !!e.parameter.childName &&
-        !!e.parameter.grade &&
-        !!e.parameter.parentName &&
-        !!e.parameter.phone &&
-        !!e.parameter.email &&
-        !!e.parameter.desiredCategory
-      );
-
-    if (isMemberApplication) {
-      const result = handleMemberApplicationPost_({
-        childName: e.parameter.childName || '',
-        grade: e.parameter.grade || '',
-        parentName: e.parameter.parentName || '',
-        phone: e.parameter.phone || '',
-        email: e.parameter.email || '',
-        affiliation: e.parameter.affiliation || '',
-        desiredCategory: e.parameter.desiredCategory || '',
-        appliedAt: e.parameter.appliedAt || new Date().toISOString(),
-        lineUserId: e.parameter.lineUserId || '',
-        trialStatus: e.parameter.trialStatus || '',
-        note: e.parameter.note || ''
-      });
-
-      return ContentService
-        .createTextOutput(JSON.stringify(result))
-        .setMimeType(ContentService.MimeType.JSON);
+    .sub {
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 24px;
+      font-size: 14px;
     }
 
-    let payload = {};
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-    if (e.postData && e.postData.contents) {
+    .top-actions button {
+      flex: 1;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .row {
+      margin-bottom: 8px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #374151;
+      margin-right: 6px;
+    }
+
+    .note {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      white-space: pre-wrap;
+      min-height: 24px;
+    }
+
+    .action-area {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    select, button {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .status {
+      margin: 16px 0 22px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      text-align: center;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 30px 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>会員申込 承認管理</h1>
+    <div class="sub">受付・確認中・承認未反映の会員申込を管理します</div>
+
+    <div class="top-actions">
+      <button class="secondary" onclick="loadApplications()">一覧を更新</button>
+    </div>
+
+    <div id="status" class="status">読み込み中です...</div>
+    <div id="listArea"></div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
+
+    async function loadApplications() {
+      setStatus('一覧を読み込み中です...');
+      const listArea = document.getElementById('listArea');
+      listArea.innerHTML = '';
+
       try {
-        payload = JSON.parse(e.postData.contents);
-      } catch (jsonError) {
-        payload = {
-          lineUserId: e.parameter.lineUserId || '',
-          practiceId: e.parameter.practiceId || '',
-          practiceDate: e.parameter.practiceDate || '',
-          practiceLabel: e.parameter.practiceLabel || '',
-          childName: e.parameter.childName || '',
-          parentName: e.parameter.parentName || '',
-          note: e.parameter.note || '',
-          submittedAt: e.parameter.submittedAt || ''
-        };
-      }
-    } else {
-      payload = {
-        lineUserId: e.parameter.lineUserId || '',
-        practiceId: e.parameter.practiceId || '',
-        practiceDate: e.parameter.practiceDate || '',
-        practiceLabel: e.parameter.practiceLabel || '',
-        childName: e.parameter.childName || '',
-        parentName: e.parameter.parentName || '',
-        note: e.parameter.note || '',
-        submittedAt: e.parameter.submittedAt || ''
-      };
-    }
+        const response = await fetch(`${WEB_APP_URL}?mode=pendingMemberApplications`);
+        const result = await response.json();
 
-    if (!payload.lineUserId) {
-      throw new Error('lineUserId がありません');
-    }
-    if (!payload.practiceId) {
-      throw new Error('practiceId がありません');
-    }
-    if (!payload.childName) {
-      throw new Error('childName がありません');
-    }
-    if (!payload.parentName) {
-      throw new Error('parentName がありません');
-    }
-
-    if (existsLiffSignupLog_(payload.lineUserId, payload.practiceId)) {
-      return ContentService
-        .createTextOutput(JSON.stringify({
-          ok: false,
-          message: 'この練習はすでに申込済みです'
-        }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    appendLiffSignupLogRow_({
-      lineUserId: payload.lineUserId || '',
-      practiceId: payload.practiceId || '',
-      practiceDate: payload.practiceDate || '',
-      practiceLabel: payload.practiceLabel || '',
-      childName: payload.childName || '',
-      parentName: payload.parentName || '',
-      note: payload.note || '',
-      status: 'received'
-    });
-
-    const notionResult = createAttendanceRecordToNotion_({
-      lineUserId: payload.lineUserId || '',
-      practiceId: payload.practiceId || '',
-      childName: payload.childName || '',
-      parentName: payload.parentName || '',
-      note: payload.note || '',
-      submittedAt: payload.submittedAt || new Date().toISOString()
-    });
-
-    const relationCount =
-      notionResult &&
-      notionResult.properties &&
-      notionResult.properties['対象練習'] &&
-      notionResult.properties['対象練習'].relation
-        ? notionResult.properties['対象練習'].relation.length
-        : 0;
-
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        ok: true,
-        message: '申込を受け付けました',
-        debug: {
-          practiceIdReceived: payload.practiceId || '',
-          relationCount: relationCount,
-          notionPageId: notionResult.id || ''
+        if (!result.ok) {
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          return;
         }
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
 
-  } catch (error) {
-    Logger.log(`[doPost] ${error.message}`);
+        const items = result.items || [];
 
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        ok: false,
-        message: error.message
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+        if (items.length === 0) {
+          listArea.innerHTML = '<div class="empty">対象の会員申込はありません。</div>';
+          setStatus('対象の会員申込はありません。');
+          return;
+        }
+
+        items.forEach((item, index) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const approvedCategoryOptions = `
+            <option value="">承認区分を選択</option>
+            <option value="クラブ" ${item.approvedCategory === 'クラブ' ? 'selected' : ''}>クラブ</option>
+            <option value="スクール" ${item.approvedCategory === 'スクール' ? 'selected' : ''}>スクール</option>
+            <option value="一般" ${item.approvedCategory === '一般' ? 'selected' : ''}>一般</option>
+          `;
+
+          const applicationStatusOptions = `
+            <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
+            <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
+            <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
+            <option value="差戻し" ${item.applicationStatus === '差戻し' ? 'selected' : ''}>差戻し</option>
+            <option value="見送り" ${item.applicationStatus === '見送り' ? 'selected' : ''}>見送り</option>
+          `;
+
+          const canApprove = item.applicationStatus === '承認' && item.reflected === false;
+
+          card.innerHTML = `
+            <div class="row"><span class="label">子ども氏名:</span>${item.childName || ''}</div>
+            <div class="row"><span class="label">学年:</span>${item.grade || ''}</div>
+            <div class="row"><span class="label">保護者氏名:</span>${item.parentName || ''}</div>
+            <div class="row"><span class="label">希望区分:</span>${item.desiredCategory || ''}</div>
+            <div class="row"><span class="label">現在の申込ステータス:</span><span class="pill">${item.applicationStatus || ''}</span></div>
+            <div class="row"><span class="label">現在の承認区分:</span>${item.approvedCategory || '未設定'}</div>
+            <div class="row"><span class="label">無料体験:</span>${item.trialStatus || ''}</div>
+            <div class="row"><span class="label">所属:</span>${item.affiliation || ''}</div>
+            <div class="row"><span class="label">申込日時:</span>${item.appliedAt || ''}</div>
+            <div class="row"><span class="label">備考:</span></div>
+            <div class="note">${item.note || ''}</div>
+
+            <div class="action-area">
+              <select id="status_${index}">
+                ${applicationStatusOptions}
+              </select>
+
+              <select id="category_${index}">
+                ${approvedCategoryOptions}
+              </select>
+
+              <button class="secondary" onclick="saveStatus('${item.pageId}', ${index})">
+                ステータスを保存
+              </button>
+
+              <button id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" ${canApprove ? '' : 'disabled'}>
+                承認して会員マスタへ反映
+              </button>
+            </div>
+          `;
+
+          listArea.appendChild(card);
+        });
+
+        setStatus(`${items.length}件を表示しています。`);
+      } catch (error) {
+        setStatus(`読込エラー: ${error.message}`);
+      }
+    }
+
+    async function saveStatus(pageId, index) {
+      const applicationStatus = document.getElementById(`status_${index}`).value;
+      const approvedCategory = document.getElementById(`category_${index}`).value;
+
+      setStatus('ステータスを保存中です...');
+
+      try {
+        const form = new FormData();
+        form.append('action', 'updateMemberApplicationStatus');
+        form.append('pageId', pageId);
+        form.append('applicationStatus', applicationStatus);
+        form.append('approvedCategory', approvedCategory);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`保存エラー: ${result.message || '不明なエラー'}`);
+          return;
+        }
+
+        setStatus('ステータスを保存しました。');
+        await loadApplications();
+      } catch (error) {
+        setStatus(`保存エラー: ${error.message}`);
+      }
+    }
+
+    async function approveApplication(pageId, index) {
+      const approvedCategory = document.getElementById(`category_${index}`).value;
+
+      if (!approvedCategory) {
+        setStatus('承認区分を選択してください。');
+        return;
+      }
+
+      setStatus('承認処理を実行中です...');
+
+      try {
+        const form = new FormData();
+        form.append('action', 'approveMemberApplication');
+        form.append('pageId', pageId);
+        form.append('approvedCategory', approvedCategory);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`承認エラー: ${result.message || '不明なエラー'}`);
+          return;
+        }
+
+        setStatus('承認が完了しました。一覧を更新します。');
+        await loadApplications();
+      } catch (error) {
+        setStatus(`承認エラー: ${error.message}`);
+      }
+    }
+
+    window.addEventListener('load', loadApplications);
+  </script>
+</body>
+</html>

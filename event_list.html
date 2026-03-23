@@ -284,7 +284,7 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
     // 仮運用。LIFF復帰後に本物のLINE userIDへ置換
-    const TEST_LINE_USER_ID = '';
+    const TEST_LINE_USER_ID = localStorage.getItem('lineUserId') || '';
 
     let viewerCategory = '一般';
     let eventItems = [];

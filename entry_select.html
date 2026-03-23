@@ -38,6 +38,28 @@
       color: #4b5563;
     }
 
+    .status-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .status-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #4b5563;
+      white-space: pre-wrap;
+    }
+
     .menu-card {
       background: #ffffff;
       border-radius: 20px;
@@ -58,7 +80,8 @@
       margin-bottom: 16px;
     }
 
-    a.button {
+    a.button,
+    button.button {
       display: block;
       width: 100%;
       box-sizing: border-box;
@@ -70,10 +93,23 @@
       border-radius: 12px;
       background: #2563eb;
       color: #ffffff;
+      border: none;
+      cursor: pointer;
     }
 
     .button.secondary {
       background: #0f766e;
+    }
+
+    .button.gray {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .button:disabled {
+      background: #94a3b8;
+      color: #ffffff;
+      cursor: not-allowed;
     }
 
     .note {
@@ -81,6 +117,25 @@
       font-size: 13px;
       color: #6b7280;
       margin-top: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .ok {
+      color: #065f46;
+      font-weight: 700;
+    }
+
+    .warn {
+      color: #92400e;
+      font-weight: 700;
+    }
+
+    .error {
+      color: #b91c1c;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -93,13 +148,18 @@
       </div>
     </div>
 
+    <div class="status-card">
+      <div class="status-title">LINE連携状態</div>
+      <div id="liffStatus" class="status-text">確認中です...</div>
+    </div>
+
     <div class="menu-card">
       <div class="menu-title">通常練習</div>
       <div class="menu-text">
         通常練習への参加申込はこちらです。<br>
         日程を選んで、そのまま申込できます。
       </div>
-      <a class="button" href="./index.html">通常練習へ進む</a>
+      <a id="practiceLink" class="button" href="./index.html">通常練習へ進む</a>
     </div>
 
     <div class="menu-card">
@@ -108,12 +168,103 @@
         クリニックや特別イベントの一覧はこちらです。<br>
         公開中のイベントのみ表示されます。
       </div>
-      <a class="button secondary" href="./event_list.html">イベント一覧へ進む</a>
+      <a id="eventLink" class="button secondary" href="./event_list.html">イベント一覧へ進む</a>
+    </div>
+
+    <div class="menu-card">
+      <div class="menu-title">会員申込</div>
+      <div class="menu-text">
+        スクール・クラブをご希望の方はこちらからお申し込みください。
+      </div>
+      <a id="memberLink" class="button gray" href="./member_application.html">会員申込へ進む</a>
     </div>
 
     <div class="note">
-      会員申込フォームとは別の入口です
+      LINE内で開くと、会員識別や申込済み判定が安定します
     </div>
   </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const LIFF_ID = '2009553339-B6WeOFlT';
+
+    function setLiffStatus(message, className = '') {
+      const el = document.getElementById('liffStatus');
+      el.textContent = message;
+      el.className = `status-text ${className}`.trim();
+    }
+
+    function setLinksEnabled(enabled) {
+      const ids = ['practiceLink', 'eventLink', 'memberLink'];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (enabled) {
+          el.style.pointerEvents = 'auto';
+          el.style.opacity = '1';
+        } else {
+          el.style.pointerEvents = 'none';
+          el.style.opacity = '0.6';
+        }
+      });
+    }
+
+    function saveLineUserId(lineUserId) {
+      if (lineUserId) {
+        localStorage.setItem('lineUserId', lineUserId);
+      }
+    }
+
+    function getSavedLineUserId() {
+      return localStorage.getItem('lineUserId') || '';
+    }
+
+    async function initLiffEntry() {
+      try {
+        setLinksEnabled(false);
+        setLiffStatus('LINE連携を初期化しています...', 'warn');
+
+        if (!window.liff) {
+          setLiffStatus('LIFF SDK を読み込めませんでした。LINE内で開いてください。', 'error');
+          return;
+        }
+
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          setLiffStatus('LINEログインへ進みます...', 'warn');
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const lineUserId = profile && profile.userId ? profile.userId : '';
+
+        if (!lineUserId) {
+          setLiffStatus('LINE userID を取得できませんでした。再度開き直してください。', 'error');
+          return;
+        }
+
+        saveLineUserId(lineUserId);
+        setLiffStatus('LINE連携済みです。申込に進めます。', 'ok');
+        setLinksEnabled(true);
+      } catch (error) {
+        console.error('LIFF init error:', error);
+
+        const saved = getSavedLineUserId();
+        if (saved) {
+          setLiffStatus('保存済みのLINE連携情報を使用します。', 'warn');
+          setLinksEnabled(true);
+          return;
+        }
+
+        setLiffStatus('LINE連携に失敗しました。LINE内で再度開いてください。', 'error');
+        setLinksEnabled(false);
+      }
+    }
+
+    window.addEventListener('load', initLiffEntry);
+  </script>
 </body>
 </html>

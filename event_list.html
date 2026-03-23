@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クリニック / イベント一覧</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f7f9fc;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      font-size: 15px;
+      color: #4b5563;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .top-actions a,
+    .top-actions button {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #e5e7eb;
+      color: #111827;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 14px;
+      color: #4b5563;
+      margin: 10px 0 18px;
+      white-space: pre-wrap;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      margin-bottom: 8px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #374151;
+      margin-right: 6px;
+    }
+
+    .price-box {
+      margin-top: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 30px 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .note {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      white-space: pre-wrap;
+      min-height: 24px;
+      margin-top: 10px;
+    }
+
+    .action-note {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>クリニック / イベント一覧</h1>
+      <div class="sub">公開中のイベントのみ表示しています</div>
+    </div>
+
+    <div class="top-actions">
+      <a href="./entry_select.html">メニューへ戻る</a>
+      <button onclick="loadEvents()">一覧を更新</button>
+    </div>
+
+    <div id="status" class="status">読み込み中です...</div>
+    <div id="listArea"></div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
+
+    function formatJapanDate(dateString) {
+      if (!dateString) return '';
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(d);
+    }
+
+    function yen(value) {
+      return `${Number(value || 0).toLocaleString('ja-JP')}円`;
+    }
+
+    async function loadEvents() {
+      const listArea = document.getElementById('listArea');
+      listArea.innerHTML = '';
+      setStatus('イベントを読み込み中です...');
+
+      try {
+        const response = await fetch(`${WEB_APP_URL}?mode=publicEvents`);
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          return;
+        }
+
+        const items = result.items || [];
+
+        if (items.length === 0) {
+          listArea.innerHTML = '<div class="empty">現在、公開中のイベントはありません。</div>';
+          setStatus('現在、公開中のイベントはありません。');
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+
+          const dateLabel = formatJapanDate(item.eventDate);
+          const timeLabel = item.startTime && item.endTime
+            ? `${item.startTime}〜${item.endTime}`
+            : '';
+          const noteText = item.note || '記載なし';
+          const statusText = item.statusLabel || '申込受付中';
+
+          card.innerHTML = `
+            <div class="title">${item.eventName || ''}</div>
+
+            <div class="row"><span class="label">開催日:</span>${dateLabel}</div>
+            <div class="row"><span class="label">時間:</span>${timeLabel || '未設定'}</div>
+            <div class="row"><span class="label">会場:</span>${item.place || '未設定'}</div>
+            <div class="row"><span class="label">対象:</span>${item.targetLabel || '未設定'}</div>
+
+            <div class="price-box">
+              <div class="row"><span class="label">クラブ料金:</span>${yen(item.clubPrice)}</div>
+              <div class="row"><span class="label">スクール料金:</span>${yen(item.schoolPrice)}</div>
+              <div class="row"><span class="label">一般料金:</span>${yen(item.generalPrice)}</div>
+            </div>
+
+            <div class="status-pill">${statusText}</div>
+
+            <div class="row" style="margin-top: 12px;"><span class="label">備考:</span></div>
+            <div class="note">${noteText}</div>
+
+            <div class="action-note">
+              申込導線は次の段階で追加します
+            </div>
+          `;
+
+          listArea.appendChild(card);
+        });
+
+        setStatus(`${items.length}件のイベントを表示しています。`);
+      } catch (error) {
+        setStatus(`読込エラー: ${error.message}`);
+      }
+    }
+
+    window.addEventListener('load', loadEvents);
+  </script>
+</body>
+</html>

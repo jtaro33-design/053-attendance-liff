@@ -160,12 +160,6 @@
       margin-top: 10px;
     }
 
-    .action-note {
-      margin-top: 14px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
     .primary-button {
       width: 100%;
       box-sizing: border-box;
@@ -285,6 +279,12 @@
     const LINE_USER_ID = localStorage.getItem('lineUserId') || '';
 
     let viewerCategory = '一般';
+    let viewerProfile = {
+      found: false,
+      childName: '',
+      parentName: '',
+      category: '一般'
+    };
     let eventItems = [];
     let appliedEventIds = [];
 
@@ -357,6 +357,38 @@
       setViewerCategoryLabel(viewerCategory);
     }
 
+    async function loadViewerProfile() {
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?mode=viewerProfile&lineUserId=${encodeURIComponent(LINE_USER_ID)}`
+        );
+        const result = await response.json();
+
+        if (result.ok) {
+          viewerProfile = {
+            found: !!result.found,
+            childName: result.childName || '',
+            parentName: result.parentName || '',
+            category: result.category || '一般'
+          };
+        } else {
+          viewerProfile = {
+            found: false,
+            childName: '',
+            parentName: '',
+            category: '一般'
+          };
+        }
+      } catch (error) {
+        viewerProfile = {
+          found: false,
+          childName: '',
+          parentName: '',
+          category: '一般'
+        };
+      }
+    }
+
     async function loadAppliedEventIds() {
       try {
         const response = await fetch(
@@ -380,7 +412,21 @@
 
       const box = document.getElementById(`applyBox_${index}`);
       if (!box) return;
+
+      const isHidden = box.classList.contains('hidden');
       box.classList.toggle('hidden');
+
+      if (isHidden) {
+        const childInput = document.getElementById(`childName_${index}`);
+        const parentInput = document.getElementById(`parentName_${index}`);
+
+        if (childInput && !childInput.value && viewerProfile.childName) {
+          childInput.value = viewerProfile.childName;
+        }
+        if (parentInput && !parentInput.value && viewerProfile.parentName) {
+          parentInput.value = viewerProfile.parentName;
+        }
+      }
     }
 
     function closeApplyBox(index) {
@@ -508,12 +554,12 @@
           <div id="applyBox_${index}" class="apply-box hidden">
             <div class="field">
               <label for="childName_${index}">子ども氏名</label>
-              <input id="childName_${index}" type="text" placeholder="例）山田 太郎">
+              <input id="childName_${index}" type="text" placeholder="例）山田 太郎" value="${viewerProfile.childName || ''}">
             </div>
 
             <div class="field">
               <label for="parentName_${index}">保護者氏名</label>
-              <input id="parentName_${index}" type="text" placeholder="例）山田 花子">
+              <input id="parentName_${index}" type="text" placeholder="例）山田 花子" value="${viewerProfile.parentName || ''}">
             </div>
 
             <div class="field">
@@ -542,6 +588,7 @@
       try {
         await Promise.all([
           loadViewerCategory(),
+          loadViewerProfile(),
           loadAppliedEventIds()
         ]);
 

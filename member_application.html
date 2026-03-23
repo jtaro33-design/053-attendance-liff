@@ -349,7 +349,7 @@
           affiliation,
           desiredCategory,
           appliedAt: new Date().toISOString(),
-          lineUserId: '',
+          lineUserId: localStorage.getItem('lineUserId') || '',
           trialStatus,
           note
         };

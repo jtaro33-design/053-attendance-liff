@@ -186,6 +186,17 @@
       cursor: not-allowed;
     }
 
+    .secondary-button {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .applied-button {
+      background: #d1fae5;
+      color: #065f46;
+      cursor: default;
+    }
+
     .apply-box {
       margin-top: 14px;
       background: #f9fafb;
@@ -237,11 +248,6 @@
       margin-top: 0;
     }
 
-    .secondary-button {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
     .success-message {
       margin-top: 12px;
       padding: 12px;
@@ -250,6 +256,10 @@
       color: #065f46;
       font-size: 14px;
       font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -278,6 +288,7 @@
 
     let viewerCategory = '一般';
     let eventItems = [];
+    let appliedEventIds = [];
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -325,6 +336,10 @@
       };
     }
 
+    function isApplied(eventPageId) {
+      return appliedEventIds.includes(eventPageId);
+    }
+
     async function loadViewerCategory() {
       try {
         const response = await fetch(
@@ -344,7 +359,27 @@
       setViewerCategoryLabel(viewerCategory);
     }
 
+    async function loadAppliedEventIds() {
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?mode=appliedEventIds&lineUserId=${encodeURIComponent(TEST_LINE_USER_ID)}`
+        );
+        const result = await response.json();
+
+        if (result.ok && Array.isArray(result.eventIds)) {
+          appliedEventIds = result.eventIds;
+        } else {
+          appliedEventIds = [];
+        }
+      } catch (error) {
+        appliedEventIds = [];
+      }
+    }
+
     function toggleApplyBox(index) {
+      const item = eventItems[index];
+      if (!item || isApplied(item.pageId)) return;
+
       const box = document.getElementById(`applyBox_${index}`);
       if (!box) return;
       box.classList.toggle('hidden');
@@ -404,6 +439,10 @@
           return;
         }
 
+        if (!appliedEventIds.includes(item.pageId)) {
+          appliedEventIds.push(item.pageId);
+        }
+
         successBox.innerHTML =
           `イベント申込ありがとうございます。<br>` +
           `受付区分: ${result.category || '一般'} / 適用料金: ${yen(result.appliedPrice || 0)}`;
@@ -438,6 +477,11 @@
         const noteText = item.note || '記載なし';
         const statusText = item.statusLabel || '申込受付中';
         const myPrice = getPriceByCategory(item, viewerCategory);
+        const applied = isApplied(item.pageId);
+
+        const actionButtonHtml = applied
+          ? `<button class="primary-button applied-button" disabled>申込済み</button>`
+          : `<button class="primary-button" onclick="toggleApplyBox(${index})">このイベントに申し込む</button>`;
 
         card.innerHTML = `
           <div class="title">${item.eventName || ''}</div>
@@ -461,7 +505,7 @@
           <div class="row" style="margin-top: 12px;"><span class="label">備考:</span></div>
           <div class="note">${noteText}</div>
 
-          <button class="primary-button" onclick="toggleApplyBox(${index})">このイベントに申し込む</button>
+          ${actionButtonHtml}
 
           <div id="applyBox_${index}" class="apply-box hidden">
             <div class="field">
@@ -498,7 +542,10 @@
       setStatus('イベントを読み込み中です...');
 
       try {
-        await loadViewerCategory();
+        await Promise.all([
+          loadViewerCategory(),
+          loadAppliedEventIds()
+        ]);
 
         const response = await fetch(`${WEB_APP_URL}?mode=publicEvents`);
         const result = await response.json();

@@ -19,7 +19,7 @@
       margin: 0 auto;
     }
 
-    .hero, .status-card, .debug-card, .menu-card {
+    .hero, .status-card, .menu-card {
       background: #ffffff;
       border-radius: 20px;
       padding: 22px;
@@ -39,14 +39,14 @@
       text-align: center;
     }
 
-    .status-title, .debug-title {
+    .status-title {
       font-size: 14px;
       font-weight: 700;
       color: #374151;
       margin-bottom: 8px;
     }
 
-    .status-text, .debug-text {
+    .status-text {
       font-size: 14px;
       white-space: pre-wrap;
       word-break: break-word;
@@ -109,11 +109,6 @@
       <div id="liffStatus" class="status-text">確認中です...</div>
     </div>
 
-    <div class="debug-card">
-      <div class="debug-title">LIFFデバッグ情報</div>
-      <div id="debugInfo" class="debug-text">まだ実行されていません。</div>
-    </div>
-
     <div class="menu-card">
       <div class="menu-title">通常練習</div>
       <div class="menu-text">
@@ -141,7 +136,7 @@
     </div>
 
     <div class="note">
-      まずはLIFF URLから開いて、デバッグ情報を確認してください
+      LINE内で開くと、会員識別や申込済み判定が安定します
     </div>
   </div>
 
@@ -155,10 +150,6 @@
       el.className = `status-text ${className}`.trim();
     }
 
-    function setDebugInfo(lines) {
-      document.getElementById('debugInfo').textContent = lines.join('\n');
-    }
-
     function setLinksEnabled(enabled) {
       const ids = ['practiceLink', 'eventLink', 'memberLink'];
       ids.forEach((id) => {
@@ -170,69 +161,36 @@
     }
 
     async function initLiffEntry() {
-      const debug = [];
       try {
         setLinksEnabled(false);
-        setLiffStatus('LIFF初期化中です...', 'warn');
-
-        debug.push(`location.href: ${location.href}`);
-        debug.push(`userAgent: ${navigator.userAgent}`);
-        debug.push(`LIFF_ID: ${LIFF_ID}`);
-        debug.push(`window.liff exists: ${!!window.liff}`);
+        setLiffStatus('LINE連携を初期化しています...', 'warn');
 
         if (!window.liff) {
-          debug.push('LIFF SDK が読み込めていません。');
-          setDebugInfo(debug);
-          setLiffStatus('LIFF SDK を読み込めませんでした。', 'error');
+          setLiffStatus('LIFF SDK を読み込めませんでした。LINE内で開いてください。', 'error');
           return;
         }
 
-        debug.push('liff.init 開始');
         await liff.init({ liffId: LIFF_ID });
-        debug.push('liff.init 成功');
-
-        debug.push(`liff.isInClient(): ${liff.isInClient()}`);
-        debug.push(`liff.isLoggedIn(): ${liff.isLoggedIn()}`);
-        debug.push(`liff.getOS(): ${liff.getOS()}`);
-        debug.push(`liff.getLanguage(): ${liff.getLanguage()}`);
-        debug.push(`liff.getVersion(): ${liff.getVersion()}`);
 
         if (!liff.isLoggedIn()) {
-          debug.push('未ログインのため liff.login() 実行');
-          setDebugInfo(debug);
           setLiffStatus('LINEログインへ進みます...', 'warn');
           liff.login();
           return;
         }
 
-        debug.push('getProfile 開始');
         const profile = await liff.getProfile();
-        debug.push('getProfile 成功');
-
         const lineUserId = profile && profile.userId ? profile.userId : '';
-        debug.push(`displayName: ${profile?.displayName || ''}`);
-        debug.push(`userId: ${lineUserId || '(empty)'}`);
 
         if (!lineUserId) {
-          setDebugInfo(debug);
-          setLiffStatus('LINE userID を取得できませんでした。', 'error');
+          setLiffStatus('LINE userID を取得できませんでした。再度開き直してください。', 'error');
           return;
         }
 
         localStorage.setItem('lineUserId', lineUserId);
-        debug.push('localStorage lineUserId 保存完了');
-
-        setDebugInfo(debug);
         setLiffStatus('LINE連携済みです。申込に進めます。', 'ok');
         setLinksEnabled(true);
       } catch (error) {
-        debug.push('catch に入りました');
-        debug.push(`error.name: ${error?.name || ''}`);
-        debug.push(`error.message: ${error?.message || ''}`);
-        debug.push(`error.code: ${error?.code || ''}`);
-
         console.error('LIFF init error:', error);
-        setDebugInfo(debug);
         setLiffStatus(`LINE連携に失敗しました: ${error?.message || 'unknown error'}`, 'error');
         setLinksEnabled(false);
       }

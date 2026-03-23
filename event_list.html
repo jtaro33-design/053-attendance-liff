@@ -68,6 +68,17 @@
       white-space: pre-wrap;
     }
 
+    .viewer-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #374151;
+    }
+
     .card {
       background: #ffffff;
       border-radius: 18px;
@@ -98,6 +109,25 @@
       border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 12px 14px;
+    }
+
+    .your-price {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f766e;
+      margin-bottom: 8px;
+    }
+
+    .your-price-label {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .sub-price {
+      font-size: 14px;
+      color: #4b5563;
+      margin-top: 4px;
     }
 
     .status-pill {
@@ -149,6 +179,7 @@
       <button onclick="loadEvents()">一覧を更新</button>
     </div>
 
+    <div id="viewerBox" class="viewer-box">あなたの区分を確認中です...</div>
     <div id="status" class="status">読み込み中です...</div>
     <div id="listArea"></div>
   </div>
@@ -156,8 +187,18 @@
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
+    // いまは仮運用。LIFF復帰後に本物のLINE userIDへ置換
+    const TEST_LINE_USER_ID = '';
+
+    let viewerCategory = '一般';
+
     function setStatus(message) {
       document.getElementById('status').textContent = message;
+    }
+
+    function setViewerCategoryLabel(category) {
+      const viewerBox = document.getElementById('viewerBox');
+      viewerBox.textContent = `現在の表示区分: ${category}`;
     }
 
     function formatJapanDate(dateString) {
@@ -178,12 +219,52 @@
       return `${Number(value || 0).toLocaleString('ja-JP')}円`;
     }
 
+    function getPriceByCategory(item, category) {
+      if (category === 'クラブ') {
+        return {
+          label: 'あなたの料金（クラブ）',
+          value: item.clubPrice
+        };
+      }
+      if (category === 'スクール') {
+        return {
+          label: 'あなたの料金（スクール）',
+          value: item.schoolPrice
+        };
+      }
+      return {
+        label: 'あなたの料金（一般）',
+        value: item.generalPrice
+      };
+    }
+
+    async function loadViewerCategory() {
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?mode=viewerCategory&lineUserId=${encodeURIComponent(TEST_LINE_USER_ID)}`
+        );
+        const result = await response.json();
+
+        if (result.ok && result.category) {
+          viewerCategory = result.category;
+        } else {
+          viewerCategory = '一般';
+        }
+      } catch (error) {
+        viewerCategory = '一般';
+      }
+
+      setViewerCategoryLabel(viewerCategory);
+    }
+
     async function loadEvents() {
       const listArea = document.getElementById('listArea');
       listArea.innerHTML = '';
       setStatus('イベントを読み込み中です...');
 
       try {
+        await loadViewerCategory();
+
         const response = await fetch(`${WEB_APP_URL}?mode=publicEvents`);
         const result = await response.json();
 
@@ -211,6 +292,8 @@
           const noteText = item.note || '記載なし';
           const statusText = item.statusLabel || '申込受付中';
 
+          const myPrice = getPriceByCategory(item, viewerCategory);
+
           card.innerHTML = `
             <div class="title">${item.eventName || ''}</div>
 
@@ -220,9 +303,12 @@
             <div class="row"><span class="label">対象:</span>${item.targetLabel || '未設定'}</div>
 
             <div class="price-box">
-              <div class="row"><span class="label">クラブ料金:</span>${yen(item.clubPrice)}</div>
-              <div class="row"><span class="label">スクール料金:</span>${yen(item.schoolPrice)}</div>
-              <div class="row"><span class="label">一般料金:</span>${yen(item.generalPrice)}</div>
+              <div class="your-price-label">${myPrice.label}</div>
+              <div class="your-price">${yen(myPrice.value)}</div>
+
+              <div class="sub-price">クラブ料金: ${yen(item.clubPrice)}</div>
+              <div class="sub-price">スクール料金: ${yen(item.schoolPrice)}</div>
+              <div class="sub-price">一般料金: ${yen(item.generalPrice)}</div>
             </div>
 
             <div class="status-pill">${statusText}</div>
@@ -231,7 +317,7 @@
             <div class="note">${noteText}</div>
 
             <div class="action-note">
-              申込導線は次の段階で追加します
+              イベント申込導線は次の段階で追加します
             </div>
           `;
 

@@ -165,6 +165,92 @@
       font-size: 13px;
       color: #6b7280;
     }
+
+    .primary-button {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    .primary-button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .apply-box {
+      margin-top: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .apply-box.hidden {
+      display: none;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .field textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .mini-actions button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .secondary-button {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .success-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 14px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -187,10 +273,11 @@
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
-    // いまは仮運用。LIFF復帰後に本物のLINE userIDへ置換
+    // 仮運用。LIFF復帰後に本物のLINE userIDへ置換
     const TEST_LINE_USER_ID = '';
 
     let viewerCategory = '一般';
+    let eventItems = [];
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -257,9 +344,157 @@
       setViewerCategoryLabel(viewerCategory);
     }
 
-    async function loadEvents() {
+    function toggleApplyBox(index) {
+      const box = document.getElementById(`applyBox_${index}`);
+      if (!box) return;
+      box.classList.toggle('hidden');
+    }
+
+    function closeApplyBox(index) {
+      const box = document.getElementById(`applyBox_${index}`);
+      if (!box) return;
+      box.classList.add('hidden');
+    }
+
+    async function submitEventApplication(index) {
+      const item = eventItems[index];
+      if (!item) {
+        setStatus('イベント情報が見つかりません。');
+        return;
+      }
+
+      const childName = document.getElementById(`childName_${index}`).value.trim();
+      const parentName = document.getElementById(`parentName_${index}`).value.trim();
+      const note = document.getElementById(`note_${index}`).value.trim();
+      const submitBtn = document.getElementById(`submitBtn_${index}`);
+      const successBox = document.getElementById(`success_${index}`);
+
+      if (!childName) {
+        setStatus('子ども氏名を入力してください。');
+        return;
+      }
+      if (!parentName) {
+        setStatus('保護者氏名を入力してください。');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus('イベント申込を送信中です...');
+
+      try {
+        const form = new FormData();
+        form.append('formType', 'eventApplication');
+        form.append('eventPageId', item.pageId);
+        form.append('childName', childName);
+        form.append('parentName', parentName);
+        form.append('lineUserId', TEST_LINE_USER_ID);
+        form.append('appliedAt', new Date().toISOString());
+        form.append('note', note);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`申込エラー: ${result.message || '不明なエラー'}`);
+          submitBtn.disabled = false;
+          return;
+        }
+
+        successBox.innerHTML =
+          `イベント申込ありがとうございます。<br>` +
+          `受付区分: ${result.category || '一般'} / 適用料金: ${yen(result.appliedPrice || 0)}`;
+        successBox.classList.remove('hidden');
+
+        setStatus('イベント申込を受け付けました。');
+        await loadEvents();
+      } catch (error) {
+        setStatus(`申込エラー: ${error.message}`);
+        submitBtn.disabled = false;
+      }
+    }
+
+    function renderEvents(items) {
       const listArea = document.getElementById('listArea');
       listArea.innerHTML = '';
+
+      if (items.length === 0) {
+        listArea.innerHTML = '<div class="empty">現在、公開中のイベントはありません。</div>';
+        setStatus('現在、公開中のイベントはありません。');
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const dateLabel = formatJapanDate(item.eventDate);
+        const timeLabel = item.startTime && item.endTime
+          ? `${item.startTime}〜${item.endTime}`
+          : '';
+        const noteText = item.note || '記載なし';
+        const statusText = item.statusLabel || '申込受付中';
+        const myPrice = getPriceByCategory(item, viewerCategory);
+
+        card.innerHTML = `
+          <div class="title">${item.eventName || ''}</div>
+
+          <div class="row"><span class="label">開催日:</span>${dateLabel}</div>
+          <div class="row"><span class="label">時間:</span>${timeLabel || '未設定'}</div>
+          <div class="row"><span class="label">会場:</span>${item.place || '未設定'}</div>
+          <div class="row"><span class="label">対象:</span>${item.targetLabel || '未設定'}</div>
+
+          <div class="price-box">
+            <div class="your-price-label">${myPrice.label}</div>
+            <div class="your-price">${yen(myPrice.value)}</div>
+
+            <div class="sub-price">クラブ料金: ${yen(item.clubPrice)}</div>
+            <div class="sub-price">スクール料金: ${yen(item.schoolPrice)}</div>
+            <div class="sub-price">一般料金: ${yen(item.generalPrice)}</div>
+          </div>
+
+          <div class="status-pill">${statusText}</div>
+
+          <div class="row" style="margin-top: 12px;"><span class="label">備考:</span></div>
+          <div class="note">${noteText}</div>
+
+          <button class="primary-button" onclick="toggleApplyBox(${index})">このイベントに申し込む</button>
+
+          <div id="applyBox_${index}" class="apply-box hidden">
+            <div class="field">
+              <label for="childName_${index}">子ども氏名</label>
+              <input id="childName_${index}" type="text" placeholder="例）山田 太郎">
+            </div>
+
+            <div class="field">
+              <label for="parentName_${index}">保護者氏名</label>
+              <input id="parentName_${index}" type="text" placeholder="例）山田 花子">
+            </div>
+
+            <div class="field">
+              <label for="note_${index}">備考（任意）</label>
+              <textarea id="note_${index}" placeholder="質問や連絡事項があればご入力ください"></textarea>
+            </div>
+
+            <div class="mini-actions">
+              <button id="submitBtn_${index}" class="primary-button" onclick="submitEventApplication(${index})">申し込む</button>
+              <button class="secondary-button" onclick="closeApplyBox(${index})">閉じる</button>
+            </div>
+
+            <div id="success_${index}" class="success-message hidden"></div>
+          </div>
+        `;
+
+        listArea.appendChild(card);
+      });
+
+      setStatus(`${items.length}件のイベントを表示しています。`);
+    }
+
+    async function loadEvents() {
       setStatus('イベントを読み込み中です...');
 
       try {
@@ -273,58 +508,8 @@
           return;
         }
 
-        const items = result.items || [];
-
-        if (items.length === 0) {
-          listArea.innerHTML = '<div class="empty">現在、公開中のイベントはありません。</div>';
-          setStatus('現在、公開中のイベントはありません。');
-          return;
-        }
-
-        items.forEach((item) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-
-          const dateLabel = formatJapanDate(item.eventDate);
-          const timeLabel = item.startTime && item.endTime
-            ? `${item.startTime}〜${item.endTime}`
-            : '';
-          const noteText = item.note || '記載なし';
-          const statusText = item.statusLabel || '申込受付中';
-
-          const myPrice = getPriceByCategory(item, viewerCategory);
-
-          card.innerHTML = `
-            <div class="title">${item.eventName || ''}</div>
-
-            <div class="row"><span class="label">開催日:</span>${dateLabel}</div>
-            <div class="row"><span class="label">時間:</span>${timeLabel || '未設定'}</div>
-            <div class="row"><span class="label">会場:</span>${item.place || '未設定'}</div>
-            <div class="row"><span class="label">対象:</span>${item.targetLabel || '未設定'}</div>
-
-            <div class="price-box">
-              <div class="your-price-label">${myPrice.label}</div>
-              <div class="your-price">${yen(myPrice.value)}</div>
-
-              <div class="sub-price">クラブ料金: ${yen(item.clubPrice)}</div>
-              <div class="sub-price">スクール料金: ${yen(item.schoolPrice)}</div>
-              <div class="sub-price">一般料金: ${yen(item.generalPrice)}</div>
-            </div>
-
-            <div class="status-pill">${statusText}</div>
-
-            <div class="row" style="margin-top: 12px;"><span class="label">備考:</span></div>
-            <div class="note">${noteText}</div>
-
-            <div class="action-note">
-              イベント申込導線は次の段階で追加します
-            </div>
-          `;
-
-          listArea.appendChild(card);
-        });
-
-        setStatus(`${items.length}件のイベントを表示しています。`);
+        eventItems = result.items || [];
+        renderEvents(eventItems);
       } catch (error) {
         setStatus(`読込エラー: ${error.message}`);
       }

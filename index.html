@@ -246,24 +246,7 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
     const LINE_USER_ID = localStorage.getItem('lineUserId') || '';
 
-    const PRACTICES = [
-      {
-        id: '3288eb24b08d8076a73ffa01ca30432a',
-        date: '2026-03-25',
-        label: '3/25（水）19:00〜21:00｜下五井地区体育館'
-      },
-      {
-        id: '3288eb24b08d80d9afdcc866f3253c33',
-        date: '2026-03-27',
-        label: '3/27（金）19:00〜21:00｜草間地区体育館'
-      },
-      {
-        id: '3288eb24b08d806eb64cff12c7d6c0ea',
-        date: '2026-03-28',
-        label: '3/28（土）9:00〜12:00｜下五井地区体育館'
-      }
-    ];
-
+    let practices = [];
     let activeSignupPracticeIds = [];
     let viewerProfile = {
       found: false,
@@ -280,14 +263,11 @@
       const viewerBox = document.getElementById('viewerBox');
 
       if (viewerProfile.found) {
-        viewerBox.textContent =
-          `会員情報を読み込みました（区分: ${viewerProfile.category}）`;
+        viewerBox.textContent = `会員情報を読み込みました（区分: ${viewerProfile.category}）`;
       } else if (LINE_USER_ID) {
-        viewerBox.textContent =
-          'LINE連携済みです。会員情報が未登録の場合は手入力してください。';
+        viewerBox.textContent = 'LINE連携済みです。会員情報が未登録の場合は手入力してください。';
       } else {
-        viewerBox.textContent =
-          'LINE userID が未取得です。必要に応じて手入力してください。';
+        viewerBox.textContent = 'LINE userID が未取得です。必要に応じて手入力してください。';
       }
     }
 
@@ -295,11 +275,8 @@
       const savedChildName = localStorage.getItem('attendance_childName') || '';
       const savedParentName = localStorage.getItem('attendance_parentName') || '';
 
-      const childInput = document.getElementById('childName');
-      const parentInput = document.getElementById('parentName');
-
-      childInput.value = savedChildName;
-      parentInput.value = savedParentName;
+      document.getElementById('childName').value = savedChildName;
+      document.getElementById('parentName').value = savedParentName;
     }
 
     function applyViewerProfileToInputs() {
@@ -354,6 +331,22 @@
       setViewerBox();
     }
 
+    async function loadPractices() {
+      try {
+        const response = await fetch(`${WEB_APP_URL}?mode=publicPractices`);
+        const result = await response.json();
+
+        if (result.ok && Array.isArray(result.items)) {
+          practices = result.items.filter((item) => item.title === '通常練習');
+        } else {
+          practices = [];
+        }
+      } catch (error) {
+        console.error(error);
+        practices = [];
+      }
+    }
+
     async function loadActiveSignupPracticeIds() {
       try {
         const url = `${WEB_APP_URL}?mode=activeSignupPracticeIds&lineUserId=${encodeURIComponent(LINE_USER_ID)}`;
@@ -375,7 +368,12 @@
       const container = document.getElementById('practiceList');
       container.innerHTML = '';
 
-      PRACTICES.forEach((practice) => {
+      if (practices.length === 0) {
+        container.innerHTML = '<div class="practice-option disabled">現在、公開中の通常練習はありません。</div>';
+        return;
+      }
+
+      practices.forEach((practice) => {
         const isDisabled = activeSignupPracticeIds.includes(practice.id);
         const wrapper = document.createElement('div');
         wrapper.className = `practice-option ${isDisabled ? 'disabled' : ''}`;
@@ -507,7 +505,10 @@
       applyViewerProfileToInputs();
 
       setStatus('読み込み中です...');
-      await loadActiveSignupPracticeIds();
+      await Promise.all([
+        loadPractices(),
+        loadActiveSignupPracticeIds()
+      ]);
       renderPracticeList();
       setStatus('画面の読み込みが完了しました。');
     }
@@ -518,7 +519,10 @@
       applyViewerProfileToInputs();
 
       setStatus('読み込み中です...');
-      await loadActiveSignupPracticeIds();
+      await Promise.all([
+        loadPractices(),
+        loadActiveSignupPracticeIds()
+      ]);
       renderPracticeList();
       setStatus('画面の読み込みが完了しました。');
     });

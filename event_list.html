@@ -124,12 +124,6 @@
       margin-bottom: 6px;
     }
 
-    .sub-price {
-      font-size: 14px;
-      color: #4b5563;
-      margin-top: 4px;
-    }
-
     .status-pill {
       display: inline-block;
       margin-top: 10px;
@@ -555,10 +549,6 @@
           <div class="price-box">
             <div class="your-price-label">${myPrice.label}</div>
             <div class="your-price">${yen(myPrice.value)}</div>
-
-            <div class="sub-price">クラブ料金: ${yen(item.clubPrice)}</div>
-            <div class="sub-price">スクール料金: ${yen(item.schoolPrice)}</div>
-            <div class="sub-price">一般料金: ${yen(item.generalPrice)}</div>
           </div>
 
           <div class="status-pill">${statusText}</div>

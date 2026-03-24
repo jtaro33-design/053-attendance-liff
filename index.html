@@ -308,6 +308,10 @@
       return parts.join('｜');
     }
 
+    function normalizeId(id) {
+      return String(id || '').replace(/-/g, '').trim();
+    }
+
     function loadSavedNames() {
       const savedChildName = localStorage.getItem('attendance_childName') || '';
       const savedParentName = localStorage.getItem('attendance_parentName') || '';
@@ -391,7 +395,7 @@
         const result = await response.json();
 
         if (result.ok && Array.isArray(result.practiceIds)) {
-          activeSignupPracticeIds = result.practiceIds;
+          activeSignupPracticeIds = result.practiceIds.map(normalizeId);
         } else {
           activeSignupPracticeIds = [];
         }
@@ -411,7 +415,8 @@
       }
 
       practices.forEach((practice) => {
-        const isDisabled = activeSignupPracticeIds.includes(practice.id);
+        const normalizedPracticeId = normalizeId(practice.id);
+        const isDisabled = activeSignupPracticeIds.includes(normalizedPracticeId);
         const wrapper = document.createElement('div');
         wrapper.className = `practice-option ${isDisabled ? 'disabled' : ''}`;
 
@@ -422,7 +427,7 @@
             <input
               type="checkbox"
               name="practice"
-              value="${practice.id}"
+              value="${normalizedPracticeId}"
               data-date="${practice.date}"
               data-label="${displayLabel}"
               ${isDisabled ? 'disabled' : ''}
@@ -441,7 +446,7 @@
     function getSelectedPractices() {
       const selected = document.querySelectorAll('input[name="practice"]:checked');
       return Array.from(selected).map((item) => ({
-        practiceId: item.value,
+        practiceId: normalizeId(item.value),
         practiceDate: item.dataset.date,
         practiceLabel: item.dataset.label
       }));
@@ -510,7 +515,7 @@
         for (const practice of selectedPractices) {
           const payload = {
             lineUserId: LINE_USER_ID,
-            practiceId: practice.practiceId,
+            practiceId: normalizeId(practice.practiceId),
             practiceDate: practice.practiceDate,
             practiceLabel: practice.practiceLabel,
             childName: childName,

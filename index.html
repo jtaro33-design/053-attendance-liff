@@ -37,15 +37,27 @@
       text-align: center;
     }
 
-    .viewer-box {
+    .viewer-box,
+    .debug-box {
       margin: 0 0 18px;
       padding: 12px 14px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
       border-radius: 12px;
       font-size: 14px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .viewer-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       color: #374151;
-      text-align: center;
+    }
+
+    .debug-box {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
     }
 
     .section-title {
@@ -208,6 +220,7 @@
       <div class="sub">参加する練習を選んでお申し込みください</div>
 
       <div id="viewerBox" class="viewer-box">会員情報を確認中です...</div>
+      <div id="debugBox" class="debug-box">デバッグ情報を確認中です...</div>
 
       <div class="section-title">対象練習</div>
       <div id="practiceList"></div>
@@ -267,6 +280,10 @@
       category: '一般'
     };
 
+    function normalizeId(id) {
+      return String(id || '').replace(/-/g, '').trim();
+    }
+
     function setStatus(message) {
       document.getElementById('status').textContent = message;
     }
@@ -275,12 +292,30 @@
       const viewerBox = document.getElementById('viewerBox');
 
       if (viewerProfile.found) {
-        viewerBox.textContent = `会員情報を読み込みました（区分: ${viewerProfile.category}）`;
+        viewerBox.textContent =
+          `会員情報を読み込みました\n` +
+          `区分: ${viewerProfile.category}\n` +
+          `子ども氏名: ${viewerProfile.childName || '(空)'}\n` +
+          `保護者氏名: ${viewerProfile.parentName || '(空)'}`;
       } else if (LINE_USER_ID) {
-        viewerBox.textContent = 'LINE連携済みです。会員情報が未登録の場合は手入力してください。';
+        viewerBox.textContent =
+          'LINE連携済みです。\n' +
+          '会員情報が未登録の場合は手入力してください。';
       } else {
-        viewerBox.textContent = 'LINE userID が未取得です。必要に応じて手入力してください。';
+        viewerBox.textContent =
+          'LINE userID が未取得です。\n' +
+          'この状態だと通常練習申込は通りません。';
       }
+    }
+
+    function setDebugBox(extra = '') {
+      const debugBox = document.getElementById('debugBox');
+      debugBox.textContent =
+        `LINE_USER_ID: ${LINE_USER_ID || '(空)'}\n` +
+        `practice件数: ${practices.length}\n` +
+        `申込済みID件数: ${activeSignupPracticeIds.length}\n` +
+        `申込済みID: ${activeSignupPracticeIds.join(', ') || '(なし)'}\n` +
+        (extra ? `\n${extra}` : '');
     }
 
     function formatDateShort(dateString) {
@@ -306,10 +341,6 @@
       if (practice.place) parts.push(practice.place);
       if (practice.title) parts.push(practice.title);
       return parts.join('｜');
-    }
-
-    function normalizeId(id) {
-      return String(id || '').replace(/-/g, '').trim();
     }
 
     function loadSavedNames() {
@@ -360,7 +391,6 @@
           };
         }
       } catch (error) {
-        console.error(error);
         viewerProfile = {
           found: false,
           childName: '',
@@ -383,7 +413,6 @@
           practices = [];
         }
       } catch (error) {
-        console.error(error);
         practices = [];
       }
     }
@@ -400,7 +429,6 @@
           activeSignupPracticeIds = [];
         }
       } catch (error) {
-        console.error(error);
         activeSignupPracticeIds = [];
       }
     }
@@ -481,7 +509,7 @@
           form.remove();
           iframe.remove();
           resolve(true);
-        }, 800);
+        }, 1200);
       });
     }
 
@@ -491,6 +519,12 @@
       const parentName = document.getElementById('parentName').value.trim();
       const note = document.getElementById('note').value.trim();
       const selectedPractices = getSelectedPractices();
+
+      if (!LINE_USER_ID) {
+        setStatus('LINE userID が取得できていません。entry_select.html から入り直してください。');
+        setDebugBox('送信停止: LINE_USER_ID が空です');
+        return;
+      }
 
       if (selectedPractices.length === 0) {
         setStatus('対象練習を1つ以上選択してください');
@@ -510,6 +544,7 @@
       saveNames();
       submitBtn.disabled = true;
       setStatus(`送信中です...（${selectedPractices.length}件）`);
+      setDebugBox(`送信開始: ${selectedPractices.map(x => x.practiceId).join(', ')}`);
 
       try {
         for (const practice of selectedPractices) {
@@ -526,6 +561,27 @@
 
           await postOnePractice(payload);
         }
+
+        await loadActiveSignupPracticeIds();
+        renderPracticeList();
+
+        const allReflected = selectedPractices.every((practice) =>
+          activeSignupPracticeIds.includes(normalizeId(practice.practiceId))
+        );
+
+        if (!allReflected) {
+          setDebugBox(
+            `送信後確認NG\n` +
+            `送ったID: ${selectedPractices.map(x => x.practiceId).join(', ')}\n` +
+            `返ってきた申込済みID: ${activeSignupPracticeIds.join(', ') || '(なし)'}`
+          );
+          throw new Error('送信後の反映確認ができませんでした。LIFF申込ログまたは doPost を確認してください。');
+        }
+
+        setDebugBox(
+          `送信後確認OK\n` +
+          `送ったID: ${selectedPractices.map(x => x.practiceId).join(', ')}`
+        );
 
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
@@ -554,6 +610,7 @@
         loadActiveSignupPracticeIds()
       ]);
       renderPracticeList();
+      setDebugBox();
       setStatus('画面の読み込みが完了しました。');
     }
 
@@ -568,6 +625,7 @@
         loadActiveSignupPracticeIds()
       ]);
       renderPracticeList();
+      setDebugBox();
       setStatus('画面の読み込みが完了しました。');
     });
   </script>

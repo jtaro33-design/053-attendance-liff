@@ -209,7 +209,7 @@
 
       <div class="notice">
         ・入力内容を確認のうえ、管理者側で確認します<br>
-        ・内容確認後、必要に応じてこちらからご連絡します
+        ・承認完了後、必要に応じてこちらからご連絡します
       </div>
 
       <button id="submitBtn" onclick="submitMemberApplication()">この内容で申し込む</button>
@@ -359,8 +359,8 @@
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
         document.getElementById('successText').innerHTML =
-          `<span class="success-text-line">会員申込を受け付けました。</span>` +
-          `<span class="success-text-line">内容確認後、必要に応じてこちらからご連絡します。</span>`;
+          `<span class="success-text-line">お申し込みありがとうございます。</span>` +
+          `<span class="success-text-line">承認までしばらくお待ちください。</span>`;
         setStatus('');
       } catch (error) {
         setStatus(`送信エラー: ${error.message}`);

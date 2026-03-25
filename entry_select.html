@@ -95,6 +95,8 @@
       color: #6b7280;
       margin-top: 12px;
     }
+
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -104,14 +106,17 @@
       <div class="sub">ご希望の申込項目を選択してください</div>
     </div>
 
-    <div class="status-card">
-      <div class="status-title">LINE連携状態</div>
-      <div id="liffStatus" class="status-text">確認中です...</div>
-    </div>
+    <!-- デバッグ情報: ?debug=1 の時だけ表示 -->
+    <div id="debugSection" class="hidden">
+      <div class="status-card">
+        <div class="status-title">LINE連携状態</div>
+        <div id="liffStatus" class="status-text">確認中です...</div>
+      </div>
 
-    <div class="debug-card">
-      <div class="debug-title">LIFFデバッグ情報</div>
-      <div id="debugInfo" class="debug-text">まだ実行されていません。</div>
+      <div class="debug-card">
+        <div class="debug-title">LIFFデバッグ情報</div>
+        <div id="debugInfo" class="debug-text">まだ実行されていません。</div>
+      </div>
     </div>
 
     <div class="menu-card">
@@ -139,22 +144,20 @@
       </div>
       <a id="memberLink" class="button gray" href="./member_application.html">会員申込へ進む</a>
     </div>
-
-    <div class="note">
-      まずはLIFF URLから開いて、デバッグ情報を確認してください
-    </div>
   </div>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     var LIFF_ID = '2009553339-B6WeOFlT';
 
-    /* ========================================
-     * 再ログイン試行管理（無限ループ防止）
-     * sessionStorage で「1回再ログインを試みた」を記録する。
-     * 成功したらフラグをクリア。
-     * 2回目の失敗ではループせずエラー表示で停止。
-     * ======================================== */
+    /* デバッグモード判定: ?debug=1 がURLにある場合だけ表示 */
+    var IS_DEBUG = new URLSearchParams(window.location.search).get('debug') === '1';
+
+    if (IS_DEBUG) {
+      document.getElementById('debugSection').classList.remove('hidden');
+    }
+
+    /* 再ログイン試行管理（無限ループ防止） */
     var RETRY_KEY = 'liff_login_retry';
 
     function hasAlreadyRetried() {
@@ -172,17 +175,17 @@
       catch (e) {}
     }
 
-    /* ========================================
-     * UI更新
-     * ======================================== */
     function setLiffStatus(message, className) {
       var el = document.getElementById('liffStatus');
+      if (!el) return;
       el.textContent = message;
       el.className = 'status-text ' + (className || '');
     }
 
     function setDebugInfo(lines) {
-      document.getElementById('debugInfo').textContent = lines.join('\n');
+      var el = document.getElementById('debugInfo');
+      if (!el) return;
+      el.textContent = lines.join('\n');
     }
 
     function setLinksEnabled(enabled) {
@@ -195,9 +198,6 @@
       });
     }
 
-    /* ========================================
-     * エラー判定
-     * ======================================== */
     function isTokenError(error) {
       if (!error || !error.message) return false;
       var msg = error.message.toLowerCase();
@@ -206,17 +206,6 @@
              msg.indexOf('access token') !== -1;
     }
 
-    /* ========================================
-     * LIFF初期化メイン
-     *
-     * 方針:
-     * 1. liff.init() する
-     * 2. 未ログインなら liff.login()
-     * 3. ログイン済みなら getProfile() を試みる
-     * 4. getProfile() が expired で失敗したら、
-     *    1回だけ logout → login を試みる（sessionStorageで管理）
-     * 5. 2回目の失敗はループせずエラー表示で停止
-     * ======================================== */
     async function initLiffEntry() {
       var debug = [];
       try {
@@ -224,7 +213,6 @@
         setLiffStatus('LIFF初期化中です...', 'warn');
 
         debug.push('location.href: ' + location.href);
-        debug.push('userAgent: ' + navigator.userAgent);
         debug.push('LIFF_ID: ' + LIFF_ID);
         debug.push('window.liff exists: ' + (!!window.liff));
         debug.push('retried: ' + hasAlreadyRetried());
@@ -242,9 +230,6 @@
 
         debug.push('liff.isInClient(): ' + liff.isInClient());
         debug.push('liff.isLoggedIn(): ' + liff.isLoggedIn());
-        debug.push('liff.getOS(): ' + liff.getOS());
-        debug.push('liff.getLanguage(): ' + liff.getLanguage());
-        debug.push('liff.getVersion(): ' + liff.getVersion());
 
         if (!liff.isLoggedIn()) {
           debug.push('未ログインのため liff.login() 実行');
@@ -254,7 +239,6 @@
           return;
         }
 
-        /* --- getProfile を試みる --- */
         debug.push('getProfile 開始');
         var profile = await liff.getProfile();
         debug.push('getProfile 成功');
@@ -269,7 +253,6 @@
           return;
         }
 
-        /* --- 成功: フラグクリア＆保存 --- */
         clearRetryFlag();
 
         localStorage.setItem('lineUserId', lineUserId);
@@ -287,11 +270,9 @@
 
         console.error('LIFF init error:', error);
 
-        /* --- トークン期限切れ: 1回だけ再ログイン --- */
         if (isTokenError(error)) {
           if (hasAlreadyRetried()) {
-            /* すでに1回再ログイン済み → ループせず停止 */
-            debug.push('再ログイン済みだがまだ失敗。ループ防止で停止します。');
+            debug.push('再ログイン済みだがまだ失敗。ループ防止で停止。');
             clearRetryFlag();
             setDebugInfo(debug);
             setLiffStatus('LINE連携に失敗しました。LINEアプリを再起動して再度お試しください。', 'error');
@@ -299,8 +280,7 @@
             return;
           }
 
-          /* 1回目 → logout して login を試みる */
-          debug.push('トークン期限切れを検知 → 1回だけ再ログインします');
+          debug.push('トークン期限切れ → 1回だけ再ログイン');
           markRetried();
           setDebugInfo(debug);
           setLiffStatus('セッションを更新しています...', 'warn');
@@ -314,7 +294,6 @@
           return;
         }
 
-        /* --- その他のエラー --- */
         setDebugInfo(debug);
         setLiffStatus('LINE連携に失敗しました: ' + (error && error.message ? error.message : 'unknown error'), 'error');
         setLinksEnabled(false);

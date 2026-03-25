@@ -37,6 +37,20 @@
       text-align: center;
     }
 
+    .back-to-menu {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 18px;
+    }
+
     .field {
       margin-bottom: 16px;
     }
@@ -140,6 +154,8 @@
 <body>
   <div class="container">
     <div id="formView">
+      <a href="./entry_select.html" class="back-to-menu">← メインメニューへ戻る</a>
+
       <h1>会員申込フォーム</h1>
       <div class="sub">必要事項をご入力のうえ、お申し込みください</div>
 
@@ -224,6 +240,7 @@
         </div>
         <div id="successText" class="success-text"></div>
         <button class="secondary-button" onclick="resetFormView()">戻る</button>
+        <a href="./entry_select.html" class="secondary-button" style="text-decoration:none; text-align:center;">メインメニューへ戻る</a>
       </div>
     </div>
   </div>

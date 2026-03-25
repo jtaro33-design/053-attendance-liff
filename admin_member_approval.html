@@ -1,123 +1,244 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>会員申込 承認管理</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
       line-height: 1.6;
-      font-size: 16px;
-      background: #f7f9fc;
-      color: #1f2937;
     }
 
     .container {
-      max-width: 860px;
+      max-width: 960px;
       margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
     h1 {
-      font-size: 28px;
-      margin: 0 0 8px;
-      text-align: center;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
     }
 
     .sub {
-      text-align: center;
-      color: #4b5563;
-      margin-bottom: 24px;
-      font-size: 14px;
+      margin-top: 4px;
+      font-size: 13px;
+      color: #475569;
     }
 
     .top-actions {
       display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn,
+    button,
+    select {
+      font: inherit;
+    }
+
+    .btn,
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary,
+    button:not(.secondary):not(.danger):not(.ghost) {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover,
+    button:not(.secondary):not(.danger):not(.ghost):hover {
+      background: #1d4ed8;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .ghost {
+      background: #fff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .ghost:hover {
+      background: #f8fafc;
+    }
+
+    a.btn-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .top-actions button {
-      flex: 1;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      padding: 18px;
       margin-bottom: 16px;
     }
 
-    .row {
-      margin-bottom: 8px;
+    .summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
 
-    .label {
+    .summary-label {
+      font-size: 12px;
       font-weight: 700;
-      color: #374151;
-      margin-right: 6px;
+      color: #64748b;
+      margin-bottom: 6px;
     }
 
-    .note {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 10px 12px;
-      white-space: pre-wrap;
-      min-height: 24px;
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
     }
 
-    .action-area {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid #e5e7eb;
+    .summary-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
     }
 
-    select, button {
-      width: 100%;
-      box-sizing: border-box;
-      font-size: 16px;
-      padding: 12px;
-      border-radius: 10px;
+    .warning-box {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .warning-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .warning-box ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+
+    .status {
+      margin-bottom: 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .filter-chip {
       border: 1px solid #cbd5e1;
-      margin-top: 10px;
-    }
-
-    button {
-      border: none;
-      background: #2563eb;
-      color: #ffffff;
+      background: #fff;
+      color: #334155;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    button:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
+    .filter-chip.active {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
     }
 
-    .secondary {
-      background: #e5e7eb;
-      color: #111827;
+    .list {
+      display: grid;
+      gap: 14px;
     }
 
-    .status {
-      margin: 16px 0 22px;
-      font-size: 14px;
-      white-space: pre-wrap;
-      text-align: center;
-    }
-
-    .empty {
-      text-align: center;
-      color: #6b7280;
-      padding: 30px 16px;
+    .card {
       background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #64748b;
     }
 
     .pill {
@@ -126,6 +247,7 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .pill-received {
@@ -157,26 +279,214 @@
       background: #e5e7eb;
       color: #374151;
     }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+      margin-bottom: 12px;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 72px;
+    }
+
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .note-box {
+      margin-bottom: 14px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #94a3b8;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .note-text {
+      font-size: 14px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .action-wrap {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .action-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      flex: 1 1 200px;
+    }
+
+    .action-help {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #0f172a;
+      min-height: 42px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button[disabled] {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .approve-note {
+      font-size: 12px;
+      color: #991b1b;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .empty {
+      text-align: center;
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 40px 16px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .summary-bar,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-buttons button,
+      .action-buttons a {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>会員申込 承認管理</h1>
-    <div class="sub">受付・確認中・承認未反映の会員申込を管理します</div>
-
-    <div class="top-actions">
-      <button class="secondary" onclick="loadApplications()">一覧を更新</button>
+    <div class="page-head">
+      <div>
+        <h1>会員申込 承認管理</h1>
+        <div class="sub">受付・確認中・承認未反映の申請を整理し、必要なものだけ承認実行します</div>
+      </div>
+      <div class="top-actions">
+        <a href="./admin_hub.html" class="btn-link ghost">← 管理ハブへ戻る</a>
+        <button class="secondary" onclick="loadApplications()">一覧を更新</button>
+      </div>
     </div>
 
-    <div id="status" class="status">読み込み中です...</div>
-    <div id="listArea"></div>
+    <div class="summary-bar">
+      <div class="summary-card">
+        <div class="summary-label">表示件数</div>
+        <div class="summary-value" id="summaryCount">-</div>
+        <div class="summary-note">現在のフィルタ適用後</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">承認準備OK</div>
+        <div class="summary-value" id="summaryReady">-</div>
+        <div class="summary-note">ステータス=承認 かつ 未反映</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">一覧状態</div>
+        <div class="summary-value" id="summaryState" style="font-size:18px;line-height:1.3;">読込前</div>
+        <div class="summary-note">最後の処理結果を表示</div>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">承認実行時の注意</div>
+      <ul>
+        <li>このページでは「ステータス保存」と「承認実行」が別です。</li>
+        <li>承認実行は会員マスタ反映まで進む前提で扱ってください。</li>
+        <li>申請者へのLINE通知につながる可能性があるため、テスト時は本番連携先を必ず確認してください。</li>
+      </ul>
+    </div>
+
+    <div id="status" class="status">読み込み中です。</div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">すべて</button>
+      <button class="filter-chip" data-filter="受付" onclick="setFilter('受付')">受付</button>
+      <button class="filter-chip" data-filter="確認中" onclick="setFilter('確認中')">確認中</button>
+      <button class="filter-chip" data-filter="承認" onclick="setFilter('承認')">承認</button>
+      <button class="filter-chip" data-filter="差戻し" onclick="setFilter('差戻し')">差戻し</button>
+      <button class="filter-chip" data-filter="見送り" onclick="setFilter('見送り')">見送り</button>
+      <button class="filter-chip" data-filter="ready" onclick="setFilter('ready')">承認準備OKのみ</button>
+    </div>
+
+    <div id="listArea" class="list"></div>
   </div>
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+    let allItems = [];
+    let currentFilter = 'all';
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
+      document.getElementById('summaryState').textContent = message;
     }
 
     function formatJapanDate(isoString) {
@@ -211,8 +521,43 @@
       }
     }
 
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function isReadyToApprove(item) {
+      return item.applicationStatus === '承認' && item.reflected === false;
+    }
+
+    function updateSummary(items) {
+      const readyCount = allItems.filter(isReadyToApprove).length;
+      document.getElementById('summaryCount').textContent = items.length;
+      document.getElementById('summaryReady').textContent = readyCount;
+    }
+
+    function setFilter(filterKey) {
+      currentFilter = filterKey;
+      document.querySelectorAll('.filter-chip').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.filter === filterKey);
+      });
+      renderList();
+    }
+
+    function getFilteredItems() {
+      if (currentFilter === 'all') return allItems.slice();
+      if (currentFilter === 'ready') return allItems.filter(isReadyToApprove);
+      return allItems.filter(function(item) {
+        return item.applicationStatus === currentFilter;
+      });
+    }
+
     async function loadApplications() {
-      setStatus('一覧を読み込み中です...');
+      setStatus('一覧を読み込み中です。');
       const listArea = document.getElementById('listArea');
       listArea.innerHTML = '';
 
@@ -222,87 +567,165 @@
 
         if (!result.ok) {
           setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          allItems = [];
+          renderList();
           return;
         }
 
-        const items = result.items || [];
+        allItems = Array.isArray(result.items) ? result.items : [];
+        renderList();
+      } catch (error) {
+        allItems = [];
+        setStatus(`読込エラー: ${error.message}`);
+        renderList();
+      }
+    }
 
-        if (items.length === 0) {
-          listArea.innerHTML = '<div class="empty">対象の会員申込はありません。</div>';
-          setStatus('対象の会員申込はありません。');
-          return;
-        }
+    function renderList() {
+      const listArea = document.getElementById('listArea');
+      const items = getFilteredItems();
+      listArea.innerHTML = '';
 
-        items.forEach((item, index) => {
-          const card = document.createElement('div');
-          card.className = 'card';
+      updateSummary(items);
 
-          const approvedCategoryOptions = `
-            <option value="">承認区分を選択</option>
-            <option value="クラブ" ${item.approvedCategory === 'クラブ' ? 'selected' : ''}>クラブ</option>
-            <option value="スクール" ${item.approvedCategory === 'スクール' ? 'selected' : ''}>スクール</option>
-            <option value="一般" ${item.approvedCategory === '一般' ? 'selected' : ''}>一般</option>
-          `;
+      if (!items.length) {
+        listArea.innerHTML = '<div class="empty">該当する申請はありません。</div>';
+        setStatus('該当する申請はありません。');
+        return;
+      }
 
-          const applicationStatusOptions = `
-            <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
-            <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
-            <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
-            <option value="差戻し" ${item.applicationStatus === '差戻し' ? 'selected' : ''}>差戻し</option>
-            <option value="見送り" ${item.applicationStatus === '見送り' ? 'selected' : ''}>見送り</option>
-          `;
+      items.forEach(function(item, index) {
+        const card = document.createElement('div');
+        card.className = 'card';
 
-          const canApprove = item.applicationStatus === '承認' && item.reflected === false;
-          const noteText = item.note || '記載なし';
-          const formattedAppliedAt = formatJapanDate(item.appliedAt);
-          const statusClass = getStatusPillClass(item.applicationStatus);
+        const applicationStatusOptions = `
+          <option value="">選択してください</option>
+          <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
+          <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
+          <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
+          <option value="差戻し" ${item.applicationStatus === '差戻し' ? 'selected' : ''}>差戻し</option>
+          <option value="見送り" ${item.applicationStatus === '見送り' ? 'selected' : ''}>見送り</option>
+        `;
 
-          card.innerHTML = `
-            <div class="row"><span class="label">子ども氏名:</span>${item.childName || ''}</div>
-            <div class="row"><span class="label">学年:</span>${item.grade || ''}</div>
-            <div class="row"><span class="label">保護者氏名:</span>${item.parentName || ''}</div>
-            <div class="row"><span class="label">希望区分:</span>${item.desiredCategory || ''}</div>
-            <div class="row"><span class="label">現在の申込ステータス:</span><span class="${statusClass}">${item.applicationStatus || ''}</span></div>
-            <div class="row"><span class="label">現在の承認区分:</span>${item.approvedCategory || '未設定'}</div>
-            <div class="row"><span class="label">無料体験:</span>${item.trialStatus || ''}</div>
-            <div class="row"><span class="label">所属:</span>${item.affiliation || ''}</div>
-            <div class="row"><span class="label">申込日時:</span>${formattedAppliedAt || ''}</div>
-            <div class="row"><span class="label">備考:</span></div>
-            <div class="note">${noteText}</div>
+        const approvedCategoryOptions = `
+          <option value="">選択してください</option>
+          <option value="クラブ" ${item.approvedCategory === 'クラブ' ? 'selected' : ''}>クラブ</option>
+          <option value="スクール" ${item.approvedCategory === 'スクール' ? 'selected' : ''}>スクール</option>
+          <option value="一般" ${item.approvedCategory === '一般' ? 'selected' : ''}>一般</option>
+        `;
 
-            <div class="action-area">
-              <select id="status_${index}">
-                ${applicationStatusOptions}
-              </select>
+        const canApprove = isReadyToApprove(item);
+        const noteText = item.note || '記載なし';
+        const formattedAppliedAt = formatJapanDate(item.appliedAt);
+        const statusClass = getStatusPillClass(item.applicationStatus);
+        const emailRow = item.email ? `
+          <div class="info-box">
+            <span class="label">メールアドレス</span>
+            <div class="value">${escapeHtml(item.email)}</div>
+          </div>
+        ` : '';
+        const phoneRow = item.phone ? `
+          <div class="info-box">
+            <span class="label">電話番号</span>
+            <div class="value">${escapeHtml(item.phone)}</div>
+          </div>
+        ` : '';
 
-              <select id="category_${index}">
-                ${approvedCategoryOptions}
-              </select>
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div class="name">${escapeHtml(item.childName || '氏名なし')}</div>
+              <div class="meta">
+                ${escapeHtml(item.grade || '')}　
+                保護者: ${escapeHtml(item.parentName || '')}
+              </div>
+            </div>
+            <div>
+              <span class="${statusClass}">${escapeHtml(item.applicationStatus || '不明')}</span>
+            </div>
+          </div>
 
+          <div class="info-grid">
+            <div class="info-box">
+              <span class="label">希望区分</span>
+              <div class="value">${escapeHtml(item.desiredCategory || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">現在の承認区分</span>
+              <div class="value">${escapeHtml(item.approvedCategory || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">無料体験</span>
+              <div class="value">${escapeHtml(item.trialStatus || '未記載')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">所属</span>
+              <div class="value">${escapeHtml(item.affiliation || '未記載')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">申込日時</span>
+              <div class="value">${escapeHtml(formattedAppliedAt || '')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">反映状況</span>
+              <div class="value">${item.reflected === false ? '未反映' : '反映済み / 不明'}</div>
+            </div>
+            ${phoneRow}
+            ${emailRow}
+          </div>
+
+          <div class="note-box">
+            <span class="label">備考</span>
+            <div class="note-text">${escapeHtml(noteText)}</div>
+          </div>
+
+          <div class="action-wrap">
+            <div class="action-row">
+              <div class="action-block">
+                <span class="label">申込ステータス</span>
+                <select id="status_${index}">
+                  ${applicationStatusOptions}
+                </select>
+                <div class="action-help">まずここで受付 / 確認中 / 承認 / 差戻し / 見送りを整理します。</div>
+              </div>
+
+              <div class="action-block">
+                <span class="label">承認区分</span>
+                <select id="category_${index}">
+                  ${approvedCategoryOptions}
+                </select>
+                <div class="action-help">承認候補にする場合は区分も先に揃えてください。</div>
+              </div>
+            </div>
+
+            <div class="action-buttons">
               <button class="secondary" onclick="saveStatus('${item.pageId}', ${index})">
                 ステータスを保存
               </button>
 
-              <button id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" ${canApprove ? '' : 'disabled'}>
+              <button class="danger" id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" ${canApprove ? '' : 'disabled'}>
                 承認して会員マスタへ反映
               </button>
             </div>
-          `;
 
-          listArea.appendChild(card);
-        });
+            <div class="approve-note">
+              承認ボタンは「ステータスが承認」かつ「未反映」のときだけ有効です。
+              承認実行は通知や会員マスタ反映につながる可能性があるため、保存だけと区別して扱ってください。
+            </div>
+          </div>
+        `;
 
-        setStatus(`${items.length}件を表示しています。`);
-      } catch (error) {
-        setStatus(`読込エラー: ${error.message}`);
-      }
+        listArea.appendChild(card);
+      });
+
+      setStatus(`${items.length}件を表示しています。`);
     }
 
     async function saveStatus(pageId, index) {
       const applicationStatus = document.getElementById(`status_${index}`).value;
       const approvedCategory = document.getElementById(`category_${index}`).value;
 
-      setStatus('ステータスを保存中です...');
+      setStatus('ステータスを保存中です。');
 
       try {
         const form = new FormData();
@@ -332,13 +755,35 @@
 
     async function approveApplication(pageId, index) {
       const approvedCategory = document.getElementById(`category_${index}`).value;
+      const selectedStatus = document.getElementById(`status_${index}`).value;
 
       if (!approvedCategory) {
         setStatus('承認区分を選択してください。');
         return;
       }
 
-      setStatus('承認処理を実行中です...');
+      if (selectedStatus !== '承認') {
+        setStatus('先に申込ステータスを「承認」にして保存してください。');
+        return;
+      }
+
+      const firstConfirm = window.confirm(
+        'この操作は会員マスタ反映まで進む前提です。\nテスト先・本番接続先を確認しましたか？'
+      );
+      if (!firstConfirm) {
+        setStatus('承認処理を中止しました。');
+        return;
+      }
+
+      const secondConfirm = window.confirm(
+        '最終確認です。\nこの申請を承認し、会員マスタへ反映する処理を実行します。'
+      );
+      if (!secondConfirm) {
+        setStatus('承認処理を中止しました。');
+        return;
+      }
+
+      setStatus('承認処理を実行中です。');
 
       try {
         const form = new FormData();

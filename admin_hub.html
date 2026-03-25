@@ -23,7 +23,6 @@
     }
     .container { max-width: 800px; margin: 0 auto; padding: 16px; }
 
-    /* Summary */
     .summary-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
     .summary-card {
       background: #1e293b; border: 1px solid #334155;
@@ -34,7 +33,6 @@
     .summary-num.ok { color: #34d399; }
     .summary-label { font-size: 12px; color: #94a3b8; margin-top: 6px; font-weight: 600; }
 
-    /* Tabs */
     .tab-nav {
       display: flex; gap: 4px; margin-bottom: 16px; background: #1e293b;
       border-radius: 12px; padding: 4px; border: 1px solid #334155;
@@ -70,7 +68,6 @@
       flex-wrap: wrap;
     }
 
-    /* Cards */
     .card {
       background: #1e293b; border: 1px solid #334155;
       border-radius: 14px; margin-bottom: 12px; overflow: hidden;
@@ -82,7 +79,8 @@
     .card-header:active { background: rgba(255,255,255,0.03); }
     .card-main { font-size: 16px; font-weight: 700; color: #f1f5f9; }
     .card-sub { font-size: 13px; color: #94a3b8; margin-top: 2px; }
-    .card-detail { font-size: 13px; color: #64748b; margin-top: 4px; line-height: 1.7; }
+    .card-detail { font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.7; }
+    .card-detail-muted { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.7; }
     .card-badge {
       display: inline-block; font-size: 11px; font-weight: 700;
       padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
@@ -99,16 +97,13 @@
     .expand-icon { color: #64748b; font-size: 14px; margin-left: 8px; margin-top: 2px; transition: transform 0.2s; }
     .card.open .expand-icon { transform: rotate(180deg); }
 
-    /* Accordion Body */
     .card-body { display: none; padding: 0 16px 16px; border-top: 1px solid #334155; }
     .card.open .card-body { display: block; }
 
-    /* Practice */
     .practice-date { font-size: 15px; font-weight: 800; color: #60a5fa; }
     .practice-time { font-size: 13px; color: #94a3b8; }
     .practice-place { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
 
-    /* Participant Groups */
     .participant-group { margin-top: 10px; }
     .participant-group-title {
       font-size: 12px; font-weight: 700; color: #94a3b8;
@@ -122,7 +117,6 @@
     }
     .participant-empty { font-size: 12px; color: #475569; padding: 8px 0; }
 
-    /* Memo */
     .memo-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid #334155; }
     .memo-label { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 6px; }
     .memo-input {
@@ -139,12 +133,10 @@
     .memo-save-btn:disabled { background: #475569; cursor: not-allowed; }
     .memo-status { font-size: 11px; color: #64748b; }
 
-    /* Event extras */
     .event-counts { display: flex; gap: 12px; margin-top: 6px; }
     .event-count-item { font-size: 13px; color: #cbd5e1; }
     .event-count-item strong { color: #f8fafc; }
 
-    /* Buttons / Links */
     .refresh-btn {
       padding: 6px 16px; font-size: 12px; font-weight: 700;
       border: 1px solid #475569; border-radius: 8px;
@@ -172,7 +164,27 @@
       border-color: #1d4ed8;
     }
 
-    /* Misc */
+    .app-top-line {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      margin-bottom: 6px;
+    }
+    .info-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(148,163,184,0.14);
+      color: #cbd5e1;
+      border: 1px solid rgba(148,163,184,0.2);
+    }
+
     .loading-text { text-align: center; padding: 40px 0; color: #64748b; font-size: 14px; }
     .empty-text { text-align: center; padding: 30px 0; color: #475569; font-size: 14px; }
     .back-link {
@@ -249,7 +261,6 @@
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
     var appData = { applications: [], practices: [], events: [] };
 
-    /* ===== Tab ===== */
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
       document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
@@ -258,12 +269,10 @@
       document.getElementById('panel-' + tabId).classList.add('active');
     }
 
-    /* ===== Accordion ===== */
     function toggleCard(el) {
       el.closest('.card').classList.toggle('open');
     }
 
-    /* ===== Date ===== */
     function formatDateJa(dateStr) {
       if (!dateStr) return '';
       var d = new Date(dateStr + 'T00:00:00');
@@ -288,11 +297,12 @@
       return dateStr === today;
     }
 
-    /* ===== Status Badge ===== */
     function statusBadgeHtml(status) {
       if (status === '受付') return '<span class="card-badge badge-pending">受付</span>';
       if (status === '確認中') return '<span class="card-badge badge-review">確認中</span>';
       if (status === '承認') return '<span class="card-badge badge-approved">承認（未反映）</span>';
+      if (status === '差戻し') return '<span class="card-badge badge-review">差戻し</span>';
+      if (status === '見送り') return '<span class="card-badge">見送り</span>';
       return '<span class="card-badge">' + (status || '不明') + '</span>';
     }
 
@@ -300,15 +310,9 @@
       var link = document.getElementById('approvalPageLink');
       var count = appData.applications.length;
       if (!link) return;
-
-      if (count > 0) {
-        link.textContent = '承認ページへ（' + count + '件）';
-      } else {
-        link.textContent = '承認ページへ';
-      }
+      link.textContent = count > 0 ? '承認ページへ（' + count + '件）' : '承認ページへ';
     }
 
-    /* ===== Participant HTML ===== */
     function renderParticipantGroups(participants) {
       if (!participants) return '<div class="participant-empty">参加者情報なし</div>';
 
@@ -345,7 +349,6 @@
       return html;
     }
 
-    /* ===== Summary ===== */
     function updateSummary() {
       var ac = appData.applications.length;
       var el = document.getElementById('sumApplications');
@@ -360,7 +363,6 @@
         '最終更新 ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2);
     }
 
-    /* ===== Applications ===== */
     async function loadApplications() {
       var c = document.getElementById('applicationList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
@@ -391,29 +393,42 @@
 
       items.forEach(function(item) {
         html += '<div class="card"><div style="padding:16px;">';
-        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">';
-        html += '<div><div class="card-main">' + (item.childName || '氏名なし') + '</div>';
-        html += '<div class="card-sub">' + (item.grade || '') + '　保護者: ' + (item.parentName || '') + '</div></div>';
+
+        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">';
+        html += '<div>';
+        html += '<div class="card-main">' + (item.childName || '氏名なし') + '</div>';
+        html += '<div class="card-sub">' + (item.grade || '学年未設定') + '　保護者: ' + (item.parentName || '未入力') + '</div>';
+        html += '</div>';
         html += statusBadgeHtml(item.applicationStatus);
         html += '</div>';
 
+        html += '<div class="app-top-line">';
+        html += '<span class="info-chip">希望区分: ' + (item.desiredCategory || '未選択') + '</span>';
+        if (item.trialStatus) {
+          html += '<span class="info-chip">体験: ' + item.trialStatus + '</span>';
+        }
+        if (item.approvedCategory) {
+          html += '<span class="info-chip">承認区分: ' + item.approvedCategory + '</span>';
+        }
+        html += '</div>';
+
         html += '<div class="card-detail">';
-        html += '希望区分: ' + (item.desiredCategory || '未選択');
-        if (item.approvedCategory) html += '　→ 承認区分: ' + item.approvedCategory;
-        html += '<br>';
+        if (item.affiliation) html += '所属: ' + item.affiliation + '<br>';
+        if (item.phone) html += '電話番号: ' + item.phone + '<br>';
+        if (item.email) html += 'メール: ' + item.email + '<br>';
+        if (item.appliedAt) html += '申込日: ' + formatDateTimeShort(item.appliedAt);
+        html += '</div>';
 
-        if (item.trialStatus) html += '体験: ' + item.trialStatus + '　';
-        if (item.affiliation) html += '所属: ' + item.affiliation;
-        if (item.appliedAt) html += '<br>申込日: ' + formatDateTimeShort(item.appliedAt);
-        if (item.note) html += '<br>備考: ' + item.note;
+        if (item.note) {
+          html += '<div class="card-detail-muted">備考: ' + item.note + '</div>';
+        }
 
-        html += '</div></div></div>';
+        html += '</div></div>';
       });
 
       c.innerHTML = html;
     }
 
-    /* ===== Practices ===== */
     async function loadPractices() {
       var c = document.getElementById('practiceList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
@@ -431,7 +446,6 @@
         appData.practices = [];
       }
 
-      /* フォールバック: GAS未デプロイの場合 publicPractices を使う */
       if (appData.practices.length === 0) {
         try {
           var fb = await fetch(WEB_APP_URL + '?mode=publicPractices');
@@ -527,7 +541,6 @@
       c.innerHTML = html;
     }
 
-    /* ===== Save Practice Memo ===== */
     async function savePracticeMemo(practiceId, idx) {
       var textarea = document.getElementById('pmemo-' + idx);
       var statusEl = document.getElementById('pmemo-status-' + idx);
@@ -564,7 +577,6 @@
       }, 3000);
     }
 
-    /* ===== Events ===== */
     async function loadEvents() {
       var c = document.getElementById('eventList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
@@ -582,7 +594,6 @@
         appData.events = [];
       }
 
-      /* フォールバック */
       if (appData.events.length === 0) {
         try {
           var fb = await fetch(WEB_APP_URL + '?mode=publicEvents');
@@ -666,7 +677,6 @@
       c.innerHTML = html;
     }
 
-    /* ===== Init ===== */
     window.addEventListener('load', async function() {
       await Promise.all([ loadApplications(), loadPractices(), loadEvents() ]);
     });

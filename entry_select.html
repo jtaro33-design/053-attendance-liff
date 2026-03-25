@@ -147,8 +147,34 @@
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
-    const LIFF_ID = '2009553339-B6WeOFlT';
+    var LIFF_ID = '2009553339-B6WeOFlT';
 
+    /* ========================================
+     * 再ログイン試行管理（無限ループ防止）
+     * sessionStorage で「1回再ログインを試みた」を記録する。
+     * 成功したらフラグをクリア。
+     * 2回目の失敗ではループせずエラー表示で停止。
+     * ======================================== */
+    var RETRY_KEY = 'liff_login_retry';
+
+    function hasAlreadyRetried() {
+      try { return sessionStorage.getItem(RETRY_KEY) === '1'; }
+      catch (e) { return false; }
+    }
+
+    function markRetried() {
+      try { sessionStorage.setItem(RETRY_KEY, '1'); }
+      catch (e) {}
+    }
+
+    function clearRetryFlag() {
+      try { sessionStorage.removeItem(RETRY_KEY); }
+      catch (e) {}
+    }
+
+    /* ========================================
+     * UI更新
+     * ======================================== */
     function setLiffStatus(message, className) {
       var el = document.getElementById('liffStatus');
       el.textContent = message;
@@ -169,32 +195,28 @@
       });
     }
 
-    /**
-     * アクセストークンの有効期限を簡易チェックする
-     * LIFF SDKのgetAccessToken()で取得したJWTのexpを確認
-     * 期限切れまたは判定不能の場合 true を返す
-     */
-    function isAccessTokenExpired() {
-      try {
-        var token = liff.getAccessToken();
-        if (!token) return true;
-
-        // JWTのペイロード部分をデコードしてexpを確認
-        var parts = token.split('.');
-        if (parts.length < 2) return true;
-
-        var payload = JSON.parse(atob(parts[1]));
-        if (!payload.exp) return true;
-
-        // 現在時刻（秒）と比較。30秒の余裕を持たせる
-        var nowSec = Math.floor(Date.now() / 1000);
-        return payload.exp < (nowSec + 30);
-      } catch (e) {
-        // デコード失敗時は期限切れとみなす
-        return true;
-      }
+    /* ========================================
+     * エラー判定
+     * ======================================== */
+    function isTokenError(error) {
+      if (!error || !error.message) return false;
+      var msg = error.message.toLowerCase();
+      return msg.indexOf('expired') !== -1 ||
+             msg.indexOf('invalid token') !== -1 ||
+             msg.indexOf('access token') !== -1;
     }
 
+    /* ========================================
+     * LIFF初期化メイン
+     *
+     * 方針:
+     * 1. liff.init() する
+     * 2. 未ログインなら liff.login()
+     * 3. ログイン済みなら getProfile() を試みる
+     * 4. getProfile() が expired で失敗したら、
+     *    1回だけ logout → login を試みる（sessionStorageで管理）
+     * 5. 2回目の失敗はループせずエラー表示で停止
+     * ======================================== */
     async function initLiffEntry() {
       var debug = [];
       try {
@@ -205,6 +227,7 @@
         debug.push('userAgent: ' + navigator.userAgent);
         debug.push('LIFF_ID: ' + LIFF_ID);
         debug.push('window.liff exists: ' + (!!window.liff));
+        debug.push('retried: ' + hasAlreadyRetried());
 
         if (!window.liff) {
           debug.push('LIFF SDK が読み込めていません。');
@@ -231,21 +254,7 @@
           return;
         }
 
-        // ★ 修正ポイント: トークン期限切れチェック
-        var tokenExpired = isAccessTokenExpired();
-        debug.push('tokenExpired: ' + tokenExpired);
-
-        if (tokenExpired) {
-          debug.push('アクセストークンが期限切れです。再ログインします。');
-          setDebugInfo(debug);
-          setLiffStatus('セッション期限切れのため再ログインします...', 'warn');
-
-          // ログアウトしてからログインし直すことでトークンをリフレッシュ
-          liff.logout();
-          liff.login();
-          return;
-        }
-
+        /* --- getProfile を試みる --- */
         debug.push('getProfile 開始');
         var profile = await liff.getProfile();
         debug.push('getProfile 成功');
@@ -259,6 +268,9 @@
           setLiffStatus('LINE userID を取得できませんでした。', 'error');
           return;
         }
+
+        /* --- 成功: フラグクリア＆保存 --- */
+        clearRetryFlag();
 
         localStorage.setItem('lineUserId', lineUserId);
         debug.push('localStorage lineUserId 保存完了');
@@ -275,16 +287,26 @@
 
         console.error('LIFF init error:', error);
 
-        // ★ 修正ポイント: トークン期限切れエラーの検知と自動再ログイン
-        var errorMsg = (error && error.message) ? error.message.toLowerCase() : '';
-        if (errorMsg.indexOf('expired') !== -1 || errorMsg.indexOf('invalid token') !== -1) {
-          debug.push('トークン期限切れを検知 → 再ログインします');
-          setDebugInfo(debug);
-          setLiffStatus('セッション期限切れのため再ログインします...', 'warn');
+        /* --- トークン期限切れ: 1回だけ再ログイン --- */
+        if (isTokenError(error)) {
+          if (hasAlreadyRetried()) {
+            /* すでに1回再ログイン済み → ループせず停止 */
+            debug.push('再ログイン済みだがまだ失敗。ループ防止で停止します。');
+            clearRetryFlag();
+            setDebugInfo(debug);
+            setLiffStatus('LINE連携に失敗しました。LINEアプリを再起動して再度お試しください。', 'error');
+            setLinksEnabled(false);
+            return;
+          }
 
-          try {
-            liff.logout();
-          } catch (logoutErr) {
+          /* 1回目 → logout して login を試みる */
+          debug.push('トークン期限切れを検知 → 1回だけ再ログインします');
+          markRetried();
+          setDebugInfo(debug);
+          setLiffStatus('セッションを更新しています...', 'warn');
+
+          try { liff.logout(); }
+          catch (logoutErr) {
             debug.push('logout error: ' + (logoutErr.message || ''));
           }
 
@@ -292,6 +314,7 @@
           return;
         }
 
+        /* --- その他のエラー --- */
         setDebugInfo(debug);
         setLiffStatus('LINE連携に失敗しました: ' + (error && error.message ? error.message : 'unknown error'), 'error');
         setLinksEnabled(false);

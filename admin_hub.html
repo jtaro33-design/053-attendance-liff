@@ -49,8 +49,26 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
     .section-title { font-size: 16px; font-weight: 800; color: #f8fafc; }
+    .section-sub {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .section-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
     /* Cards */
     .card {
@@ -126,6 +144,34 @@
     .event-count-item { font-size: 13px; color: #cbd5e1; }
     .event-count-item strong { color: #f8fafc; }
 
+    /* Buttons / Links */
+    .refresh-btn {
+      padding: 6px 16px; font-size: 12px; font-weight: 700;
+      border: 1px solid #475569; border-radius: 8px;
+      background: transparent; color: #94a3b8; cursor: pointer;
+    }
+    .refresh-btn:hover { background: #334155; color: #e2e8f0; }
+
+    .primary-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      background: #2563eb;
+      color: #ffffff;
+      border: 1px solid #2563eb;
+      white-space: nowrap;
+    }
+    .primary-link-btn:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
     /* Misc */
     .loading-text { text-align: center; padding: 40px 0; color: #64748b; font-size: 14px; }
     .empty-text { text-align: center; padding: 30px 0; color: #475569; font-size: 14px; }
@@ -133,12 +179,6 @@
       display: block; text-align: center; text-decoration: none;
       font-size: 14px; font-weight: 600; color: #64748b; padding: 12px; margin-top: 20px;
     }
-    .refresh-btn {
-      padding: 6px 16px; font-size: 12px; font-weight: 700;
-      border: 1px solid #475569; border-radius: 8px;
-      background: transparent; color: #94a3b8; cursor: pointer;
-    }
-    .refresh-btn:hover { background: #334155; color: #e2e8f0; }
   </style>
 </head>
 <body>
@@ -149,6 +189,7 @@
     </div>
     <div class="header-badge" id="lastUpdated">読み込み中...</div>
   </div>
+
   <div class="container">
     <div class="summary-row">
       <div class="summary-card">
@@ -173,8 +214,14 @@
 
     <div class="tab-panel active" id="panel-applications">
       <div class="section-header">
-        <div class="section-title">入会申請一覧</div>
-        <button class="refresh-btn" onclick="loadApplications()">更新</button>
+        <div>
+          <div class="section-title">入会申請一覧</div>
+          <div class="section-sub">承認・差戻し・区分確定は専用ページで行います</div>
+        </div>
+        <div class="section-actions">
+          <a href="./admin_member_approval.html" class="primary-link-btn" id="approvalPageLink">承認ページへ</a>
+          <button class="refresh-btn" onclick="loadApplications()">更新</button>
+        </div>
       </div>
       <div id="applicationList"><div class="loading-text">読み込み中...</div></div>
     </div>
@@ -224,12 +271,14 @@
       var w = ['日','月','火','水','木','金','土'];
       return (d.getMonth()+1) + '/' + d.getDate() + '（' + w[d.getDay()] + '）';
     }
+
     function formatDateTimeShort(isoStr) {
       if (!isoStr) return '';
       var d = new Date(isoStr);
       if (isNaN(d.getTime())) return isoStr;
       return (d.getMonth()+1) + '/' + d.getDate();
     }
+
     function isToday(dateStr) {
       if (!dateStr) return false;
       var now = new Date();
@@ -244,37 +293,55 @@
       if (status === '受付') return '<span class="card-badge badge-pending">受付</span>';
       if (status === '確認中') return '<span class="card-badge badge-review">確認中</span>';
       if (status === '承認') return '<span class="card-badge badge-approved">承認（未反映）</span>';
-      return '<span class="card-badge">' + (status||'不明') + '</span>';
+      return '<span class="card-badge">' + (status || '不明') + '</span>';
+    }
+
+    function updateApprovalLink() {
+      var link = document.getElementById('approvalPageLink');
+      var count = appData.applications.length;
+      if (!link) return;
+
+      if (count > 0) {
+        link.textContent = '承認ページへ（' + count + '件）';
+      } else {
+        link.textContent = '承認ページへ';
+      }
     }
 
     /* ===== Participant HTML ===== */
     function renderParticipantGroups(participants) {
       if (!participants) return '<div class="participant-empty">参加者情報なし</div>';
+
       var clubList = participants['クラブ'] || [];
       var schoolList = participants['スクール'] || [];
       var generalList = participants['一般'] || [];
       var total = clubList.length + schoolList.length + generalList.length;
+
       if (total === 0) return '<div class="participant-empty">申込者はまだいません</div>';
 
       var html = '';
+
       if (clubList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title club">クラブ（' + clubList.length + '名）</div>';
         html += '<div class="participant-names">' + clubList.join('、') + '</div>';
         html += '</div>';
       }
+
       if (schoolList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title school">スクール（' + schoolList.length + '名）</div>';
         html += '<div class="participant-names">' + schoolList.join('、') + '</div>';
         html += '</div>';
       }
+
       if (generalList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title general">一般（' + generalList.length + '名）</div>';
         html += '<div class="participant-names">' + generalList.join('、') + '</div>';
         html += '</div>';
       }
+
       return html;
     }
 
@@ -284,48 +351,65 @@
       var el = document.getElementById('sumApplications');
       el.textContent = ac;
       el.className = ac > 0 ? 'summary-num warn' : 'summary-num ok';
+
       document.getElementById('sumPractices').textContent = appData.practices.length;
       document.getElementById('sumEvents').textContent = appData.events.length;
+
       var now = new Date();
       document.getElementById('lastUpdated').textContent =
-        '最終更新 ' + now.getHours() + ':' + ('0'+now.getMinutes()).slice(-2);
+        '最終更新 ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2);
     }
 
     /* ===== Applications ===== */
     async function loadApplications() {
       var c = document.getElementById('applicationList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+
       try {
         var res = await fetch(WEB_APP_URL + '?mode=pendingMemberApplications');
         var json = await res.json();
         appData.applications = (json.ok && Array.isArray(json.items)) ? json.items : [];
-      } catch(e) { appData.applications = []; }
+      } catch (e) {
+        appData.applications = [];
+      }
+
       renderApplications();
+      updateApprovalLink();
       updateSummary();
     }
 
     function renderApplications() {
       var c = document.getElementById('applicationList');
       var items = appData.applications;
-      if (items.length === 0) { c.innerHTML = '<div class="empty-text">対応が必要な入会申請はありません</div>'; return; }
+
+      if (items.length === 0) {
+        c.innerHTML = '<div class="empty-text">対応が必要な入会申請はありません</div>';
+        return;
+      }
+
       var html = '';
+
       items.forEach(function(item) {
         html += '<div class="card"><div style="padding:16px;">';
         html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">';
-        html += '<div><div class="card-main">' + (item.childName||'氏名なし') + '</div>';
-        html += '<div class="card-sub">' + (item.grade||'') + '　保護者: ' + (item.parentName||'') + '</div></div>';
+        html += '<div><div class="card-main">' + (item.childName || '氏名なし') + '</div>';
+        html += '<div class="card-sub">' + (item.grade || '') + '　保護者: ' + (item.parentName || '') + '</div></div>';
         html += statusBadgeHtml(item.applicationStatus);
         html += '</div>';
+
         html += '<div class="card-detail">';
-        html += '希望区分: ' + (item.desiredCategory||'未選択');
+        html += '希望区分: ' + (item.desiredCategory || '未選択');
         if (item.approvedCategory) html += '　→ 承認区分: ' + item.approvedCategory;
         html += '<br>';
+
         if (item.trialStatus) html += '体験: ' + item.trialStatus + '　';
         if (item.affiliation) html += '所属: ' + item.affiliation;
         if (item.appliedAt) html += '<br>申込日: ' + formatDateTimeShort(item.appliedAt);
         if (item.note) html += '<br>備考: ' + item.note;
+
         html += '</div></div></div>';
       });
+
       c.innerHTML = html;
     }
 
@@ -333,32 +417,54 @@
     async function loadPractices() {
       var c = document.getElementById('practiceList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+
       try {
         var res = await fetch(WEB_APP_URL + '?mode=adminPractices4weeks');
         var json = await res.json();
-        if (json.ok && Array.isArray(json.items)) { appData.practices = json.items; }
-        else { appData.practices = []; }
-      } catch(e) { appData.practices = []; }
+
+        if (json.ok && Array.isArray(json.items)) {
+          appData.practices = json.items;
+        } else {
+          appData.practices = [];
+        }
+      } catch (e) {
+        appData.practices = [];
+      }
 
       /* フォールバック: GAS未デプロイの場合 publicPractices を使う */
       if (appData.practices.length === 0) {
         try {
           var fb = await fetch(WEB_APP_URL + '?mode=publicPractices');
           var fbJson = await fb.json();
+
           if (fbJson.ok && Array.isArray(fbJson.items)) {
-            var now = new Date(); now.setHours(0,0,0,0);
-            var limit = new Date(now); limit.setDate(now.getDate()+28);
+            var now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            var limit = new Date(now);
+            limit.setDate(now.getDate() + 28);
+
             appData.practices = fbJson.items.filter(function(i) {
               if (!i.date) return false;
-              var d = new Date(i.date+'T00:00:00');
+              var d = new Date(i.date + 'T00:00:00');
               return d >= now && d <= limit;
             }).map(function(i) {
-              return { id:i.id, date:i.date, title:i.title||'', startTime:i.startTime||'',
-                endTime:i.endTime||'', place:i.place||'', note:i.note||'',
-                participantCount:0, participants:null };
+              return {
+                id: i.id,
+                date: i.date,
+                title: i.title || '',
+                startTime: i.startTime || '',
+                endTime: i.endTime || '',
+                place: i.place || '',
+                note: i.note || '',
+                participantCount: 0,
+                participants: null
+              };
             });
           }
-        } catch(e2) { appData.practices = []; }
+        } catch (e2) {
+          appData.practices = [];
+        }
       }
 
       renderPractices();
@@ -368,38 +474,46 @@
     function renderPractices() {
       var c = document.getElementById('practiceList');
       var items = appData.practices;
-      if (items.length === 0) { c.innerHTML = '<div class="empty-text">今後4週間に公開中の通常練習はありません</div>'; return; }
+
+      if (items.length === 0) {
+        c.innerHTML = '<div class="empty-text">今後4週間に公開中の通常練習はありません</div>';
+        return;
+      }
 
       var html = '';
+
       items.forEach(function(item, idx) {
-        var todayTag = isToday(item.date) ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>' : '';
+        var todayTag = isToday(item.date)
+          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
+          : '';
+
         var count = item.participantCount || 0;
 
         html += '<div class="card" id="pcard-' + idx + '">';
 
-        /* Header (tap to expand) */
         html += '<div class="card-header" onclick="toggleCard(this)">';
         html += '<div style="flex:1;">';
         html += '<div class="practice-date">' + formatDateJa(item.date) + todayTag + '</div>';
         html += '<div class="practice-time">';
-        if (item.startTime||item.endTime) html += (item.startTime||'') + (item.startTime&&item.endTime?'〜':'') + (item.endTime||'');
+        if (item.startTime || item.endTime) {
+          html += (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
+        }
         html += '</div>';
         if (item.place) html += '<div class="practice-place">' + item.place + '</div>';
         html += '</div>';
+
         html += '<div style="display:flex;align-items:center;gap:6px;">';
         html += '<span class="badge-count">' + count + '名</span>';
         html += '<span class="expand-icon">▼</span>';
         html += '</div>';
         html += '</div>';
 
-        /* Body (accordion) */
         html += '<div class="card-body">';
         html += renderParticipantGroups(item.participants);
 
-        /* メモ */
         html += '<div class="memo-section">';
         html += '<div class="memo-label">練習メモ（備考）</div>';
-        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + (item.note||'') + '</textarea>';
+        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + (item.note || '') + '</textarea>';
         html += '<div class="memo-save-row">';
         html += '<span class="memo-status" id="pmemo-status-' + idx + '"></span>';
         html += '<button class="memo-save-btn" onclick="savePracticeMemo(\'' + item.id + '\',' + idx + ')">保存</button>';
@@ -409,6 +523,7 @@
         html += '</div>';
         html += '</div>';
       });
+
       c.innerHTML = html;
     }
 
@@ -426,6 +541,7 @@
         var url = WEB_APP_URL + '?mode=updatePracticeMemo'
           + '&practiceId=' + encodeURIComponent(practiceId)
           + '&memo=' + encodeURIComponent(memo);
+
         var res = await fetch(url);
         var json = await res.json();
 
@@ -433,38 +549,54 @@
           statusEl.textContent = '保存しました';
           statusEl.style.color = '#34d399';
         } else {
-          statusEl.textContent = 'エラー: ' + (json.message||'');
+          statusEl.textContent = 'エラー: ' + (json.message || '');
           statusEl.style.color = '#f87171';
         }
-      } catch(e) {
+      } catch (e) {
         statusEl.textContent = '通信エラー';
         statusEl.style.color = '#f87171';
       }
 
       btn.disabled = false;
-      setTimeout(function() { statusEl.textContent = ''; statusEl.style.color = ''; }, 3000);
+      setTimeout(function() {
+        statusEl.textContent = '';
+        statusEl.style.color = '';
+      }, 3000);
     }
 
     /* ===== Events ===== */
     async function loadEvents() {
       var c = document.getElementById('eventList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+
       try {
         var res = await fetch(WEB_APP_URL + '?mode=adminEventsWithParticipants');
         var json = await res.json();
-        if (json.ok && Array.isArray(json.items)) { appData.events = json.items; }
-        else { appData.events = []; }
-      } catch(e) { appData.events = []; }
+
+        if (json.ok && Array.isArray(json.items)) {
+          appData.events = json.items;
+        } else {
+          appData.events = [];
+        }
+      } catch (e) {
+        appData.events = [];
+      }
 
       /* フォールバック */
       if (appData.events.length === 0) {
         try {
           var fb = await fetch(WEB_APP_URL + '?mode=publicEvents');
           var fbJson = await fb.json();
+
           if (fbJson.ok && Array.isArray(fbJson.items)) {
-            appData.events = fbJson.items.map(function(i) { i.participants = null; return i; });
+            appData.events = fbJson.items.map(function(i) {
+              i.participants = null;
+              return i;
+            });
           }
-        } catch(e2) { appData.events = []; }
+        } catch (e2) {
+          appData.events = [];
+        }
       }
 
       renderEvents();
@@ -474,46 +606,53 @@
     function renderEvents() {
       var c = document.getElementById('eventList');
       var items = appData.events;
-      if (items.length === 0) { c.innerHTML = '<div class="empty-text">公開中のイベント/クリニックはありません</div>'; return; }
+
+      if (items.length === 0) {
+        c.innerHTML = '<div class="empty-text">公開中のイベント/クリニックはありません</div>';
+        return;
+      }
 
       var html = '';
+
       items.forEach(function(item, idx) {
-        var todayTag = isToday(item.eventDate) ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>' : '';
+        var todayTag = isToday(item.eventDate)
+          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
+          : '';
 
         html += '<div class="card" id="ecard-' + idx + '">';
 
-        /* Header */
         html += '<div class="card-header" onclick="toggleCard(this)">';
         html += '<div style="flex:1;">';
-        html += '<div class="card-main">' + (item.eventName||'イベント名なし') + todayTag + '</div>';
+        html += '<div class="card-main">' + (item.eventName || 'イベント名なし') + todayTag + '</div>';
         html += '<div class="card-sub">' + formatDateJa(item.eventDate);
-        if (item.startTime||item.endTime) html += '　' + (item.startTime||'') + (item.startTime&&item.endTime?'〜':'') + (item.endTime||'');
+        if (item.startTime || item.endTime) {
+          html += '　' + (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
+        }
         html += '</div>';
         html += '</div>';
+
         html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="card-badge badge-event">' + (item.statusLabel||'募集中') + '</span>';
+        html += '<span class="card-badge badge-event">' + (item.statusLabel || '募集中') + '</span>';
         html += '<span class="expand-icon">▼</span>';
         html += '</div>';
         html += '</div>';
 
-        /* Body */
         html += '<div class="card-body">';
 
         if (item.place) html += '<div class="card-detail">' + item.place + '</div>';
 
         html += '<div class="event-counts">';
-        html += '<div class="event-count-item">申込: <strong>' + (item.currentCount||0) + '</strong>名</div>';
-        html += '<div class="event-count-item">定員: <strong>' + (item.capacity||'-') + '</strong>名</div>';
-        html += '<div class="event-count-item">残: <strong>' + (item.remainingCount||0) + '</strong>名</div>';
+        html += '<div class="event-count-item">申込: <strong>' + (item.currentCount || 0) + '</strong>名</div>';
+        html += '<div class="event-count-item">定員: <strong>' + (item.capacity || '-') + '</strong>名</div>';
+        html += '<div class="event-count-item">残: <strong>' + (item.remainingCount || 0) + '</strong>名</div>';
         html += '</div>';
 
         html += '<div class="card-detail" style="margin-top:8px;">';
-        html += '料金: クラブ ' + (item.clubPrice||0) + '円 / スクール ' + (item.schoolPrice||0) + '円 / 一般 ' + (item.generalPrice||0) + '円';
+        html += '料金: クラブ ' + (item.clubPrice || 0) + '円 / スクール ' + (item.schoolPrice || 0) + '円 / 一般 ' + (item.generalPrice || 0) + '円';
         html += '</div>';
 
         if (item.targetLabel) html += '<div class="card-detail">対象: ' + item.targetLabel + '</div>';
 
-        /* 参加者 */
         html += '<div style="margin-top:12px;">';
         html += renderParticipantGroups(item.participants);
         html += '</div>';
@@ -523,6 +662,7 @@
         html += '</div>';
         html += '</div>';
       });
+
       c.innerHTML = html;
     }
 

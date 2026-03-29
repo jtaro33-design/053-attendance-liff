@@ -1,754 +1,816 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>053 管理ハブ</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>会員申込 承認管理</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0f172a; color: #e2e8f0; min-height: 100vh; line-height: 1.6;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.6;
     }
-    .header {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border-bottom: 2px solid #334155; padding: 16px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .header-title { font-size: 20px; font-weight: 800; color: #f8fafc; letter-spacing: 1px; }
-    .header-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
-    .header-badge {
-      font-size: 11px; color: #94a3b8; background: #1e293b;
-      border: 1px solid #334155; padding: 4px 10px; border-radius: 20px;
-    }
-    .container { max-width: 800px; margin: 0 auto; padding: 16px; }
 
-    .summary-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
-    .summary-card {
-      background: #1e293b; border: 1px solid #334155;
-      border-radius: 14px; padding: 16px; text-align: center;
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
     }
-    .summary-num { font-size: 36px; font-weight: 800; color: #f8fafc; line-height: 1; }
-    .summary-num.warn { color: #fbbf24; }
-    .summary-num.ok { color: #34d399; }
-    .summary-label { font-size: 12px; color: #94a3b8; margin-top: 6px; font-weight: 600; }
 
-    .tab-nav {
-      display: flex; gap: 4px; margin-bottom: 16px; background: #1e293b;
-      border-radius: 12px; padding: 4px; border: 1px solid #334155;
-    }
-    .tab-btn {
-      flex: 1; padding: 10px 8px; font-size: 13px; font-weight: 700;
-      color: #64748b; background: transparent; border: none;
-      border-radius: 10px; cursor: pointer; text-align: center;
-    }
-    .tab-btn.active { background: #334155; color: #f8fafc; }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .section-header {
+    .page-head {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
-      margin-bottom: 12px;
       flex-wrap: wrap;
+      margin-bottom: 16px;
     }
-    .section-title { font-size: 16px; font-weight: 800; color: #f8fafc; }
-    .section-sub {
-      font-size: 12px;
-      color: #94a3b8;
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sub {
       margin-top: 4px;
+      font-size: 13px;
+      color: #475569;
     }
-    .section-actions {
+
+    .top-actions {
       display: flex;
       gap: 8px;
-      align-items: center;
       flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn,
+    button,
+    select {
+      font: inherit;
+    }
+
+    .btn,
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary,
+    button:not(.secondary):not(.danger):not(.ghost) {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover,
+    button:not(.secondary):not(.danger):not(.ghost):hover {
+      background: #1d4ed8;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .ghost {
+      background: #fff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .ghost:hover {
+      background: #f8fafc;
+    }
+
+    a.btn-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .summary-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .summary-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .warning-box {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .warning-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .warning-box ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+
+    .status {
+      margin-bottom: 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .filter-chip {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
     }
 
     .card {
-      background: #1e293b; border: 1px solid #334155;
-      border-radius: 14px; margin-bottom: 12px; overflow: hidden;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
     }
-    .card-header {
-      padding: 16px; cursor: pointer; display: flex;
-      justify-content: space-between; align-items: flex-start;
-    }
-    .card-header:active { background: rgba(255,255,255,0.03); }
-    .card-main { font-size: 16px; font-weight: 700; color: #f1f5f9; }
-    .card-sub { font-size: 13px; color: #94a3b8; margin-top: 2px; }
-    .card-detail { font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.7; }
-    .card-detail-muted { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.7; }
-    .card-badge {
-      display: inline-block; font-size: 11px; font-weight: 700;
-      padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-    }
-    .badge-pending { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-    .badge-review { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
-    .badge-approved { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
-    .badge-event { background: rgba(168,85,247,0.15); color: #a78bfa; border: 1px solid rgba(168,85,247,0.3); }
-    .badge-count {
-      font-size: 12px; font-weight: 700; color: #34d399;
-      background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);
-      padding: 2px 10px; border-radius: 20px;
-    }
-    .expand-icon { color: #64748b; font-size: 14px; margin-left: 8px; margin-top: 2px; transition: transform 0.2s; }
-    .card.open .expand-icon { transform: rotate(180deg); }
 
-    .card-body { display: none; padding: 0 16px 16px; border-top: 1px solid #334155; }
-    .card.open .card-body { display: block; }
-
-    .practice-date { font-size: 15px; font-weight: 800; color: #60a5fa; }
-    .practice-time { font-size: 13px; color: #94a3b8; }
-    .practice-place { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
-
-    .participant-group { margin-top: 10px; }
-    .participant-group-title {
-      font-size: 12px; font-weight: 700; color: #94a3b8;
-      margin-bottom: 4px; padding-bottom: 3px; border-bottom: 1px solid #334155;
-    }
-    .participant-group-title.club { color: #60a5fa; border-color: rgba(96,165,250,0.3); }
-    .participant-group-title.school { color: #34d399; border-color: rgba(52,211,153,0.3); }
-    .participant-group-title.general { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-    .participant-names {
-      font-size: 13px; color: #cbd5e1; line-height: 1.8; padding: 4px 0;
-    }
-    .participant-empty { font-size: 12px; color: #475569; padding: 8px 0; }
-
-    .category-summary {
+    .card-head {
       display: flex;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
-    .category-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 5px 10px;
+
+    .name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      border: 1px solid transparent;
-      min-height: 28px;
-    }
-    .category-chip.club {
-      color: #60a5fa;
-      background: rgba(96,165,250,0.12);
-      border-color: rgba(96,165,250,0.28);
-    }
-    .category-chip.school {
-      color: #34d399;
-      background: rgba(52,211,153,0.12);
-      border-color: rgba(52,211,153,0.28);
-    }
-    .category-chip.general {
-      color: #fbbf24;
-      background: rgba(251,191,36,0.12);
-      border-color: rgba(251,191,36,0.28);
-    }
-
-    .memo-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid #334155; }
-    .memo-label { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 6px; }
-    .memo-input {
-      width: 100%; min-height: 60px; padding: 10px; border-radius: 8px;
-      border: 1px solid #475569; background: #0f172a; color: #e2e8f0;
-      font-size: 14px; font-family: inherit; resize: vertical;
-    }
-    .memo-input:focus { outline: none; border-color: #60a5fa; }
-    .memo-save-row { display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px; align-items: center; }
-    .memo-save-btn {
-      padding: 6px 18px; font-size: 12px; font-weight: 700;
-      border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer;
-    }
-    .memo-save-btn:disabled { background: #475569; cursor: not-allowed; }
-    .memo-status { font-size: 11px; color: #64748b; }
-
-    .event-counts { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
-    .event-count-item { font-size: 13px; color: #cbd5e1; }
-    .event-count-item strong { color: #f8fafc; }
-
-    .refresh-btn {
-      padding: 6px 16px; font-size: 12px; font-weight: 700;
-      border: 1px solid #475569; border-radius: 8px;
-      background: transparent; color: #94a3b8; cursor: pointer;
-    }
-    .refresh-btn:hover { background: #334155; color: #e2e8f0; }
-
-    .primary-link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 34px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      text-decoration: none;
-      background: #2563eb;
-      color: #ffffff;
-      border: 1px solid #2563eb;
       white-space: nowrap;
     }
-    .primary-link-btn:hover {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
+
+    .pill-received {
+      background: #dbeafe;
+      color: #1d4ed8;
     }
 
-    .app-top-line {
+    .pill-checking {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .pill-approved {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .pill-returned {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .pill-rejected {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .pill-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+      margin-bottom: 12px;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 72px;
+    }
+
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .note-box {
+      margin-bottom: 14px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #94a3b8;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .note-text {
+      font-size: 14px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .action-wrap {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .action-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      flex: 1 1 200px;
+    }
+
+    .action-help {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #0f172a;
+      min-height: 42px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    .action-buttons {
       display: flex;
       gap: 8px;
-      align-items: center;
       flex-wrap: wrap;
-      margin-top: 8px;
-      margin-bottom: 6px;
-    }
-    .info-chip {
-      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      background: rgba(148,163,184,0.14);
-      color: #cbd5e1;
-      border: 1px solid rgba(148,163,184,0.2);
     }
 
-    .loading-text { text-align: center; padding: 40px 0; color: #64748b; font-size: 14px; }
-    .empty-text { text-align: center; padding: 30px 0; color: #475569; font-size: 14px; }
-    .back-link {
-      display: block; text-align: center; text-decoration: none;
-      font-size: 14px; font-weight: 600; color: #64748b; padding: 12px; margin-top: 20px;
+    button[disabled] {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
 
-    @media (max-width: 640px) {
-      .summary-row {
+    .approve-note {
+      font-size: 12px;
+      color: #991b1b;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .empty {
+      text-align: center;
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 40px 16px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .summary-bar,
+      .info-grid {
         grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-buttons button,
+      .action-buttons a {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div>
-      <div class="header-title">053 管理ハブ</div>
-      <div class="header-sub">Management Dashboard</div>
-    </div>
-    <div class="header-badge" id="lastUpdated">読み込み中...</div>
-  </div>
-
   <div class="container">
-    <div class="summary-row">
+    <div class="page-head">
+      <div>
+        <h1>会員申込 承認管理</h1>
+        <div class="sub">受付・確認中・承認未反映の申請を整理し、必要なものだけ承認実行します</div>
+      </div>
+      <div class="top-actions">
+        <a href="./admin_hub.html" class="btn-link ghost">← 管理ハブへ戻る</a>
+        <button class="secondary" onclick="loadApplications()">一覧を更新</button>
+      </div>
+    </div>
+
+    <div class="summary-bar">
       <div class="summary-card">
-        <div class="summary-num warn" id="sumApplications">-</div>
-        <div class="summary-label">承認待ち</div>
+        <div class="summary-label">表示件数</div>
+        <div class="summary-value" id="summaryCount">-</div>
+        <div class="summary-note">現在のフィルタ適用後</div>
       </div>
       <div class="summary-card">
-        <div class="summary-num" id="sumPractices">-</div>
-        <div class="summary-label">今後4週の練習</div>
+        <div class="summary-label">承認準備OK</div>
+        <div class="summary-value" id="summaryReady">-</div>
+        <div class="summary-note">ステータス=承認 かつ 未反映</div>
       </div>
       <div class="summary-card">
-        <div class="summary-num" id="sumEvents">-</div>
-        <div class="summary-label">公開中イベント</div>
+        <div class="summary-label">一覧状態</div>
+        <div class="summary-value" id="summaryState" style="font-size:18px;line-height:1.3;">読込前</div>
+        <div class="summary-note">最後の処理結果を表示</div>
       </div>
     </div>
 
-    <div class="tab-nav">
-      <button class="tab-btn active" onclick="switchTab('applications')">入会申請</button>
-      <button class="tab-btn" onclick="switchTab('practices')">通常練習</button>
-      <button class="tab-btn" onclick="switchTab('events')">イベント</button>
+    <div class="warning-box">
+      <div class="warning-title">承認実行時の注意</div>
+      <ul>
+        <li>このページでは「ステータス保存」と「承認実行」が別です。</li>
+        <li>承認実行は会員マスタ反映まで進む前提で扱ってください。</li>
+        <li>申請者へのLINE通知につながる可能性があるため、テスト時は本番連携先を必ず確認してください。</li>
+      </ul>
     </div>
 
-    <div class="tab-panel active" id="panel-applications">
-      <div class="section-header">
-        <div>
-          <div class="section-title">入会申請一覧</div>
-          <div class="section-sub">承認・差戻し・区分確定は専用ページで行います</div>
-        </div>
-        <div class="section-actions">
-          <a href="./admin_member_approval.html" class="primary-link-btn" id="approvalPageLink">承認ページへ</a>
-          <button class="refresh-btn" onclick="loadApplications()">更新</button>
-        </div>
-      </div>
-      <div id="applicationList"><div class="loading-text">読み込み中...</div></div>
+    <div id="status" class="status">読み込み中です。</div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">すべて</button>
+      <button class="filter-chip" data-filter="受付" onclick="setFilter('受付')">受付</button>
+      <button class="filter-chip" data-filter="確認中" onclick="setFilter('確認中')">確認中</button>
+      <button class="filter-chip" data-filter="承認" onclick="setFilter('承認')">承認</button>
+      <button class="filter-chip" data-filter="差戻し" onclick="setFilter('差戻し')">差戻し</button>
+      <button class="filter-chip" data-filter="見送り" onclick="setFilter('見送り')">見送り</button>
+      <button class="filter-chip" data-filter="ready" onclick="setFilter('ready')">承認準備OKのみ</button>
     </div>
 
-    <div class="tab-panel" id="panel-practices">
-      <div class="section-header">
-        <div class="section-title">通常練習（今後4週間）</div>
-        <button class="refresh-btn" onclick="loadPractices()">更新</button>
-      </div>
-      <div id="practiceList"><div class="loading-text">読み込み中...</div></div>
-    </div>
-
-    <div class="tab-panel" id="panel-events">
-      <div class="section-header">
-        <div class="section-title">イベント / クリニック</div>
-        <button class="refresh-btn" onclick="loadEvents()">更新</button>
-      </div>
-      <div id="eventList"><div class="loading-text">読み込み中...</div></div>
-    </div>
-
-    <a href="./entry_select.html" class="back-link">← 申込メニューへ戻る</a>
+    <div id="listArea" class="list"></div>
   </div>
 
   <script>
-    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
-    var appData = { applications: [], practices: [], events: [] };
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+    let allItems = [];
+    let currentFilter = 'all';
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-      var idx = { applications: 0, practices: 1, events: 2 };
-      document.querySelectorAll('.tab-btn')[idx[tabId]].classList.add('active');
-      document.getElementById('panel-' + tabId).classList.add('active');
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+      document.getElementById('summaryState').textContent = message;
     }
 
-    function toggleCard(el) {
-      el.closest('.card').classList.toggle('open');
+    function formatJapanDate(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
     }
 
-    function formatDateJa(dateStr) {
-      if (!dateStr) return '';
-      var d = new Date(dateStr + 'T00:00:00');
-      if (isNaN(d.getTime())) return dateStr;
-      var w = ['日','月','火','水','木','金','土'];
-      return (d.getMonth()+1) + '/' + d.getDate() + '（' + w[d.getDay()] + '）';
-    }
-
-    function formatDateTimeShort(isoStr) {
-      if (!isoStr) return '';
-      var d = new Date(isoStr);
-      if (isNaN(d.getTime())) return isoStr;
-      return (d.getMonth()+1) + '/' + d.getDate();
-    }
-
-    function isToday(dateStr) {
-      if (!dateStr) return false;
-      var now = new Date();
-      var today = now.getFullYear() + '-' +
-        ('0'+(now.getMonth()+1)).slice(-2) + '-' +
-        ('0'+now.getDate()).slice(-2);
-      return dateStr === today;
-    }
-
-    function statusBadgeHtml(status) {
-      if (status === '受付') return '<span class="card-badge badge-pending">受付</span>';
-      if (status === '確認中') return '<span class="card-badge badge-review">確認中</span>';
-      if (status === '承認') return '<span class="card-badge badge-approved">承認（未反映）</span>';
-      if (status === '差戻し') return '<span class="card-badge badge-review">差戻し</span>';
-      if (status === '見送り') return '<span class="card-badge">見送り</span>';
-      return '<span class="card-badge">' + (status || '不明') + '</span>';
-    }
-
-    function updateApprovalLink() {
-      var link = document.getElementById('approvalPageLink');
-      var count = appData.applications.length;
-      if (!link) return;
-      link.textContent = count > 0 ? '承認ページへ（' + count + '件）' : '承認ページへ';
-    }
-
-    function getCategoryCounts(participants) {
-      var club = (participants && participants['クラブ']) ? participants['クラブ'].length : 0;
-      var school = (participants && participants['スクール']) ? participants['スクール'].length : 0;
-      var general = (participants && participants['一般']) ? participants['一般'].length : 0;
-      return {
-        club: club,
-        school: school,
-        general: general
-      };
-    }
-
-    function renderCategorySummary(participants) {
-      var counts = getCategoryCounts(participants);
-      return '' +
-        '<div class="category-summary">' +
-          '<span class="category-chip club">クラブ ' + counts.club + '名</span>' +
-          '<span class="category-chip school">スクール ' + counts.school + '名</span>' +
-          '<span class="category-chip general">一般 ' + counts.general + '名</span>' +
-        '</div>';
-    }
-
-    function renderParticipantGroups(participants) {
-      if (!participants) return '<div class="participant-empty">参加者情報なし</div>';
-
-      var clubList = participants['クラブ'] || [];
-      var schoolList = participants['スクール'] || [];
-      var generalList = participants['一般'] || [];
-      var total = clubList.length + schoolList.length + generalList.length;
-
-      if (total === 0) return '<div class="participant-empty">申込者はまだいません</div>';
-
-      var html = '';
-
-      if (clubList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title club">クラブ（' + clubList.length + '名）</div>';
-        html += '<div class="participant-names">' + clubList.join('、') + '</div>';
-        html += '</div>';
+    function getStatusPillClass(status) {
+      switch (status) {
+        case '受付':
+          return 'pill pill-received';
+        case '確認中':
+          return 'pill pill-checking';
+        case '承認':
+          return 'pill pill-approved';
+        case '差戻し':
+          return 'pill pill-returned';
+        case '見送り':
+          return 'pill pill-rejected';
+        default:
+          return 'pill pill-default';
       }
-
-      if (schoolList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title school">スクール（' + schoolList.length + '名）</div>';
-        html += '<div class="participant-names">' + schoolList.join('、') + '</div>';
-        html += '</div>';
-      }
-
-      if (generalList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title general">一般（' + generalList.length + '名）</div>';
-        html += '<div class="participant-names">' + generalList.join('、') + '</div>';
-        html += '</div>';
-      }
-
-      return html;
     }
 
-    function updateSummary() {
-      var ac = appData.applications.length;
-      var el = document.getElementById('sumApplications');
-      el.textContent = ac;
-      el.className = ac > 0 ? 'summary-num warn' : 'summary-num ok';
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
-      document.getElementById('sumPractices').textContent = appData.practices.length;
-      document.getElementById('sumEvents').textContent = appData.events.length;
+    function isReadyToApprove(item) {
+      return item.applicationStatus === '承認' && item.reflected === false;
+    }
 
-      var now = new Date();
-      document.getElementById('lastUpdated').textContent =
-        '最終更新 ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2);
+    function updateSummary(items) {
+      const readyCount = allItems.filter(isReadyToApprove).length;
+      document.getElementById('summaryCount').textContent = items.length;
+      document.getElementById('summaryReady').textContent = readyCount;
+    }
+
+    function setFilter(filterKey) {
+      currentFilter = filterKey;
+      document.querySelectorAll('.filter-chip').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.filter === filterKey);
+      });
+      renderList();
+    }
+
+    function getFilteredItems() {
+      if (currentFilter === 'all') return allItems.slice();
+      if (currentFilter === 'ready') return allItems.filter(isReadyToApprove);
+      return allItems.filter(function(item) {
+        return item.applicationStatus === currentFilter;
+      });
     }
 
     async function loadApplications() {
-      var c = document.getElementById('applicationList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+      setStatus('一覧を読み込み中です。');
+      const listArea = document.getElementById('listArea');
+      listArea.innerHTML = '';
 
       try {
-        var res = await fetch(WEB_APP_URL + '?mode=pendingMemberApplications');
-        var json = await res.json();
-        appData.applications = (json.ok && Array.isArray(json.items)) ? json.items : [];
-      } catch (e) {
-        appData.applications = [];
-      }
+        const response = await fetch(`${WEB_APP_URL}?mode=pendingMemberApplications`);
+        const result = await response.json();
 
-      renderApplications();
-      updateApprovalLink();
-      updateSummary();
+        if (!result.ok) {
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          allItems = [];
+          renderList();
+          return;
+        }
+
+        allItems = Array.isArray(result.items) ? result.items : [];
+        renderList();
+      } catch (error) {
+        allItems = [];
+        setStatus(`読込エラー: ${error.message}`);
+        renderList();
+      }
     }
 
-    function renderApplications() {
-      var c = document.getElementById('applicationList');
-      var items = appData.applications;
+    function renderList() {
+      const listArea = document.getElementById('listArea');
+      const items = getFilteredItems();
+      listArea.innerHTML = '';
 
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">対応が必要な入会申請はありません</div>';
+      updateSummary(items);
+
+      if (!items.length) {
+        listArea.innerHTML = '<div class="empty">該当する申請はありません。</div>';
+        setStatus('該当する申請はありません。');
         return;
       }
 
-      var html = '';
+      items.forEach(function(item, index) {
+        const card = document.createElement('div');
+        card.className = 'card';
 
-      items.forEach(function(item) {
-        html += '<div class="card"><div style="padding:16px;">';
+        const applicationStatusOptions = `
+          <option value="">選択してください</option>
+          <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
+          <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
+          <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
+          <option value="差戻し" ${item.applicationStatus === '差戻し' ? 'selected' : ''}>差戻し</option>
+          <option value="見送り" ${item.applicationStatus === '見送り' ? 'selected' : ''}>見送り</option>
+        `;
 
-        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">';
-        html += '<div>';
-        html += '<div class="card-main">' + (item.childName || '氏名なし') + '</div>';
-        html += '<div class="card-sub">' + (item.grade || '学年未設定') + '　保護者: ' + (item.parentName || '未入力') + '</div>';
-        html += '</div>';
-        html += statusBadgeHtml(item.applicationStatus);
-        html += '</div>';
+        const approvedCategoryOptions = `
+          <option value="">選択してください</option>
+          <option value="クラブ" ${item.approvedCategory === 'クラブ' ? 'selected' : ''}>クラブ</option>
+          <option value="スクール" ${item.approvedCategory === 'スクール' ? 'selected' : ''}>スクール</option>
+          <option value="一般" ${item.approvedCategory === '一般' ? 'selected' : ''}>一般</option>
+        `;
 
-        html += '<div class="app-top-line">';
-        html += '<span class="info-chip">希望区分: ' + (item.desiredCategory || '未選択') + '</span>';
-        if (item.trialStatus) {
-          html += '<span class="info-chip">体験: ' + item.trialStatus + '</span>';
-        }
-        if (item.approvedCategory) {
-          html += '<span class="info-chip">承認区分: ' + item.approvedCategory + '</span>';
-        }
-        html += '</div>';
+        const canApprove = isReadyToApprove(item);
+        const noteText = item.note || '記載なし';
+        const formattedAppliedAt = formatJapanDate(item.appliedAt);
+        const statusClass = getStatusPillClass(item.applicationStatus);
+        const emailRow = item.email ? `
+          <div class="info-box">
+            <span class="label">メールアドレス</span>
+            <div class="value">${escapeHtml(item.email)}</div>
+          </div>
+        ` : '';
+        const phoneRow = item.phone ? `
+          <div class="info-box">
+            <span class="label">電話番号</span>
+            <div class="value">${escapeHtml(item.phone)}</div>
+          </div>
+        ` : '';
 
-        html += '<div class="card-detail">';
-        if (item.affiliation) html += '所属: ' + item.affiliation + '<br>';
-        if (item.appliedAt) html += '申込日: ' + formatDateTimeShort(item.appliedAt);
-        html += '</div>';
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div class="name">${escapeHtml(item.childName || '氏名なし')}</div>
+              <div class="meta">
+                ${escapeHtml(item.grade || '')}　
+                保護者: ${escapeHtml(item.parentName || '')}
+              </div>
+            </div>
+            <div>
+              <span class="${statusClass}">${escapeHtml(item.applicationStatus || '不明')}</span>
+            </div>
+          </div>
 
-        if (item.note) {
-          html += '<div class="card-detail-muted">備考: ' + item.note + '</div>';
-        }
+          <div class="info-grid">
+            <div class="info-box">
+              <span class="label">希望区分</span>
+              <div class="value">${escapeHtml(item.desiredCategory || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">現在の承認区分</span>
+              <div class="value">${escapeHtml(item.approvedCategory || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">無料体験</span>
+              <div class="value">${escapeHtml(item.trialStatus || '未記載')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">所属</span>
+              <div class="value">${escapeHtml(item.affiliation || '未記載')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">申込日時</span>
+              <div class="value">${escapeHtml(formattedAppliedAt || '')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">反映状況</span>
+              <div class="value">${item.reflected === false ? '未反映' : '反映済み / 不明'}</div>
+            </div>
+            ${phoneRow}
+            ${emailRow}
+          </div>
 
-        html += '</div></div>';
+          <div class="note-box">
+            <span class="label">備考</span>
+            <div class="note-text">${escapeHtml(noteText)}</div>
+          </div>
+
+          <div class="action-wrap">
+            <div class="action-row">
+              <div class="action-block">
+                <span class="label">申込ステータス</span>
+                <select id="status_${index}">
+                  ${applicationStatusOptions}
+                </select>
+                <div class="action-help">まずここで受付 / 確認中 / 承認 / 差戻し / 見送りを整理します。</div>
+              </div>
+
+              <div class="action-block">
+                <span class="label">承認区分</span>
+                <select id="category_${index}">
+                  ${approvedCategoryOptions}
+                </select>
+                <div class="action-help">承認候補にする場合は区分も先に揃えてください。</div>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button class="secondary" onclick="saveStatus('${item.pageId}', ${index})">
+                ステータスを保存
+              </button>
+
+              <button class="danger" id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" ${canApprove ? '' : 'disabled'}>
+                承認して会員マスタへ反映
+              </button>
+            </div>
+
+            <div class="approve-note">
+              承認ボタンは「ステータスが承認」かつ「未反映」のときだけ有効です。
+              承認実行は通知や会員マスタ反映につながる可能性があるため、保存だけと区別して扱ってください。
+            </div>
+          </div>
+        `;
+
+        listArea.appendChild(card);
       });
 
-      c.innerHTML = html;
+      setStatus(`${items.length}件を表示しています。`);
     }
 
-    async function loadPractices() {
-      var c = document.getElementById('practiceList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+    async function saveStatus(pageId, index) {
+      const applicationStatus = document.getElementById(`status_${index}`).value;
+      const approvedCategory = document.getElementById(`category_${index}`).value;
+
+      setStatus('ステータスを保存中です。');
 
       try {
-        var res = await fetch(WEB_APP_URL + '?mode=adminPractices4weeks');
-        var json = await res.json();
+        const form = new FormData();
+        form.append('action', 'updateMemberApplicationStatus');
+        form.append('pageId', pageId);
+        form.append('applicationStatus', applicationStatus);
+        form.append('approvedCategory', approvedCategory);
 
-        if (json.ok && Array.isArray(json.items)) {
-          appData.practices = json.items;
-        } else {
-          appData.practices = [];
-        }
-      } catch (e) {
-        appData.practices = [];
-      }
-
-      if (appData.practices.length === 0) {
-        try {
-          var fb = await fetch(WEB_APP_URL + '?mode=publicPractices');
-          var fbJson = await fb.json();
-
-          if (fbJson.ok && Array.isArray(fbJson.items)) {
-            var now = new Date();
-            now.setHours(0, 0, 0, 0);
-
-            var limit = new Date(now);
-            limit.setDate(now.getDate() + 28);
-
-            appData.practices = fbJson.items.filter(function(i) {
-              if (!i.date) return false;
-              var d = new Date(i.date + 'T00:00:00');
-              return d >= now && d <= limit;
-            }).map(function(i) {
-              return {
-                id: i.id,
-                date: i.date,
-                title: i.title || '',
-                startTime: i.startTime || '',
-                endTime: i.endTime || '',
-                place: i.place || '',
-                note: i.note || '',
-                participantCount: 0,
-                participants: null
-              };
-            });
-          }
-        } catch (e2) {
-          appData.practices = [];
-        }
-      }
-
-      renderPractices();
-      updateSummary();
-    }
-
-    function renderPractices() {
-      var c = document.getElementById('practiceList');
-      var items = appData.practices;
-
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">今後4週間に公開中の通常練習はありません</div>';
-        return;
-      }
-
-      var html = '';
-
-      items.forEach(function(item, idx) {
-        var todayTag = isToday(item.date)
-          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
-          : '';
-
-        var count = item.participantCount || 0;
-
-        html += '<div class="card" id="pcard-' + idx + '">';
-
-        html += '<div class="card-header" onclick="toggleCard(this)">';
-        html += '<div style="flex:1;">';
-        html += '<div class="practice-date">' + formatDateJa(item.date) + todayTag + '</div>';
-        html += '<div class="practice-time">';
-        if (item.startTime || item.endTime) {
-          html += (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
-        }
-        html += '</div>';
-        if (item.place) html += '<div class="practice-place">' + item.place + '</div>';
-        html += '</div>';
-
-        html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="badge-count">' + count + '名</span>';
-        html += '<span class="expand-icon">▼</span>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '<div class="card-body">';
-        html += renderCategorySummary(item.participants);
-        html += renderParticipantGroups(item.participants);
-
-        html += '<div class="memo-section">';
-        html += '<div class="memo-label">練習メモ（備考）</div>';
-        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + (item.note || '') + '</textarea>';
-        html += '<div class="memo-save-row">';
-        html += '<span class="memo-status" id="pmemo-status-' + idx + '"></span>';
-        html += '<button class="memo-save-btn" onclick="savePracticeMemo(\'' + item.id + '\',' + idx + ')">保存</button>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '</div>';
-        html += '</div>';
-      });
-
-      c.innerHTML = html;
-    }
-
-    async function savePracticeMemo(practiceId, idx) {
-      var textarea = document.getElementById('pmemo-' + idx);
-      var statusEl = document.getElementById('pmemo-status-' + idx);
-      var btn = textarea.parentElement.querySelector('.memo-save-btn');
-      var memo = textarea.value;
-
-      btn.disabled = true;
-      statusEl.textContent = '保存中...';
-
-      try {
-        var url = WEB_APP_URL + '?mode=updatePracticeMemo'
-          + '&practiceId=' + encodeURIComponent(practiceId)
-          + '&memo=' + encodeURIComponent(memo);
-
-        var res = await fetch(url);
-        var json = await res.json();
-
-        if (json.ok) {
-          statusEl.textContent = '保存しました';
-          statusEl.style.color = '#34d399';
-        } else {
-          statusEl.textContent = 'エラー: ' + (json.message || '');
-          statusEl.style.color = '#f87171';
-        }
-      } catch (e) {
-        statusEl.textContent = '通信エラー';
-        statusEl.style.color = '#f87171';
-      }
-
-      btn.disabled = false;
-      setTimeout(function() {
-        statusEl.textContent = '';
-        statusEl.style.color = '';
-      }, 3000);
-    }
-
-    async function loadEvents() {
-      var c = document.getElementById('eventList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
-
-      try {
-        var res = await fetch(WEB_APP_URL + '?mode=adminEventsWithParticipants&_ts=' + Date.now(), {
-          cache: 'no-store'
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
         });
-        var json = await res.json();
 
-        if (json.ok && Array.isArray(json.items)) {
-          appData.events = json.items;
-        } else {
-          appData.events = [];
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`保存エラー: ${result.message || '不明なエラー'}`);
+          return;
         }
-      } catch (e) {
-        appData.events = [];
+
+        setStatus('ステータスを保存しました。');
+        await loadApplications();
+      } catch (error) {
+        setStatus(`保存エラー: ${error.message}`);
       }
-
-      if (appData.events.length === 0) {
-        try {
-          var fb = await fetch(WEB_APP_URL + '?mode=publicEvents&_ts=' + Date.now(), {
-            cache: 'no-store'
-          });
-          var fbJson = await fb.json();
-
-          if (fbJson.ok && Array.isArray(fbJson.items)) {
-            appData.events = fbJson.items.map(function(i) {
-              i.participants = null;
-              return i;
-            });
-          }
-        } catch (e2) {
-          appData.events = [];
-        }
-      }
-
-      renderEvents();
-      updateSummary();
     }
 
-    function renderEvents() {
-      var c = document.getElementById('eventList');
-      var items = appData.events;
+    async function approveApplication(pageId, index) {
+      const approvedCategory = document.getElementById(`category_${index}`).value;
+      const selectedStatus = document.getElementById(`status_${index}`).value;
 
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">公開中のイベント/クリニックはありません</div>';
+      if (!approvedCategory) {
+        setStatus('承認区分を選択してください。');
         return;
       }
 
-      var html = '';
+      if (selectedStatus !== '承認') {
+        setStatus('先に申込ステータスを「承認」にして保存してください。');
+        return;
+      }
 
-      items.forEach(function(item, idx) {
-        var todayTag = isToday(item.eventDate)
-          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
-          : '';
+      const firstConfirm = window.confirm(
+        'この操作は会員マスタ反映まで進む前提です。\nテスト先・本番接続先を確認しましたか？'
+      );
+      if (!firstConfirm) {
+        setStatus('承認処理を中止しました。');
+        return;
+      }
 
-        html += '<div class="card" id="ecard-' + idx + '">';
+      const secondConfirm = window.confirm(
+        '最終確認です。\nこの申請を承認し、会員マスタへ反映する処理を実行します。'
+      );
+      if (!secondConfirm) {
+        setStatus('承認処理を中止しました。');
+        return;
+      }
 
-        html += '<div class="card-header" onclick="toggleCard(this)">';
-        html += '<div style="flex:1;">';
-        html += '<div class="card-main">' + (item.eventName || 'イベント名なし') + todayTag + '</div>';
-        html += '<div class="card-sub">' + formatDateJa(item.eventDate);
-        if (item.startTime || item.endTime) {
-          html += '　' + (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
+      setStatus('承認処理を実行中です。');
+
+      try {
+        const form = new FormData();
+        form.append('action', 'approveMemberApplication');
+        form.append('pageId', pageId);
+        form.append('approvedCategory', approvedCategory);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`承認エラー: ${result.message || '不明なエラー'}`);
+          return;
         }
-        html += '</div>';
-        html += '</div>';
 
-        html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="card-badge badge-event">' + (item.statusLabel || '募集中') + '</span>';
-        html += '<span class="expand-icon">▼</span>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '<div class="card-body">';
-
-        if (item.place) html += '<div class="card-detail">' + item.place + '</div>';
-
-        html += '<div class="event-counts">';
-        html += '<div class="event-count-item">申込: <strong>' + (item.currentCount || 0) + '</strong>名</div>';
-        html += '<div class="event-count-item">定員: <strong>' + (item.capacity || '-') + '</strong>名</div>';
-        html += '<div class="event-count-item">残: <strong>' + (item.remainingCount || 0) + '</strong>名</div>';
-        html += '</div>';
-
-        html += renderCategorySummary(item.participants);
-
-        html += '<div class="card-detail" style="margin-top:8px;">';
-        html += '料金: クラブ ' + (item.clubPrice || 0) + '円 / スクール ' + (item.schoolPrice || 0) + '円 / 一般 ' + (item.generalPrice || 0) + '円';
-        html += '</div>';
-
-        if (item.targetLabel) html += '<div class="card-detail">対象: ' + item.targetLabel + '</div>';
-
-        html += '<div style="margin-top:12px;">';
-        html += renderParticipantGroups(item.participants);
-        html += '</div>';
-
-        if (item.note) html += '<div class="card-detail" style="margin-top:8px;">備考: ' + item.note + '</div>';
-
-        html += '</div>';
-        html += '</div>';
-      });
-
-      c.innerHTML = html;
+        setStatus('承認が完了しました。一覧を更新します。');
+        await loadApplications();
+      } catch (error) {
+        setStatus(`承認エラー: ${error.message}`);
+      }
     }
 
-    window.addEventListener('load', async function() {
-      await loadApplications();
-      await loadPractices();
-      await loadEvents();
-    });
+    window.addEventListener('load', loadApplications);
   </script>
 </body>
 </html>

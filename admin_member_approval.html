@@ -180,6 +180,7 @@
       padding: 12px 14px;
       font-size: 14px;
       color: #334155;
+      white-space: pre-wrap;
     }
 
     .filters {
@@ -391,6 +392,11 @@
       padding: 10px 12px;
     }
 
+    .inline-status {
+      font-size: 12px;
+      color: #64748b;
+    }
+
     .empty {
       text-align: center;
       background: #fff;
@@ -433,7 +439,7 @@
       </div>
       <div class="top-actions">
         <a href="./admin_hub.html" class="btn-link ghost">← 管理ハブへ戻る</a>
-        <button class="secondary" onclick="loadApplications()">一覧を更新</button>
+        <button class="secondary" onclick="loadApplications(true)">一覧を更新</button>
       </div>
     </div>
 
@@ -460,7 +466,7 @@
       <ul>
         <li>このページでは「ステータス保存」と「承認実行」が別です。</li>
         <li>承認実行は会員マスタ反映まで進む前提で扱ってください。</li>
-        <li>申請者へのLINE通知につながる可能性があるため、テスト時は本番連携先を必ず確認してください。</li>
+        <li>申請者へのLINE通知につながる可能性があるため、テスト時は本番接続先を必ず確認してください。</li>
       </ul>
     </div>
 
@@ -483,6 +489,7 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
     let allItems = [];
     let currentFilter = 'all';
+    let isLoading = false;
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -556,19 +563,67 @@
       });
     }
 
-    async function loadApplications() {
-      setStatus('一覧を読み込み中です。');
+    function findItemByPageId(pageId) {
+      return allItems.find(function(item) {
+        return item.pageId === pageId;
+      });
+    }
+
+    function refreshApproveButtonState(index) {
+      const statusEl = document.getElementById('status_' + index);
+      const categoryEl = document.getElementById('category_' + index);
+      const approveBtn = document.getElementById('approveBtn_' + index);
+
+      if (!statusEl || !categoryEl || !approveBtn) return;
+
+      const enabled = statusEl.value === '承認' && !!categoryEl.value;
+      approveBtn.disabled = !enabled;
+    }
+
+    function bindCardEvents() {
+      const filteredItems = getFilteredItems();
+
+      filteredItems.forEach(function(item, index) {
+        const statusEl = document.getElementById('status_' + index);
+        const categoryEl = document.getElementById('category_' + index);
+
+        if (statusEl) {
+          statusEl.addEventListener('change', function() {
+            refreshApproveButtonState(index);
+          });
+        }
+
+        if (categoryEl) {
+          categoryEl.addEventListener('change', function() {
+            refreshApproveButtonState(index);
+          });
+        }
+
+        refreshApproveButtonState(index);
+      });
+    }
+
+    async function loadApplications(showLoadingMessage) {
+      if (isLoading) return;
+      isLoading = true;
+
+      if (showLoadingMessage !== false) {
+        setStatus('一覧を読み込み中です。');
+      }
+
       const listArea = document.getElementById('listArea');
-      listArea.innerHTML = '';
 
       try {
-        const response = await fetch(`${WEB_APP_URL}?mode=pendingMemberApplications`);
+        const response = await fetch(`${WEB_APP_URL}?mode=pendingMemberApplications`, {
+          method: 'GET',
+          cache: 'no-store'
+        });
         const result = await response.json();
 
         if (!result.ok) {
-          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
           allItems = [];
           renderList();
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
           return;
         }
 
@@ -576,8 +631,10 @@
         renderList();
       } catch (error) {
         allItems = [];
-        setStatus(`読込エラー: ${error.message}`);
         renderList();
+        setStatus(`読込エラー: ${error.message}`);
+      } finally {
+        isLoading = false;
       }
     }
 
@@ -614,7 +671,6 @@
           <option value="一般" ${item.approvedCategory === '一般' ? 'selected' : ''}>一般</option>
         `;
 
-        const canApprove = isReadyToApprove(item);
         const noteText = item.note || '記載なし';
         const formattedAppliedAt = formatJapanDate(item.appliedAt);
         const statusClass = getStatusPillClass(item.applicationStatus);
@@ -636,7 +692,7 @@
             <div>
               <div class="name">${escapeHtml(item.childName || '氏名なし')}</div>
               <div class="meta">
-                ${escapeHtml(item.grade || '')}　
+                ${escapeHtml(item.grade || '')}
                 保護者: ${escapeHtml(item.parentName || '')}
               </div>
             </div>
@@ -652,7 +708,7 @@
             </div>
             <div class="info-box">
               <span class="label">現在の承認区分</span>
-              <div class="value">${escapeHtml(item.approvedCategory || '未設定')}</div>
+              <div class="value" id="currentCategoryLabel_${index}">${escapeHtml(item.approvedCategory || '未設定')}</div>
             </div>
             <div class="info-box">
               <span class="label">無料体験</span>
@@ -668,7 +724,7 @@
             </div>
             <div class="info-box">
               <span class="label">反映状況</span>
-              <div class="value">${item.reflected === false ? '未反映' : '反映済み / 不明'}</div>
+              <div class="value" id="reflectedLabel_${index}">${item.reflected === false ? '未反映' : '反映済み / 不明'}</div>
             </div>
             ${phoneRow}
             ${emailRow}
@@ -699,18 +755,20 @@
             </div>
 
             <div class="action-buttons">
-              <button class="secondary" onclick="saveStatus('${item.pageId}', ${index})">
+              <button class="secondary" id="saveBtn_${index}" onclick="saveStatus('${item.pageId}', ${index})">
                 ステータスを保存
               </button>
 
-              <button class="danger" id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" ${canApprove ? '' : 'disabled'}>
+              <button class="danger" id="approveBtn_${index}" onclick="approveApplication('${item.pageId}', ${index})" disabled>
                 承認して会員マスタへ反映
               </button>
+
+              <span class="inline-status" id="rowStatus_${index}"></span>
             </div>
 
             <div class="approve-note">
-              承認ボタンは「ステータスが承認」かつ「未反映」のときだけ有効です。
-              承認実行は通知や会員マスタ反映につながる可能性があるため、保存だけと区別して扱ってください。
+              承認ボタンは「ステータスが承認」かつ「承認区分あり」のときだけ有効です。
+              保存と承認実行は別操作です。
             </div>
           </div>
         `;
@@ -718,13 +776,23 @@
         listArea.appendChild(card);
       });
 
+      bindCardEvents();
       setStatus(`${items.length}件を表示しています。`);
     }
 
     async function saveStatus(pageId, index) {
       const applicationStatus = document.getElementById(`status_${index}`).value;
       const approvedCategory = document.getElementById(`category_${index}`).value;
+      const saveBtn = document.getElementById(`saveBtn_${index}`);
+      const rowStatus = document.getElementById(`rowStatus_${index}`);
 
+      if (!applicationStatus) {
+        setStatus('申込ステータスを選択してください。');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      rowStatus.textContent = '保存中...';
       setStatus('ステータスを保存中です。');
 
       try {
@@ -742,20 +810,38 @@
         const result = await response.json();
 
         if (!result.ok) {
+          rowStatus.textContent = '保存失敗';
           setStatus(`保存エラー: ${result.message || '不明なエラー'}`);
+          saveBtn.disabled = false;
           return;
         }
 
-        setStatus('ステータスを保存しました。');
-        await loadApplications();
+        const target = findItemByPageId(pageId);
+        if (target) {
+          target.applicationStatus = applicationStatus;
+          target.approvedCategory = approvedCategory || '';
+        }
+
+        const currentCategoryLabel = document.getElementById(`currentCategoryLabel_${index}`);
+        if (currentCategoryLabel) {
+          currentCategoryLabel.textContent = approvedCategory || '未設定';
+        }
+
+        rowStatus.textContent = '保存しました';
+        renderList();
       } catch (error) {
+        rowStatus.textContent = '保存失敗';
         setStatus(`保存エラー: ${error.message}`);
+      } finally {
+        saveBtn.disabled = false;
       }
     }
 
     async function approveApplication(pageId, index) {
       const approvedCategory = document.getElementById(`category_${index}`).value;
       const selectedStatus = document.getElementById(`status_${index}`).value;
+      const approveBtn = document.getElementById(`approveBtn_${index}`);
+      const rowStatus = document.getElementById(`rowStatus_${index}`);
 
       if (!approvedCategory) {
         setStatus('承認区分を選択してください。');
@@ -763,12 +849,12 @@
       }
 
       if (selectedStatus !== '承認') {
-        setStatus('先に申込ステータスを「承認」にして保存してください。');
+        setStatus('先に申込ステータスを「承認」にしてください。');
         return;
       }
 
       const firstConfirm = window.confirm(
-        'この操作は会員マスタ反映まで進む前提です。\nテスト先・本番接続先を確認しましたか？'
+        'この操作は会員マスタ反映まで進む前提です。\n本番接続先を確認しましたか？'
       );
       if (!firstConfirm) {
         setStatus('承認処理を中止しました。');
@@ -783,6 +869,8 @@
         return;
       }
 
+      approveBtn.disabled = true;
+      rowStatus.textContent = '承認処理中...';
       setStatus('承認処理を実行中です。');
 
       try {
@@ -799,18 +887,28 @@
         const result = await response.json();
 
         if (!result.ok) {
+          rowStatus.textContent = '承認失敗';
           setStatus(`承認エラー: ${result.message || '不明なエラー'}`);
+          approveBtn.disabled = false;
           return;
         }
 
-        setStatus('承認が完了しました。一覧を更新します。');
-        await loadApplications();
+        allItems = allItems.filter(function(item) {
+          return item.pageId !== pageId;
+        });
+
+        rowStatus.textContent = '承認完了';
+        renderList();
       } catch (error) {
+        rowStatus.textContent = '承認失敗';
         setStatus(`承認エラー: ${error.message}`);
+        approveBtn.disabled = false;
       }
     }
 
-    window.addEventListener('load', loadApplications);
+    window.addEventListener('load', function() {
+      loadApplications(true);
+    });
   </script>
 </body>
 </html>

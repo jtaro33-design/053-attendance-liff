@@ -476,8 +476,6 @@
 
         html += '<div class="card-detail">';
         if (item.affiliation) html += '所属: ' + item.affiliation + '<br>';
-        if (item.phone) html += '電話番号: ' + item.phone + '<br>';
-        if (item.email) html += 'メール: ' + item.email + '<br>';
         if (item.appliedAt) html += '申込日: ' + formatDateTimeShort(item.appliedAt);
         html += '</div>';
 
@@ -645,7 +643,9 @@
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
 
       try {
-        var res = await fetch(WEB_APP_URL + '?mode=adminEventsWithParticipants');
+        var res = await fetch(WEB_APP_URL + '?mode=adminEventsWithParticipants&_ts=' + Date.now(), {
+          cache: 'no-store'
+        });
         var json = await res.json();
 
         if (json.ok && Array.isArray(json.items)) {
@@ -659,7 +659,9 @@
 
       if (appData.events.length === 0) {
         try {
-          var fb = await fetch(WEB_APP_URL + '?mode=publicEvents');
+          var fb = await fetch(WEB_APP_URL + '?mode=publicEvents&_ts=' + Date.now(), {
+            cache: 'no-store'
+          });
           var fbJson = await fb.json();
 
           if (fbJson.ok && Array.isArray(fbJson.items)) {
@@ -743,7 +745,9 @@
     }
 
     window.addEventListener('load', async function() {
-      await Promise.all([ loadApplications(), loadPractices(), loadEvents() ]);
+      await loadApplications();
+      await loadPractices();
+      await loadEvents();
     });
   </script>
 </body>

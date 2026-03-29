@@ -311,36 +311,7 @@
     }
 
     function toggleCard(el) {
-      var card = el.closest('.card');
-      if (card) card.classList.toggle('open');
-    }
-
-    function buildUrl(mode) {
-      return WEB_APP_URL + '?mode=' + encodeURIComponent(mode) + '&_t=' + Date.now();
-    }
-
-    async function fetchJsonWithTimeout(url, timeoutMs) {
-      var controller = new AbortController();
-      var timer = setTimeout(function() {
-        controller.abort();
-      }, timeoutMs || 8000);
-
-      try {
-        var response = await fetch(url, {
-          method: 'GET',
-          cache: 'no-store',
-          signal: controller.signal
-        });
-
-        var text = await response.text();
-        try {
-          return JSON.parse(text);
-        } catch (parseError) {
-          throw new Error('JSON解析失敗');
-        }
-      } finally {
-        clearTimeout(timer);
-      }
+      el.closest('.card').classList.toggle('open');
     }
 
     function formatDateJa(dateStr) {
@@ -376,15 +347,6 @@
       return '<span class="card-badge">' + (status || '不明') + '</span>';
     }
 
-    function escapeHtml(value) {
-      return String(value == null ? '' : value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
     function updateApprovalLink() {
       var link = document.getElementById('approvalPageLink');
       var count = appData.applications.length;
@@ -393,9 +355,9 @@
     }
 
     function getCategoryCounts(participants) {
-      var club = (participants && Array.isArray(participants['クラブ'])) ? participants['クラブ'].length : 0;
-      var school = (participants && Array.isArray(participants['スクール'])) ? participants['スクール'].length : 0;
-      var general = (participants && Array.isArray(participants['一般'])) ? participants['一般'].length : 0;
+      var club = (participants && participants['クラブ']) ? participants['クラブ'].length : 0;
+      var school = (participants && participants['スクール']) ? participants['スクール'].length : 0;
+      var general = (participants && participants['一般']) ? participants['一般'].length : 0;
       return {
         club: club,
         school: school,
@@ -416,9 +378,9 @@
     function renderParticipantGroups(participants) {
       if (!participants) return '<div class="participant-empty">参加者情報なし</div>';
 
-      var clubList = Array.isArray(participants['クラブ']) ? participants['クラブ'] : [];
-      var schoolList = Array.isArray(participants['スクール']) ? participants['スクール'] : [];
-      var generalList = Array.isArray(participants['一般']) ? participants['一般'] : [];
+      var clubList = participants['クラブ'] || [];
+      var schoolList = participants['スクール'] || [];
+      var generalList = participants['一般'] || [];
       var total = clubList.length + schoolList.length + generalList.length;
 
       if (total === 0) return '<div class="participant-empty">申込者はまだいません</div>';
@@ -428,21 +390,21 @@
       if (clubList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title club">クラブ（' + clubList.length + '名）</div>';
-        html += '<div class="participant-names">' + clubList.map(escapeHtml).join('、') + '</div>';
+        html += '<div class="participant-names">' + clubList.join('、') + '</div>';
         html += '</div>';
       }
 
       if (schoolList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title school">スクール（' + schoolList.length + '名）</div>';
-        html += '<div class="participant-names">' + schoolList.map(escapeHtml).join('、') + '</div>';
+        html += '<div class="participant-names">' + schoolList.join('、') + '</div>';
         html += '</div>';
       }
 
       if (generalList.length > 0) {
         html += '<div class="participant-group">';
         html += '<div class="participant-group-title general">一般（' + generalList.length + '名）</div>';
-        html += '<div class="participant-names">' + generalList.map(escapeHtml).join('、') + '</div>';
+        html += '<div class="participant-names">' + generalList.join('、') + '</div>';
         html += '</div>';
       }
 
@@ -463,14 +425,35 @@
         '最終更新 ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2);
     }
 
+    async function fetchJsonSafely(url) {
+      var response = await fetch(url, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+
+      var text = await response.text();
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        console.error('[fetchJsonSafely] JSON parse error', url, text);
+        throw new Error('JSON解析失敗');
+      }
+    }
+
     async function loadApplications() {
       var c = document.getElementById('applicationList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
 
       try {
-        var json = await fetchJsonWithTimeout(buildUrl('pendingMemberApplications'), 8000);
-        appData.applications = (json && json.ok && Array.isArray(json.items)) ? json.items : [];
+        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=pendingMemberApplications');
+        appData.applications = (json.ok && Array.isArray(json.items)) ? json.items : [];
       } catch (e) {
+        console.error('[loadApplications]', e);
         appData.applications = [];
       }
 
@@ -483,7 +466,7 @@
       var c = document.getElementById('applicationList');
       var items = appData.applications;
 
-      if (!items.length) {
+      if (items.length === 0) {
         c.innerHTML = '<div class="empty-text">対応が必要な入会申請はありません</div>';
         return;
       }
@@ -495,31 +478,31 @@
 
         html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">';
         html += '<div>';
-        html += '<div class="card-main">' + escapeHtml(item.childName || '氏名なし') + '</div>';
-        html += '<div class="card-sub">' + escapeHtml(item.grade || '学年未設定') + '　保護者: ' + escapeHtml(item.parentName || '未入力') + '</div>';
+        html += '<div class="card-main">' + (item.childName || '氏名なし') + '</div>';
+        html += '<div class="card-sub">' + (item.grade || '学年未設定') + '　保護者: ' + (item.parentName || '未入力') + '</div>';
         html += '</div>';
         html += statusBadgeHtml(item.applicationStatus);
         html += '</div>';
 
         html += '<div class="app-top-line">';
-        html += '<span class="info-chip">希望区分: ' + escapeHtml(item.desiredCategory || '未選択') + '</span>';
+        html += '<span class="info-chip">希望区分: ' + (item.desiredCategory || '未選択') + '</span>';
         if (item.trialStatus) {
-          html += '<span class="info-chip">体験: ' + escapeHtml(item.trialStatus) + '</span>';
+          html += '<span class="info-chip">体験: ' + item.trialStatus + '</span>';
         }
         if (item.approvedCategory) {
-          html += '<span class="info-chip">承認区分: ' + escapeHtml(item.approvedCategory) + '</span>';
+          html += '<span class="info-chip">承認区分: ' + item.approvedCategory + '</span>';
         }
         html += '</div>';
 
         html += '<div class="card-detail">';
-        if (item.affiliation) html += '所属: ' + escapeHtml(item.affiliation) + '<br>';
-        if (item.phone) html += '電話番号: ' + escapeHtml(item.phone) + '<br>';
-        if (item.email) html += 'メール: ' + escapeHtml(item.email) + '<br>';
-        if (item.appliedAt) html += '申込日: ' + escapeHtml(formatDateTimeShort(item.appliedAt));
+        if (item.affiliation) html += '所属: ' + item.affiliation + '<br>';
+        if (item.phone) html += '電話番号: ' + item.phone + '<br>';
+        if (item.email) html += 'メール: ' + item.email + '<br>';
+        if (item.appliedAt) html += '申込日: ' + formatDateTimeShort(item.appliedAt);
         html += '</div>';
 
         if (item.note) {
-          html += '<div class="card-detail-muted">備考: ' + escapeHtml(item.note) + '</div>';
+          html += '<div class="card-detail-muted">備考: ' + item.note + '</div>';
         }
 
         html += '</div></div>';
@@ -533,22 +516,23 @@
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
 
       try {
-        var json = await fetchJsonWithTimeout(buildUrl('adminPractices4weeks'), 9000);
+        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=adminPractices4weeks');
 
-        if (json && json.ok && Array.isArray(json.items)) {
+        if (json.ok && Array.isArray(json.items) && json.items.length > 0) {
           appData.practices = json.items;
         } else {
           appData.practices = [];
         }
       } catch (e) {
+        console.error('[loadPractices adminPractices4weeks]', e);
         appData.practices = [];
       }
 
       if (appData.practices.length === 0) {
         try {
-          var fbJson = await fetchJsonWithTimeout(buildUrl('publicPractices'), 8000);
+          var fbJson = await fetchJsonSafely(WEB_APP_URL + '?mode=publicPractices');
 
-          if (fbJson && fbJson.ok && Array.isArray(fbJson.items)) {
+          if (fbJson.ok && Array.isArray(fbJson.items)) {
             var now = new Date();
             now.setHours(0, 0, 0, 0);
 
@@ -561,8 +545,8 @@
               return d >= now && d <= limit;
             }).map(function(i) {
               return {
-                id: i.id || '',
-                date: i.date || '',
+                id: i.id,
+                date: i.date,
                 title: i.title || '',
                 startTime: i.startTime || '',
                 endTime: i.endTime || '',
@@ -574,6 +558,7 @@
             });
           }
         } catch (e2) {
+          console.error('[loadPractices publicPractices]', e2);
           appData.practices = [];
         }
       }
@@ -586,7 +571,7 @@
       var c = document.getElementById('practiceList');
       var items = appData.practices;
 
-      if (!items.length) {
+      if (items.length === 0) {
         c.innerHTML = '<div class="empty-text">今後4週間に公開中の通常練習はありません</div>';
         return;
       }
@@ -601,15 +586,16 @@
         var count = item.participantCount || 0;
 
         html += '<div class="card" id="pcard-' + idx + '">';
+
         html += '<div class="card-header" onclick="toggleCard(this)">';
         html += '<div style="flex:1;">';
-        html += '<div class="practice-date">' + escapeHtml(formatDateJa(item.date)) + todayTag + '</div>';
+        html += '<div class="practice-date">' + formatDateJa(item.date) + todayTag + '</div>';
         html += '<div class="practice-time">';
         if (item.startTime || item.endTime) {
-          html += escapeHtml((item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || ''));
+          html += (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
         }
         html += '</div>';
-        if (item.place) html += '<div class="practice-place">' + escapeHtml(item.place) + '</div>';
+        if (item.place) html += '<div class="practice-place">' + item.place + '</div>';
         html += '</div>';
 
         html += '<div style="display:flex;align-items:center;gap:6px;">';
@@ -624,10 +610,10 @@
 
         html += '<div class="memo-section">';
         html += '<div class="memo-label">練習メモ（備考）</div>';
-        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + escapeHtml(item.note || '') + '</textarea>';
+        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + (item.note || '') + '</textarea>';
         html += '<div class="memo-save-row">';
         html += '<span class="memo-status" id="pmemo-status-' + idx + '"></span>';
-        html += '<button class="memo-save-btn" onclick="savePracticeMemo(\'' + String(item.id || '').replace(/'/g, '\\&#39;') + '\',' + idx + ')">保存</button>';
+        html += '<button class="memo-save-btn" onclick="savePracticeMemo(\'' + item.id + '\',' + idx + ')">保存</button>';
         html += '</div>';
         html += '</div>';
 
@@ -648,22 +634,21 @@
       statusEl.textContent = '保存中...';
 
       try {
-        var url = WEB_APP_URL +
-          '?mode=updatePracticeMemo' +
+        var json = await fetchJsonSafely(
+          WEB_APP_URL + '?mode=updatePracticeMemo' +
           '&practiceId=' + encodeURIComponent(practiceId) +
-          '&memo=' + encodeURIComponent(memo) +
-          '&_t=' + Date.now();
+          '&memo=' + encodeURIComponent(memo)
+        );
 
-        var json = await fetchJsonWithTimeout(url, 8000);
-
-        if (json && json.ok) {
+        if (json.ok) {
           statusEl.textContent = '保存しました';
           statusEl.style.color = '#34d399';
         } else {
-          statusEl.textContent = 'エラー: ' + ((json && json.message) || '');
+          statusEl.textContent = 'エラー: ' + (json.message || '');
           statusEl.style.color = '#f87171';
         }
       } catch (e) {
+        console.error('[savePracticeMemo]', e);
         statusEl.textContent = '通信エラー';
         statusEl.style.color = '#f87171';
       }
@@ -679,44 +664,30 @@
       var c = document.getElementById('eventList');
       c.innerHTML = '<div class="loading-text">読み込み中...</div>';
 
-      appData.events = [];
-
       try {
-        var adminJson = await fetchJsonWithTimeout(buildUrl('adminEventsWithParticipants'), 8000);
+        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=adminEventsWithParticipants');
 
-        if (adminJson && adminJson.ok && Array.isArray(adminJson.items) && adminJson.items.length > 0) {
-          appData.events = adminJson.items;
+        if (json.ok && Array.isArray(json.items) && json.items.length > 0) {
+          appData.events = json.items;
+        } else {
+          appData.events = [];
         }
       } catch (e) {
+        console.error('[loadEvents adminEventsWithParticipants]', e);
+        appData.events = [];
       }
 
       if (appData.events.length === 0) {
         try {
-          var publicJson = await fetchJsonWithTimeout(buildUrl('publicEvents'), 8000);
+          var fbJson = await fetchJsonSafely(WEB_APP_URL + '?mode=publicEvents');
 
-          if (publicJson && publicJson.ok && Array.isArray(publicJson.items)) {
-            appData.events = publicJson.items.map(function(i) {
-              return {
-                pageId: i.pageId || '',
-                eventName: i.eventName || '',
-                eventDate: i.eventDate || '',
-                startTime: i.startTime || '',
-                endTime: i.endTime || '',
-                place: i.place || '',
-                targetLabel: i.targetLabel || '',
-                clubPrice: i.clubPrice || 0,
-                schoolPrice: i.schoolPrice || 0,
-                generalPrice: i.generalPrice || 0,
-                capacity: i.capacity || 0,
-                currentCount: i.currentCount || 0,
-                remainingCount: (typeof i.remainingCount === 'number') ? i.remainingCount : 0,
-                statusLabel: i.statusLabel || '募集中',
-                note: i.note || '',
-                participants: i.participants || null
-              };
+          if (fbJson.ok && Array.isArray(fbJson.items)) {
+            appData.events = fbJson.items.map(function(i) {
+              return Object.assign({}, i, { participants: i.participants || null });
             });
           }
         } catch (e2) {
+          console.error('[loadEvents publicEvents]', e2);
           appData.events = [];
         }
       }
@@ -729,7 +700,7 @@
       var c = document.getElementById('eventList');
       var items = appData.events;
 
-      if (!items.length) {
+      if (items.length === 0) {
         c.innerHTML = '<div class="empty-text">公開中のイベント/クリニックはありません</div>';
         return;
       }
@@ -742,25 +713,26 @@
           : '';
 
         html += '<div class="card" id="ecard-' + idx + '">';
+
         html += '<div class="card-header" onclick="toggleCard(this)">';
         html += '<div style="flex:1;">';
-        html += '<div class="card-main">' + escapeHtml(item.eventName || 'イベント名なし') + todayTag + '</div>';
-        html += '<div class="card-sub">' + escapeHtml(formatDateJa(item.eventDate));
+        html += '<div class="card-main">' + (item.eventName || 'イベント名なし') + todayTag + '</div>';
+        html += '<div class="card-sub">' + formatDateJa(item.eventDate);
         if (item.startTime || item.endTime) {
-          html += '　' + escapeHtml((item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || ''));
+          html += '　' + (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
         }
         html += '</div>';
         html += '</div>';
 
         html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="card-badge badge-event">' + escapeHtml(item.statusLabel || '募集中') + '</span>';
+        html += '<span class="card-badge badge-event">' + (item.statusLabel || '募集中') + '</span>';
         html += '<span class="expand-icon">▼</span>';
         html += '</div>';
         html += '</div>';
 
         html += '<div class="card-body">';
 
-        if (item.place) html += '<div class="card-detail">' + escapeHtml(item.place) + '</div>';
+        if (item.place) html += '<div class="card-detail">' + item.place + '</div>';
 
         html += '<div class="event-counts">';
         html += '<div class="event-count-item">申込: <strong>' + (item.currentCount || 0) + '</strong>名</div>';
@@ -774,13 +746,13 @@
         html += '料金: クラブ ' + (item.clubPrice || 0) + '円 / スクール ' + (item.schoolPrice || 0) + '円 / 一般 ' + (item.generalPrice || 0) + '円';
         html += '</div>';
 
-        if (item.targetLabel) html += '<div class="card-detail">対象: ' + escapeHtml(item.targetLabel) + '</div>';
+        if (item.targetLabel) html += '<div class="card-detail">対象: ' + item.targetLabel + '</div>';
 
         html += '<div style="margin-top:12px;">';
         html += renderParticipantGroups(item.participants);
         html += '</div>';
 
-        if (item.note) html += '<div class="card-detail" style="margin-top:8px;">備考: ' + escapeHtml(item.note) + '</div>';
+        if (item.note) html += '<div class="card-detail" style="margin-top:8px;">備考: ' + item.note + '</div>';
 
         html += '</div>';
         html += '</div>';
@@ -790,9 +762,7 @@
     }
 
     window.addEventListener('load', async function() {
-      await loadApplications();
-      await loadPractices();
-      await loadEvents();
+      await Promise.all([ loadApplications(), loadPractices(), loadEvents() ]);
     });
   </script>
 </body>

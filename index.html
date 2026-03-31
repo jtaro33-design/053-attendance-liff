@@ -215,6 +215,255 @@
     .success-text-line {
       display: block;
     }
+
+    .calendar-wrapper {
+      margin-bottom: 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .calendar-header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .calendar-nav-btn {
+      width: auto;
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .calendar-nav-btn:disabled {
+      background: none;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+    }
+
+    .calendar-dow {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 0 4px;
+      color: #6b7280;
+      background: #f8fafc;
+    }
+
+    .calendar-dow:first-child {
+      color: #dc2626;
+    }
+
+    .calendar-dow:last-child {
+      color: #2563eb;
+    }
+
+    .calendar-cell {
+      padding: 6px 2px;
+      font-size: 14px;
+      cursor: default;
+      position: relative;
+      min-height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendar-cell.empty {
+      background: transparent;
+    }
+
+    .calendar-cell.has-schedule {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .calendar-cell.has-schedule:hover {
+      background: #eff6ff;
+    }
+
+    .calendar-cell.today .cal-day-num {
+      background: #dbeafe;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      display: inline-block;
+    }
+
+    .calendar-cell.selected {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .calendar-cell.selected .cal-day-num {
+      background: transparent;
+      color: #ffffff;
+    }
+
+    .calendar-cell.selected .cal-dot-practice,
+    .calendar-cell.selected .cal-dot-event {
+      opacity: 0.9;
+    }
+
+    .cal-dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 2px;
+      justify-content: center;
+    }
+
+    .cal-dot-practice {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2563eb;
+    }
+
+    .cal-dot-event {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    .calendar-legend {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      padding: 6px 12px 8px;
+      font-size: 12px;
+      color: #6b7280;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .calendar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot-practice {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2563eb;
+    }
+
+    .legend-dot-event {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f59e0b;
+    }
+
+    .calendar-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #eff6ff;
+      border-top: 1px solid #e2e8f0;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+
+    .calendar-clear-btn {
+      width: auto;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .calendar-clear-btn:disabled {
+      background: #ffffff;
+    }
+
+    .no-practice-msg {
+      padding: 14px;
+      text-align: center;
+      font-size: 15px;
+      color: #6b7280;
+      border: 1px dashed #d1d5db;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .event-item {
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fffbeb;
+    }
+
+    .event-item-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .event-type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f59e0b;
+      color: #ffffff;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .event-meta {
+      font-size: 16px;
+    }
+
+    .event-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .event-link {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 13px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .event-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -227,8 +476,30 @@
 
       <div id="viewerBox" class="viewer-box">会員情報を確認中です...</div>
 
+      <div id="calendarWrapper" class="calendar-wrapper hidden">
+        <div class="calendar-header">
+          <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(-1)">◀ 前月</button>
+          <span id="calendarTitle" class="calendar-header-title"></span>
+          <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(1)">次月 ▶</button>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+        <div class="calendar-legend">
+          <span class="calendar-legend-item"><span class="legend-dot-practice"></span> 通常練習</span>
+          <span class="calendar-legend-item"><span class="legend-dot-event"></span> イベント / クリニック</span>
+        </div>
+        <div id="calendarFilterBar" class="calendar-filter-bar hidden">
+          <span id="calendarFilterLabel"></span>
+          <button type="button" class="calendar-clear-btn" onclick="clearCalendarDateFilter()">全日程表示</button>
+        </div>
+      </div>
+
       <div class="section-title">対象練習</div>
       <div id="practiceList"></div>
+
+      <div id="eventListSection" class="hidden">
+        <div class="section-title">イベント / クリニック</div>
+        <div id="eventList"></div>
+      </div>
 
       <div class="field">
         <label for="childName">子ども氏名</label>
@@ -286,6 +557,10 @@
       category: '一般'
     };
 
+    let events = [];
+    let currentCalendarMonth = null;
+    let selectedPracticeDate = '';
+
     function normalizeId(id) {
       return String(id || '').replace(/-/g, '').trim();
     }
@@ -336,6 +611,18 @@
       }
       if (practice.place) parts.push(practice.place);
       if (practice.title) parts.push(practice.title);
+      return parts.join('｜');
+    }
+
+    function buildEventLabel(ev) {
+      const parts = [];
+      const dateLabel = formatDateShort(ev.date);
+      if (dateLabel) parts.push(dateLabel);
+      if (ev.startTime || ev.endTime) {
+        parts.push((ev.startTime || '') + (ev.startTime && ev.endTime ? '〜' : '') + (ev.endTime || ''));
+      }
+      if (ev.place) parts.push(ev.place);
+      if (ev.title) parts.push(ev.title);
       return parts.join('｜');
     }
 
@@ -445,6 +732,39 @@
       }
     }
 
+    async function loadEvents() {
+      try {
+        const result = await fetchJsonWithTimeout(
+          WEB_APP_URL + '?mode=publicEvents&t=' + Date.now(),
+          10000
+        );
+
+        if (result.ok && Array.isArray(result.items)) {
+          events = result.items.map(function(item) {
+            return {
+              id: item.pageId || item.id || '',
+              date: item.eventDate || item.date || '',
+              title: item.eventName || item.title || '',
+              startTime: item.startTime || '',
+              endTime: item.endTime || '',
+              place: item.place || '',
+              note: item.note || '',
+              formUrl: item.formUrl || item.url || '',
+              statusLabel: item.statusLabel || '',
+              targetLabel: item.targetLabel || '',
+              raw: item
+            };
+          }).filter(function(item) {
+            return !!item.date;
+          });
+        } else {
+          events = [];
+        }
+      } catch (error) {
+        events = [];
+      }
+    }
+
     async function loadActiveSignupPracticeIds() {
       if (!LINE_USER_ID) {
         activeSignupPracticeIds = [];
@@ -470,15 +790,26 @@
     }
 
     function renderPracticeList() {
+      let displayPractices = practices;
+      if (selectedPracticeDate) {
+        displayPractices = practices.filter(function(p) {
+          return p.date === selectedPracticeDate;
+        });
+      }
+
       const container = document.getElementById('practiceList');
       container.innerHTML = '';
 
-      if (!Array.isArray(practices) || practices.length === 0) {
-        container.innerHTML = '<div class="practice-option disabled">現在、公開中の通常練習はありません。</div>';
+      if (!Array.isArray(displayPractices) || displayPractices.length === 0) {
+        if (selectedPracticeDate) {
+          container.innerHTML = '<div class="no-practice-msg">この日に公開中の通常練習はありません</div>';
+        } else {
+          container.innerHTML = '<div class="practice-option disabled">現在、公開中の通常練習はありません。</div>';
+        }
         return;
       }
 
-      practices.forEach(function(practice) {
+      displayPractices.forEach(function(practice) {
         const normalizedPracticeId = normalizeId(practice.id);
         const isDisabled = activeSignupPracticeIds.includes(normalizedPracticeId);
         const wrapper = document.createElement('div');
@@ -502,6 +833,65 @@
             </div>
           </label>
         `;
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    function renderEventList() {
+      let displayEvents = events;
+      if (selectedPracticeDate) {
+        displayEvents = events.filter(function(ev) {
+          return ev.date === selectedPracticeDate;
+        });
+      }
+
+      const section = document.getElementById('eventListSection');
+      const container = document.getElementById('eventList');
+      container.innerHTML = '';
+
+      if (!Array.isArray(events) || events.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      if (!Array.isArray(displayEvents) || displayEvents.length === 0) {
+        section.classList.remove('hidden');
+        if (selectedPracticeDate) {
+          container.innerHTML = '<div class="no-practice-msg">この日に公開中のイベント / クリニックはありません</div>';
+        } else {
+          container.innerHTML = '';
+        }
+        return;
+      }
+
+      section.classList.remove('hidden');
+
+      displayEvents.forEach(function(ev) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'event-item';
+
+        const label = buildEventLabel(ev);
+        const linkHtml = ev.formUrl
+          ? '<a href="' + ev.formUrl + '" class="event-link" target="_blank" rel="noopener noreferrer">詳細・申込はこちら →</a>'
+          : '';
+
+        const subParts = [];
+        if (ev.statusLabel) subParts.push(ev.statusLabel);
+        if (ev.targetLabel) subParts.push('対象: ' + ev.targetLabel);
+        const subHtml = subParts.length
+          ? '<div class="event-sub">' + subParts.join('｜') + '</div>'
+          : '';
+
+        wrapper.innerHTML =
+          '<div class="event-item-inner">' +
+            '<span class="event-type-badge">イベント / クリニック</span>' +
+            '<div class="event-meta">' +
+              '<div>' + label + '</div>' +
+              subHtml +
+              linkHtml +
+            '</div>' +
+          '</div>';
 
         container.appendChild(wrapper);
       });
@@ -613,6 +1003,155 @@
       }
     }
 
+    function getScheduleDateSets() {
+      const practiceDateSet = {};
+      const eventDateSet = {};
+
+      practices.forEach(function(p) {
+        if (p.date) practiceDateSet[p.date] = true;
+      });
+
+      events.forEach(function(ev) {
+        if (ev.date) eventDateSet[ev.date] = true;
+      });
+
+      return {
+        practices: practiceDateSet,
+        events: eventDateSet
+      };
+    }
+
+    function toDateStr(year, month, day) {
+      return year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+
+    function getTodayStr() {
+      const now = new Date();
+      return toDateStr(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function renderCalendar() {
+      if (!currentCalendarMonth) {
+        const now = new Date();
+        currentCalendarMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      const year = currentCalendarMonth.getFullYear();
+      const month = currentCalendarMonth.getMonth();
+
+      document.getElementById('calendarTitle').textContent = year + '年 ' + (month + 1) + '月';
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      const dows = ['日', '月', '火', '水', '木', '金', '土'];
+      dows.forEach(function(d) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-dow';
+        cell.textContent = d;
+        grid.appendChild(cell);
+      });
+
+      const firstDow = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const dateSets = getScheduleDateSets();
+      const todayStr = getTodayStr();
+
+      for (let i = 0; i < firstDow; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'calendar-cell empty';
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = toDateStr(year, month, day);
+        const cell = document.createElement('div');
+        const classes = ['calendar-cell'];
+
+        const hasPractice = !!dateSets.practices[dateStr];
+        const hasEvent = !!dateSets.events[dateStr];
+        const hasAny = hasPractice || hasEvent;
+
+        if (hasAny) classes.push('has-schedule');
+        if (dateStr === todayStr) classes.push('today');
+        if (dateStr === selectedPracticeDate) classes.push('selected');
+
+        cell.className = classes.join(' ');
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'cal-day-num';
+        numSpan.textContent = day;
+        cell.appendChild(numSpan);
+
+        if (hasAny) {
+          const dotsContainer = document.createElement('span');
+          dotsContainer.className = 'cal-dots';
+
+          if (hasPractice) {
+            const dotP = document.createElement('span');
+            dotP.className = 'cal-dot-practice';
+            dotsContainer.appendChild(dotP);
+          }
+
+          if (hasEvent) {
+            const dotE = document.createElement('span');
+            dotE.className = 'cal-dot-event';
+            dotsContainer.appendChild(dotE);
+          }
+
+          cell.appendChild(dotsContainer);
+          cell.setAttribute('data-date', dateStr);
+          cell.addEventListener('click', function() {
+            selectCalendarDate(this.getAttribute('data-date'));
+          });
+        }
+
+        grid.appendChild(cell);
+      }
+
+      document.getElementById('calendarWrapper').classList.remove('hidden');
+    }
+
+    function changeCalendarMonth(offset) {
+      if (!currentCalendarMonth) {
+        const now = new Date();
+        currentCalendarMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      currentCalendarMonth = new Date(
+        currentCalendarMonth.getFullYear(),
+        currentCalendarMonth.getMonth() + offset,
+        1
+      );
+
+      renderCalendar();
+    }
+
+    function selectCalendarDate(dateStr) {
+      if (selectedPracticeDate === dateStr) {
+        clearCalendarDateFilter();
+        return;
+      }
+
+      selectedPracticeDate = dateStr;
+      renderCalendar();
+      renderPracticeList();
+      renderEventList();
+
+      const filterBar = document.getElementById('calendarFilterBar');
+      const filterLabel = document.getElementById('calendarFilterLabel');
+      filterBar.classList.remove('hidden');
+      filterLabel.textContent = formatDateShort(dateStr) + ' のスケジュールを表示中';
+    }
+
+    function clearCalendarDateFilter() {
+      selectedPracticeDate = '';
+      renderCalendar();
+      renderPracticeList();
+      renderEventList();
+      document.getElementById('calendarFilterBar').classList.add('hidden');
+    }
+
     async function initPage() {
       loadSavedInputs();
 
@@ -624,9 +1163,15 @@
       await loadPractices();
       renderPracticeList();
 
+      setStatus('イベント情報を読み込み中です...');
+      await loadEvents();
+      renderEventList();
+      renderCalendar();
+
       setStatus('申込済み情報を確認中です...');
       await loadActiveSignupPracticeIds();
       renderPracticeList();
+      renderCalendar();
 
       setStatus('画面の読み込みが完了しました。');
     }
@@ -635,6 +1180,8 @@
       document.getElementById('successView').classList.add('hidden');
       document.getElementById('formView').classList.remove('hidden');
       document.getElementById('submitBtn').disabled = false;
+      selectedPracticeDate = '';
+      document.getElementById('calendarFilterBar').classList.add('hidden');
       await initPage();
     }
 

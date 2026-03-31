@@ -216,7 +216,6 @@
       display: block;
     }
 
-    /* ===== カレンダーUI ===== */
     .calendar-wrapper {
       margin-bottom: 18px;
       border: 1px solid #e2e8f0;
@@ -417,7 +416,6 @@
       margin-bottom: 12px;
     }
 
-    /* ===== イベント表示 ===== */
     .event-item {
       border: 1px solid #fcd34d;
       border-radius: 12px;
@@ -478,6 +476,24 @@
     .event-link:hover {
       text-decoration: underline;
     }
+
+    .fee-label {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .fee-label.fee-unknown {
+      background: #f9fafb;
+      color: #6b7280;
+      border-color: #e5e7eb;
+    }
   </style>
 </head>
 <body>
@@ -490,7 +506,6 @@
 
       <div id="viewerBox" class="viewer-box">会員情報を確認中です...</div>
 
-      <!-- ===== カレンダーUI ===== -->
       <div id="calendarWrapper" class="calendar-wrapper hidden">
         <div class="calendar-header">
           <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(-1)">◀ 前月</button>
@@ -629,18 +644,6 @@
       return parts.join('｜');
     }
 
-    function buildEventLabel(ev) {
-      const parts = [];
-      const dateLabel = formatDateShort(ev.date);
-      if (dateLabel) parts.push(dateLabel);
-      if (ev.startTime || ev.endTime) {
-        parts.push((ev.startTime || '') + (ev.startTime && ev.endTime ? '〜' : '') + (ev.endTime || ''));
-      }
-      if (ev.place) parts.push(ev.place);
-      if (ev.title) parts.push(ev.title);
-      return parts.join('｜');
-    }
-
     function loadSavedInputs() {
       document.getElementById('childName').value = localStorage.getItem('attendance_childName') || '';
       document.getElementById('parentName').value = localStorage.getItem('attendance_parentName') || '';
@@ -663,6 +666,104 @@
       if (viewerProfile.parentName) {
         parentInput.value = viewerProfile.parentName;
       }
+    }
+
+    function findFeeValue(obj, candidateKeys) {
+      for (var i = 0; i < candidateKeys.length; i++) {
+        var key = candidateKeys[i];
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          var val = obj[key];
+          if (val !== undefined && val !== null && val !== '') {
+            return val;
+          }
+        }
+      }
+      return undefined;
+    }
+
+    function formatFeeValue(fee) {
+      if (fee === undefined || fee === null || fee === '') return null;
+      if (fee === 0 || fee === '0' || fee === '無料' || fee === 'free') return '無料';
+      var num = Number(fee);
+      if (!isNaN(num)) return num.toLocaleString() + '円';
+      return String(fee);
+    }
+
+    function getPracticeFeeLabel(practice) {
+      var cat = viewerProfile.category || '一般';
+
+      if (cat === 'クラブ') {
+        return '無料';
+      }
+
+      var fee;
+      if (cat === 'スクール') {
+        fee = findFeeValue(practice, [
+          '参加費スクール生',
+          '参加費スクール',
+          'feeSchool',
+          'schoolPrice',
+          'スクール料金',
+          'スクール生料金'
+        ]);
+      } else {
+        fee = findFeeValue(practice, [
+          '参加費一般',
+          'feeGeneral',
+          'generalPrice',
+          '一般料金',
+          '参加費'
+        ]);
+      }
+
+      var formatted = formatFeeValue(fee);
+      return formatted !== null ? formatted : '料金未設定';
+    }
+
+    function getEventFeeLabel(ev) {
+      var cat = viewerProfile.category || '一般';
+      var src = ev.raw || ev;
+
+      var fee;
+      if (cat === 'クラブ') {
+        fee = findFeeValue(src, [
+          '参加費クラブ',
+          '参加費クラブ生',
+          'clubPrice',
+          'feeClub',
+          'クラブ料金',
+          'クラブ生料金'
+        ]);
+        if (fee === undefined || fee === null || fee === '') {
+          fee = findFeeValue(src, ['参加費', 'fee']);
+        }
+      } else if (cat === 'スクール') {
+        fee = findFeeValue(src, [
+          '参加費スクール生',
+          '参加費スクール',
+          'schoolPrice',
+          'feeSchool',
+          'スクール料金',
+          'スクール生料金'
+        ]);
+      } else {
+        fee = findFeeValue(src, [
+          '参加費一般',
+          'generalPrice',
+          'feeGeneral',
+          '一般料金',
+          '参加費',
+          'fee'
+        ]);
+      }
+
+      var formatted = formatFeeValue(fee);
+      return formatted !== null ? formatted : '料金未設定';
+    }
+
+    function buildFeeHtml(feeText) {
+      var cssClass = (feeText === '料金未設定') ? 'fee-label fee-unknown' : 'fee-label';
+      return '<div class="' + cssClass + '">あなたの参加費: ' + feeText + '</div>';
     }
 
     async function fetchJsonWithTimeout(url, timeoutMs) {
@@ -831,6 +932,7 @@
         wrapper.className = 'practice-option' + (isDisabled ? ' disabled' : '');
 
         const displayLabel = buildPracticeLabel(practice);
+        const feeHtml = buildFeeHtml(getPracticeFeeLabel(practice));
 
         wrapper.innerHTML = `
           <label>
@@ -844,6 +946,7 @@
             >
             <div class="practice-meta">
               <div>${displayLabel}</div>
+              ${feeHtml}
               ${isDisabled ? '<div class="badge">申込済み</div>' : ''}
             </div>
           </label>
@@ -886,10 +989,8 @@
         var wrapper = document.createElement('div');
         wrapper.className = 'event-item';
 
-        // タイトル行
         var titleHtml = '<div class="event-title">' + (ev.title || '(タイトルなし)') + '</div>';
 
-        // 詳細行を個別に組み立て
         var detailLines = [];
 
         if (ev.targetLabel) {
@@ -912,14 +1013,14 @@
           detailLines.push('<div class="event-detail-line">' + ev.place + '</div>');
         }
 
-        // ステータス
+        var feeHtml = buildFeeHtml(getEventFeeLabel(ev));
+
         var subParts = [];
         if (ev.statusLabel) subParts.push(ev.statusLabel);
         var subHtml = subParts.length
           ? '<div class="event-sub">' + subParts.join('') + '</div>'
           : '';
 
-        // リンク
         var linkHtml = ev.formUrl
           ? '<a href="' + ev.formUrl + '" class="event-link" target="_blank" rel="noopener noreferrer">詳細・申込はこちら →</a>'
           : '';
@@ -930,6 +1031,7 @@
             '<div class="event-meta">' +
               titleHtml +
               detailLines.join('') +
+              feeHtml +
               subHtml +
               linkHtml +
             '</div>' +
@@ -1044,8 +1146,6 @@
         submitBtn.disabled = false;
       }
     }
-
-    // ===== カレンダー用関数 =====
 
     function getScheduleDateSets() {
       const practiceDateSet = {};
@@ -1196,30 +1296,24 @@
       document.getElementById('calendarFilterBar').classList.add('hidden');
     }
 
-    // ===== initPage: 並列化 + 描画回数削減 =====
-
     async function initPage() {
       loadSavedInputs();
 
-      // Phase 1: 会員情報を先に取得して名前欄を早く表示
       setStatus('会員情報を読み込み中です...');
       await loadViewerProfile();
       applyViewerProfileToInputs();
 
-      // Phase 2: 練習とイベントを並列取得
       setStatus('練習・イベント情報を読み込み中です...');
       await Promise.all([
         loadPractices(),
         loadEvents()
       ]);
 
-      // Phase 3: 画面を先に出す（申込済み判定なしで1回描画）
       renderPracticeList();
       renderEventList();
       renderCalendar();
       setStatus('');
 
-      // Phase 4: 申込済み情報を後から取得し、練習一覧だけ再描画
       loadActiveSignupPracticeIds().then(function() {
         renderPracticeList();
       });

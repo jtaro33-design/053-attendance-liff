@@ -216,6 +216,7 @@
       display: block;
     }
 
+    /* ===== カレンダーUI ===== */
     .calendar-wrapper {
       margin-bottom: 18px;
       border: 1px solid #e2e8f0;
@@ -416,6 +417,7 @@
       margin-bottom: 12px;
     }
 
+    /* ===== イベント表示 ===== */
     .event-item {
       border: 1px solid #fcd34d;
       border-radius: 12px;
@@ -444,7 +446,19 @@
     }
 
     .event-meta {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .event-title {
       font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .event-detail-line {
+      font-size: 14px;
+      color: #4b5563;
     }
 
     .event-sub {
@@ -476,6 +490,7 @@
 
       <div id="viewerBox" class="viewer-box">会員情報を確認中です...</div>
 
+      <!-- ===== カレンダーUI ===== -->
       <div id="calendarWrapper" class="calendar-wrapper hidden">
         <div class="calendar-header">
           <button type="button" class="calendar-nav-btn" onclick="changeCalendarMonth(-1)">◀ 前月</button>
@@ -868,26 +883,53 @@
       section.classList.remove('hidden');
 
       displayEvents.forEach(function(ev) {
-        const wrapper = document.createElement('div');
+        var wrapper = document.createElement('div');
         wrapper.className = 'event-item';
 
-        const label = buildEventLabel(ev);
-        const linkHtml = ev.formUrl
-          ? '<a href="' + ev.formUrl + '" class="event-link" target="_blank" rel="noopener noreferrer">詳細・申込はこちら →</a>'
+        // タイトル行
+        var titleHtml = '<div class="event-title">' + (ev.title || '(タイトルなし)') + '</div>';
+
+        // 詳細行を個別に組み立て
+        var detailLines = [];
+
+        if (ev.targetLabel) {
+          detailLines.push('<div class="event-detail-line">対象: ' + ev.targetLabel + '</div>');
+        }
+
+        var timeStr = '';
+        if (ev.startTime || ev.endTime) {
+          timeStr = (ev.startTime || '') + (ev.startTime && ev.endTime ? ' 〜 ' : '') + (ev.endTime || '');
+        }
+        var dateStr = formatDateShort(ev.date);
+        if (dateStr || timeStr) {
+          var dateTimeParts = [];
+          if (dateStr) dateTimeParts.push(dateStr);
+          if (timeStr) dateTimeParts.push(timeStr);
+          detailLines.push('<div class="event-detail-line">' + dateTimeParts.join('  ') + '</div>');
+        }
+
+        if (ev.place) {
+          detailLines.push('<div class="event-detail-line">' + ev.place + '</div>');
+        }
+
+        // ステータス
+        var subParts = [];
+        if (ev.statusLabel) subParts.push(ev.statusLabel);
+        var subHtml = subParts.length
+          ? '<div class="event-sub">' + subParts.join('') + '</div>'
           : '';
 
-        const subParts = [];
-        if (ev.statusLabel) subParts.push(ev.statusLabel);
-        if (ev.targetLabel) subParts.push('対象: ' + ev.targetLabel);
-        const subHtml = subParts.length
-          ? '<div class="event-sub">' + subParts.join('｜') + '</div>'
+        // リンク
+        var linkHtml = ev.formUrl
+          ? '<a href="' + ev.formUrl + '" class="event-link" target="_blank" rel="noopener noreferrer">詳細・申込はこちら →</a>'
           : '';
 
         wrapper.innerHTML =
           '<div class="event-item-inner">' +
-            '<span class="event-type-badge">イベント / クリニック</span>' +
+            '<span class="event-type-badge">イベント</span>' +
             '<div class="event-meta">' +
-              '<div>' + label + '</div>' +
+              titleHtml +
+              detailLines.join('') +
               subHtml +
               linkHtml +
             '</div>' +
@@ -1002,6 +1044,8 @@
         submitBtn.disabled = false;
       }
     }
+
+    // ===== カレンダー用関数 =====
 
     function getScheduleDateSets() {
       const practiceDateSet = {};
@@ -1152,28 +1196,33 @@
       document.getElementById('calendarFilterBar').classList.add('hidden');
     }
 
+    // ===== initPage: 並列化 + 描画回数削減 =====
+
     async function initPage() {
       loadSavedInputs();
 
+      // Phase 1: 会員情報を先に取得して名前欄を早く表示
       setStatus('会員情報を読み込み中です...');
       await loadViewerProfile();
       applyViewerProfileToInputs();
 
-      setStatus('通常練習一覧を読み込み中です...');
-      await loadPractices();
-      renderPracticeList();
+      // Phase 2: 練習とイベントを並列取得
+      setStatus('練習・イベント情報を読み込み中です...');
+      await Promise.all([
+        loadPractices(),
+        loadEvents()
+      ]);
 
-      setStatus('イベント情報を読み込み中です...');
-      await loadEvents();
+      // Phase 3: 画面を先に出す（申込済み判定なしで1回描画）
+      renderPracticeList();
       renderEventList();
       renderCalendar();
+      setStatus('');
 
-      setStatus('申込済み情報を確認中です...');
-      await loadActiveSignupPracticeIds();
-      renderPracticeList();
-      renderCalendar();
-
-      setStatus('画面の読み込みが完了しました。');
+      // Phase 4: 申込済み情報を後から取得し、練習一覧だけ再描画
+      loadActiveSignupPracticeIds().then(function() {
+        renderPracticeList();
+      });
     }
 
     async function resetFormView() {

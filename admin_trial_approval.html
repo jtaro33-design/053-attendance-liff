@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>無料体験 承認管理</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn,
+    button {
+      font: inherit;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .ghost {
+      background: #fff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .ghost:hover {
+      background: #f8fafc;
+    }
+
+    a.btn-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .summary-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .summary-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .status {
+      margin-bottom: 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .filter-chip {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill-received {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .pill-checking {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .pill-approved {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .pill-returned {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .pill-rejected {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .pill-cancelled {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .pill-completed {
+      background: #cffafe;
+      color: #0f766e;
+    }
+
+    .pill-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+      margin-bottom: 12px;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 72px;
+    }
+
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .manage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+      margin-top: 12px;
+    }
+
+    .manage-box {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #94a3b8;
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 88px;
+    }
+
+    .empty {
+      text-align: center;
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 40px 16px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .summary-bar,
+      .info-grid,
+      .manage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-head">
+      <div>
+        <h1>無料体験 承認管理</h1>
+        <div class="sub">無料体験申請の確認・整理・承認準備を行います</div>
+      </div>
+      <div class="top-actions">
+        <a href="./admin_hub.html" class="btn-link ghost">← 管理ハブへ戻る</a>
+        <button class="secondary" onclick="loadTrialApplications()">一覧を更新</button>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="summary-card">
+        <div class="summary-label">表示件数</div>
+        <div class="summary-value" id="summaryCount">-</div>
+        <div class="summary-note">現在のフィルタ適用後</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">受付 / 確認中</div>
+        <div class="summary-value" id="summaryOpen">-</div>
+        <div class="summary-note">優先して確認したい件数</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">一覧状態</div>
+        <div class="summary-value" id="summaryState" style="font-size:18px;line-height:1.3;">読込前</div>
+        <div class="summary-note">最後の処理結果を表示</div>
+      </div>
+    </div>
+
+    <div id="status" class="status">読み込み中です。</div>
+
+    <div class="filters" id="filters">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">すべて</button>
+      <button class="filter-chip" data-filter="受付" onclick="setFilter('受付')">受付</button>
+      <button class="filter-chip" data-filter="確認中" onclick="setFilter('確認中')">確認中</button>
+      <button class="filter-chip" data-filter="承認" onclick="setFilter('承認')">承認</button>
+      <button class="filter-chip" data-filter="差戻し" onclick="setFilter('差戻し')">差戻し</button>
+      <button class="filter-chip" data-filter="見送り" onclick="setFilter('見送り')">見送り</button>
+      <button class="filter-chip" data-filter="キャンセル" onclick="setFilter('キャンセル')">キャンセル</button>
+      <button class="filter-chip" data-filter="体験完了" onclick="setFilter('体験完了')">体験完了</button>
+    </div>
+
+    <div id="listArea" class="list"></div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+
+    let allItems = [];
+    let currentFilter = 'all';
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+      document.getElementById('summaryState').textContent = message;
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatJapanDate(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
+    }
+
+    function formatDateOnly(dateString) {
+      if (!dateString) return '';
+      const d = new Date(dateString + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(d);
+    }
+
+    function getStatusPillClass(status) {
+      switch (status) {
+        case '受付':
+          return 'pill pill-received';
+        case '確認中':
+          return 'pill pill-checking';
+        case '承認':
+          return 'pill pill-approved';
+        case '差戻し':
+          return 'pill pill-returned';
+        case '見送り':
+          return 'pill pill-rejected';
+        case 'キャンセル':
+          return 'pill pill-cancelled';
+        case '体験完了':
+          return 'pill pill-completed';
+        default:
+          return 'pill pill-default';
+      }
+    }
+
+    function updateSummary(items) {
+      const openCount = allItems.filter(function(item) {
+        return item.applicationStatus === '受付' || item.applicationStatus === '確認中';
+      }).length;
+
+      document.getElementById('summaryCount').textContent = items.length;
+      document.getElementById('summaryOpen').textContent = openCount;
+    }
+
+    function setFilter(filterKey) {
+      currentFilter = filterKey;
+      document.querySelectorAll('.filter-chip').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.filter === filterKey);
+      });
+      renderList();
+    }
+
+    function getFilteredItems() {
+      if (currentFilter === 'all') return allItems.slice();
+      return allItems.filter(function(item) {
+        return item.applicationStatus === currentFilter;
+      });
+    }
+
+    async function loadTrialApplications() {
+      setStatus('一覧を読み込み中です。');
+      document.getElementById('listArea').innerHTML = '';
+
+      try {
+        const response = await fetch(`${WEB_APP_URL}?mode=pendingTrialApplications`);
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          allItems = [];
+          renderList();
+          return;
+        }
+
+        allItems = Array.isArray(result.items) ? result.items : [];
+        renderList();
+      } catch (error) {
+        allItems = [];
+        setStatus(`読込エラー: ${error.message}`);
+        renderList();
+      }
+    }
+
+    function renderList() {
+      const listArea = document.getElementById('listArea');
+      const items = getFilteredItems();
+      listArea.innerHTML = '';
+
+      updateSummary(items);
+
+      if (!items.length) {
+        listArea.innerHTML = '<div class="empty">該当する無料体験申請はありません。</div>';
+        setStatus('該当する無料体験申請はありません。');
+        return;
+      }
+
+      items.forEach(function(item) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const statusClass = getStatusPillClass(item.applicationStatus);
+        const appliedAtText = formatJapanDate(item.appliedAt);
+        const requestedDateText = formatDateOnly(item.requestedPracticeDate);
+        const approvedDateText = formatDateOnly(item.approvedPracticeDate);
+        const trialCompletedText = formatDateOnly(item.trialCompletedDate);
+
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div class="name">${escapeHtml(item.childName || '氏名なし')}</div>
+              <div class="meta">
+                ${escapeHtml(item.grade || '')}　
+                保護者: ${escapeHtml(item.parentName || '')}
+              </div>
+            </div>
+            <div>
+              <span class="${statusClass}">${escapeHtml(item.applicationStatus || '不明')}</span>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <span class="label">所属チーム</span>
+              <div class="value">${escapeHtml(item.teamName || '未記載')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">申請日時</span>
+              <div class="value">${escapeHtml(appliedAtText || '')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">希望練習日</span>
+              <div class="value">${escapeHtml(requestedDateText || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">希望練習ラベル</span>
+              <div class="value">${escapeHtml(item.requestedPracticeLabel || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">LINE userID</span>
+              <div class="value">${escapeHtml(item.lineUserId || '未設定')}</div>
+            </div>
+            <div class="info-box">
+              <span class="label">希望練習ID</span>
+              <div class="value">${escapeHtml(item.requestedPracticeId || '未設定')}</div>
+            </div>
+          </div>
+
+          <div class="manage-grid">
+            <div class="manage-box">
+              <span class="label">管理者メモ</span>
+              <div class="value">${escapeHtml(item.adminMemo || '未入力')}</div>
+            </div>
+            <div class="manage-box">
+              <span class="label">承認練習日</span>
+              <div class="value">${escapeHtml(approvedDateText || '未設定')}</div>
+            </div>
+            <div class="manage-box">
+              <span class="label">承認練習ラベル</span>
+              <div class="value">${escapeHtml(item.approvedPracticeLabel || '未設定')}</div>
+            </div>
+            <div class="manage-box">
+              <span class="label">返信文下書き</span>
+              <div class="value">${escapeHtml(item.replyDraft || '未入力')}</div>
+            </div>
+            <div class="manage-box">
+              <span class="label">返信済み</span>
+              <div class="value">${item.replySent ? '済み' : '未返信'}</div>
+            </div>
+            <div class="manage-box">
+              <span class="label">体験実施日</span>
+              <div class="value">${escapeHtml(trialCompletedText || '未設定')}</div>
+            </div>
+          </div>
+        `;
+
+        listArea.appendChild(card);
+      });
+
+      setStatus(`${items.length}件を表示しています。`);
+    }
+
+    window.addEventListener('load', loadTrialApplications);
+  </script>
+</body>
+</html>

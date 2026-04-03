@@ -131,6 +131,7 @@
       margin-top: 16px;
       font-size: 15px;
       white-space: pre-wrap;
+      color: #b91c1c;
     }
 
     .hidden {
@@ -794,37 +795,23 @@
       document.getElementById('calendarFilterBar').classList.add('hidden');
     }
 
-    function submitByForm(payload) {
-      return new Promise(function(resolve) {
-        const iframeName = 'hiddenTrialApplicationFrame_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-        const iframe = document.createElement('iframe');
-        iframe.name = iframeName;
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
+    async function submitTrialPayload(payload) {
+      const body = new URLSearchParams();
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = WEB_APP_URL;
-        form.target = iframeName;
-        form.style.display = 'none';
-
-        Object.keys(payload).forEach(function(key) {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = payload[key];
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-
-        setTimeout(function() {
-          form.remove();
-          iframe.remove();
-          resolve(true);
-        }, 1400);
+      Object.keys(payload).forEach(function(key) {
+        body.append(key, payload[key]);
       });
+
+      const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: body.toString()
+      });
+
+      const result = await response.json();
+      return result;
     }
 
     async function submitTrialApplication() {
@@ -883,7 +870,13 @@
           appliedAt: new Date().toISOString()
         };
 
-        await submitByForm(payload);
+        const result = await submitTrialPayload(payload);
+
+        if (!result || !result.ok) {
+          setStatus(result && result.message ? result.message : '送信エラーが発生しました。');
+          submitBtn.disabled = false;
+          return;
+        }
 
         document.getElementById('formView').classList.add('hidden');
         document.getElementById('successView').classList.remove('hidden');
@@ -908,7 +901,7 @@
 
       renderPracticeList();
       renderCalendar();
-      setStatus('画面の読み込みが完了しました。');
+      setStatus('');
     }
 
     async function resetFormView() {

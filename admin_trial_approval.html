@@ -16,7 +16,7 @@
     }
 
     .container {
-      max-width: 980px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 20px 16px 40px;
     }
@@ -51,8 +51,15 @@
     }
 
     .btn,
-    button {
+    button,
+    select,
+    input,
+    textarea {
       font: inherit;
+    }
+
+    .btn,
+    button {
       border: none;
       border-radius: 10px;
       padding: 10px 14px;
@@ -69,6 +76,15 @@
 
     .secondary:hover {
       background: #cbd5e1;
+    }
+
+    .primary {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .primary:hover {
+      opacity: 0.92;
     }
 
     .ghost {
@@ -135,6 +151,7 @@
       padding: 12px 14px;
       font-size: 14px;
       color: #334155;
+      white-space: pre-wrap;
     }
 
     .filters {
@@ -205,59 +222,38 @@
       white-space: nowrap;
     }
 
-    .pill-received {
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
+    .pill-received { background: #dbeafe; color: #1d4ed8; }
+    .pill-checking { background: #fef3c7; color: #b45309; }
+    .pill-approved { background: #dcfce7; color: #15803d; }
+    .pill-returned { background: #fee2e2; color: #b91c1c; }
+    .pill-rejected { background: #e5e7eb; color: #374151; }
+    .pill-cancelled { background: #ede9fe; color: #6d28d9; }
+    .pill-completed { background: #cffafe; color: #0f766e; }
+    .pill-default { background: #e5e7eb; color: #374151; }
 
-    .pill-checking {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .pill-approved {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .pill-returned {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .pill-rejected {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .pill-cancelled {
-      background: #ede9fe;
-      color: #6d28d9;
-    }
-
-    .pill-completed {
-      background: #cffafe;
-      color: #0f766e;
-    }
-
-    .pill-default {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .info-grid {
+    .info-grid,
+    .manage-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px 16px;
+    }
+
+    .info-grid {
       margin-bottom: 12px;
     }
 
-    .info-box {
+    .info-box,
+    .manage-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 10px 12px;
-      min-height: 72px;
+      min-height: 76px;
+    }
+
+    .manage-box {
+      background: #fff;
+      border-left: 4px solid #94a3b8;
     }
 
     .label {
@@ -277,20 +273,47 @@
       white-space: pre-wrap;
     }
 
-    .manage-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px 16px;
-      margin-top: 12px;
+    .field,
+    .field-textarea,
+    .field-check {
+      width: 100%;
     }
 
-    .manage-box {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid #94a3b8;
-      border-radius: 12px;
-      padding: 12px;
-      min-height: 88px;
+    .field,
+    .field-textarea {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #0f172a;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .field-textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .field-check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    .save-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .save-status {
+      font-size: 12px;
+      color: #64748b;
+      min-height: 18px;
     }
 
     .empty {
@@ -476,6 +499,95 @@
       }
     }
 
+    async function saveTrialApplication(pageId, buttonEl) {
+      const statusSelect = document.getElementById(`applicationStatus-${pageId}`);
+      const adminMemo = document.getElementById(`adminMemo-${pageId}`);
+      const approvedPracticeId = document.getElementById(`approvedPracticeId-${pageId}`);
+      const approvedPracticeDate = document.getElementById(`approvedPracticeDate-${pageId}`);
+      const approvedPracticeLabel = document.getElementById(`approvedPracticeLabel-${pageId}`);
+      const replyDraft = document.getElementById(`replyDraft-${pageId}`);
+      const replySent = document.getElementById(`replySent-${pageId}`);
+      const trialCompletedDate = document.getElementById(`trialCompletedDate-${pageId}`);
+      const saveStatus = document.getElementById(`saveStatus-${pageId}`);
+
+      if (!pageId) {
+        alert('pageId が取得できませんでした');
+        return;
+      }
+
+      buttonEl.disabled = true;
+      saveStatus.textContent = '保存中です...';
+
+      try {
+        const body = new URLSearchParams();
+        body.append('action', 'updateTrialApplicationAdminFields');
+        body.append('pageId', pageId);
+        body.append('applicationStatus', statusSelect ? statusSelect.value : '');
+        body.append('adminMemo', adminMemo ? adminMemo.value : '');
+        body.append('approvedPracticeId', approvedPracticeId ? approvedPracticeId.value : '');
+        body.append('approvedPracticeDate', approvedPracticeDate ? approvedPracticeDate.value : '');
+        body.append('approvedPracticeLabel', approvedPracticeLabel ? approvedPracticeLabel.value : '');
+        body.append('replyDraft', replyDraft ? replyDraft.value : '');
+        body.append('replySent', replySent && replySent.checked ? 'true' : 'false');
+        body.append('trialCompletedDate', trialCompletedDate ? trialCompletedDate.value : '');
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: body.toString()
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          saveStatus.textContent = `保存失敗: ${result.message || '不明なエラー'}`;
+          buttonEl.disabled = false;
+          return;
+        }
+
+        saveStatus.textContent = '保存しました';
+
+        allItems = allItems.map(function(item) {
+          if (item.pageId !== pageId) return item;
+          return {
+            ...item,
+            applicationStatus: statusSelect ? statusSelect.value : item.applicationStatus,
+            adminMemo: adminMemo ? adminMemo.value : item.adminMemo,
+            approvedPracticeId: approvedPracticeId ? approvedPracticeId.value : item.approvedPracticeId,
+            approvedPracticeDate: approvedPracticeDate ? approvedPracticeDate.value : item.approvedPracticeDate,
+            approvedPracticeLabel: approvedPracticeLabel ? approvedPracticeLabel.value : item.approvedPracticeLabel,
+            replyDraft: replyDraft ? replyDraft.value : item.replyDraft,
+            replySent: !!(replySent && replySent.checked),
+            trialCompletedDate: trialCompletedDate ? trialCompletedDate.value : item.trialCompletedDate
+          };
+        });
+
+        setTimeout(function() {
+          renderList();
+        }, 300);
+      } catch (error) {
+        saveStatus.textContent = `保存失敗: ${error.message}`;
+      } finally {
+        buttonEl.disabled = false;
+      }
+    }
+
+    function fillApprovedFromRequested(pageId) {
+      const sourceId = document.getElementById(`requestedPracticeId-${pageId}`);
+      const sourceDate = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
+      const sourceLabel = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
+
+      const targetId = document.getElementById(`approvedPracticeId-${pageId}`);
+      const targetDate = document.getElementById(`approvedPracticeDate-${pageId}`);
+      const targetLabel = document.getElementById(`approvedPracticeLabel-${pageId}`);
+
+      if (targetId && sourceId) targetId.value = sourceId.value || '';
+      if (targetDate && sourceDate) targetDate.value = sourceDate.value || '';
+      if (targetLabel && sourceLabel) targetLabel.value = sourceLabel.value || '';
+    }
+
     function renderList() {
       const listArea = document.getElementById('listArea');
       const items = getFilteredItems();
@@ -540,31 +652,72 @@
             </div>
           </div>
 
+          <input type="hidden" id="requestedPracticeId-${item.pageId}" value="${escapeHtml(item.requestedPracticeId || '')}">
+          <input type="hidden" id="requestedPracticeDateRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeDate || '')}">
+          <input type="hidden" id="requestedPracticeLabelRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeLabel || '')}">
+
           <div class="manage-grid">
             <div class="manage-box">
-              <span class="label">管理者メモ</span>
-              <div class="value">${escapeHtml(item.adminMemo || '未入力')}</div>
+              <span class="label">申請ステータス</span>
+              <select class="field" id="applicationStatus-${item.pageId}">
+                <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
+                <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
+                <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
+                <option value="差戻し" ${item.applicationStatus === '差戻し' ? 'selected' : ''}>差戻し</option>
+                <option value="見送り" ${item.applicationStatus === '見送り' ? 'selected' : ''}>見送り</option>
+                <option value="キャンセル" ${item.applicationStatus === 'キャンセル' ? 'selected' : ''}>キャンセル</option>
+                <option value="体験完了" ${item.applicationStatus === '体験完了' ? 'selected' : ''}>体験完了</option>
+              </select>
             </div>
+
             <div class="manage-box">
               <span class="label">承認練習日</span>
-              <div class="value">${escapeHtml(approvedDateText || '未設定')}</div>
+              <input class="field" type="date" id="approvedPracticeDate-${item.pageId}" value="${escapeHtml(item.approvedPracticeDate || '')}">
             </div>
+
+            <div class="manage-box">
+              <span class="label">管理者メモ</span>
+              <textarea class="field-textarea" id="adminMemo-${item.pageId}" placeholder="確認内容、連絡メモなど">${escapeHtml(item.adminMemo || '')}</textarea>
+            </div>
+
+            <div class="manage-box">
+              <span class="label">承認練習ID</span>
+              <input class="field" type="text" id="approvedPracticeId-${item.pageId}" value="${escapeHtml(item.approvedPracticeId || '')}" placeholder="承認する練習ID">
+            </div>
+
             <div class="manage-box">
               <span class="label">承認練習ラベル</span>
-              <div class="value">${escapeHtml(item.approvedPracticeLabel || '未設定')}</div>
+              <textarea class="field-textarea" id="approvedPracticeLabel-${item.pageId}" placeholder="承認する練習の日時・会場ラベル">${escapeHtml(item.approvedPracticeLabel || '')}</textarea>
+              <div class="save-row" style="justify-content:flex-start; margin-top:8px;">
+                <button type="button" class="ghost" onclick="fillApprovedFromRequested('${item.pageId}')">希望内容を反映</button>
+              </div>
             </div>
+
             <div class="manage-box">
               <span class="label">返信文下書き</span>
-              <div class="value">${escapeHtml(item.replyDraft || '未入力')}</div>
+              <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き">${escapeHtml(item.replyDraft || '')}</textarea>
             </div>
+
             <div class="manage-box">
               <span class="label">返信済み</span>
-              <div class="value">${item.replySent ? '済み' : '未返信'}</div>
+              <div class="field-check-wrap">
+                <input type="checkbox" id="replySent-${item.pageId}" ${item.replySent ? 'checked' : ''}>
+                <label for="replySent-${item.pageId}" style="font-size:14px;color:#0f172a;">返信済みにする</label>
+              </div>
             </div>
+
             <div class="manage-box">
               <span class="label">体験実施日</span>
-              <div class="value">${escapeHtml(trialCompletedText || '未設定')}</div>
+              <input class="field" type="date" id="trialCompletedDate-${item.pageId}" value="${escapeHtml(item.trialCompletedDate || '')}">
+              <div class="value" style="margin-top:8px;color:#64748b;font-size:12px;">
+                現在表示: ${escapeHtml(trialCompletedText || '未設定')}
+              </div>
             </div>
+          </div>
+
+          <div class="save-row">
+            <span class="save-status" id="saveStatus-${item.pageId}"></span>
+            <button type="button" class="primary" onclick="saveTrialApplication('${item.pageId}', this)">保存</button>
           </div>
         `;
 

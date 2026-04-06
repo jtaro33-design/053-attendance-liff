@@ -67,15 +67,6 @@
       transition: 0.2s ease;
     }
 
-    .primary {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    .primary:hover {
-      opacity: 0.92;
-    }
-
     .secondary {
       background: #e2e8f0;
       color: #0f172a;
@@ -376,6 +367,74 @@
       gap: 16px;
     }
 
+    .accordion-card {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+
+    .accordion-summary {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .accordion-summary.practice {
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
+
+    .accordion-summary.event {
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+    }
+
+    .accordion-left {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .accordion-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.4;
+    }
+
+    .accordion-meta {
+      margin-top: 3px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .accordion-arrow {
+      flex-shrink: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: #64748b;
+      transition: transform 0.2s ease;
+    }
+
+    .accordion-card.open .accordion-arrow {
+      transform: rotate(180deg);
+    }
+
+    .accordion-detail {
+      display: none;
+      padding: 0 14px 14px;
+      background: #ffffff;
+    }
+
+    .accordion-card.open .accordion-detail {
+      display: block;
+    }
+
     @media (max-width: 960px) {
       .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -469,7 +528,7 @@
       <div class="section-head">
         <div>
           <div class="section-title">今後4週間の通常練習</div>
-          <div class="section-sub">参加予定人数と区分別参加者を確認</div>
+          <div class="section-sub">最初は簡潔表示、クリックで詳細展開</div>
         </div>
       </div>
       <div class="panel practice">
@@ -481,7 +540,7 @@
       <div class="section-head">
         <div>
           <div class="section-title">公開中イベント / クリニック</div>
-          <div class="section-sub">参加状況を区分別に確認</div>
+          <div class="section-sub">最初は簡潔表示、クリックで詳細展開</div>
         </div>
       </div>
       <div class="panel event">
@@ -732,6 +791,12 @@
       return list.join('、');
     }
 
+    function toggleAccordion(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.classList.toggle('open');
+    }
+
     function renderPractices(items) {
       const list = document.getElementById('practiceList');
 
@@ -740,40 +805,45 @@
         return;
       }
 
-      list.innerHTML = items.map(function(item) {
+      list.innerHTML = items.map(function(item, index) {
+        const accordionId = 'practiceAccordion_' + index;
+        const timeText = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}`;
+
         return `
-          <div class="card practice">
-            <div class="card-head">
-              <div>
-                <div class="card-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${escapeHtml(item.title || '')}</div>
-                <div class="card-meta">${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}</div>
+          <div class="accordion-card ${index === 0 ? 'open' : ''}" id="${accordionId}">
+            <button type="button" class="accordion-summary practice" onclick="toggleAccordion('${accordionId}')">
+              <div class="accordion-left">
+                <div class="accordion-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${timeText}｜${escapeHtml(item.title || '')}</div>
+                <div class="accordion-meta">参加予定 ${Number(item.participantCount || 0)}名</div>
               </div>
-              <div><span class="pill pill-default">参加予定 ${Number(item.participantCount || 0)}名</span></div>
-            </div>
+              <div class="accordion-arrow">⌄</div>
+            </button>
 
-            <div class="info-grid">
-              <div class="info-box">
-                <span class="label">備考</span>
-                <div class="value">${escapeHtml(item.note || '未記載')}</div>
+            <div class="accordion-detail">
+              <div class="info-grid">
+                <div class="info-box">
+                  <span class="label">会場</span>
+                  <div class="value">${escapeHtml(item.place || '未設定')}</div>
+                </div>
+                <div class="info-box">
+                  <span class="label">備考</span>
+                  <div class="value">${escapeHtml(item.note || '未記載')}</div>
+                </div>
               </div>
-              <div class="info-box">
-                <span class="label">表示メモ</span>
-                <div class="value">${Number(item.participantCount || 0) > 0 ? '参加者あり' : '参加者なし'}</div>
-              </div>
-            </div>
 
-            <div class="participants">
-              <div class="participant-row">
-                <div class="participant-label">クラブ</div>
-                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['クラブ']))}</div>
-              </div>
-              <div class="participant-row">
-                <div class="participant-label">スクール</div>
-                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['スクール']))}</div>
-              </div>
-              <div class="participant-row">
-                <div class="participant-label">一般</div>
-                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['一般']))}</div>
+              <div class="participants">
+                <div class="participant-row">
+                  <div class="participant-label">クラブ</div>
+                  <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['クラブ']))}</div>
+                </div>
+                <div class="participant-row">
+                  <div class="participant-label">スクール</div>
+                  <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['スクール']))}</div>
+                </div>
+                <div class="participant-row">
+                  <div class="participant-label">一般</div>
+                  <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['一般']))}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -789,49 +859,58 @@
         return;
       }
 
-      list.innerHTML = items.map(function(item) {
+      list.innerHTML = items.map(function(item, index) {
+        const accordionId = 'eventAccordion_' + index;
         const participants = item.participants || {};
+        const timeText = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}`;
+
         return `
-          <div class="card event">
-            <div class="card-head">
-              <div>
-                <div class="card-title">${escapeHtml(item.eventName || 'イベント名未設定')}</div>
-                <div class="card-meta">${escapeHtml(formatDateOnly(item.eventDate) || '')}｜${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}</div>
+          <div class="accordion-card" id="${accordionId}">
+            <button type="button" class="accordion-summary event" onclick="toggleAccordion('${accordionId}')">
+              <div class="accordion-left">
+                <div class="accordion-title">${escapeHtml(formatDateOnly(item.eventDate) || '')}｜${timeText}｜${escapeHtml(item.eventName || 'イベント名未設定')}</div>
+                <div class="accordion-meta">${escapeHtml(item.statusLabel || '受付状況未設定')}</div>
               </div>
-              <div><span class="pill pill-default">${escapeHtml(item.statusLabel || '受付状況未設定')}</span></div>
-            </div>
+              <div class="accordion-arrow">⌄</div>
+            </button>
 
-            <div class="info-grid">
-              <div class="info-box">
-                <span class="label">対象</span>
-                <div class="value">${escapeHtml(item.targetLabel || '未設定')}</div>
+            <div class="accordion-detail">
+              <div class="info-grid">
+                <div class="info-box">
+                  <span class="label">会場</span>
+                  <div class="value">${escapeHtml(item.place || '未設定')}</div>
+                </div>
+                <div class="info-box">
+                  <span class="label">対象</span>
+                  <div class="value">${escapeHtml(item.targetLabel || '未設定')}</div>
+                </div>
+                <div class="info-box">
+                  <span class="label">現在申込数 / 残数</span>
+                  <div class="value">${Number(item.currentCount || 0)}名 / ${Number(item.remainingCount || 0)}枠</div>
+                </div>
+                <div class="info-box">
+                  <span class="label">料金</span>
+                  <div class="value">クラブ ${Number(item.clubPrice || 0).toLocaleString()}円 / スクール ${Number(item.schoolPrice || 0).toLocaleString()}円 / 一般 ${Number(item.generalPrice || 0).toLocaleString()}円</div>
+                </div>
+                <div class="info-box">
+                  <span class="label">備考</span>
+                  <div class="value">${escapeHtml(item.note || '未記載')}</div>
+                </div>
               </div>
-              <div class="info-box">
-                <span class="label">現在申込数 / 残数</span>
-                <div class="value">${Number(item.currentCount || 0)}名 / ${Number(item.remainingCount || 0)}枠</div>
-              </div>
-              <div class="info-box">
-                <span class="label">料金</span>
-                <div class="value">クラブ ${Number(item.clubPrice || 0).toLocaleString()}円 / スクール ${Number(item.schoolPrice || 0).toLocaleString()}円 / 一般 ${Number(item.generalPrice || 0).toLocaleString()}円</div>
-              </div>
-              <div class="info-box">
-                <span class="label">備考</span>
-                <div class="value">${escapeHtml(item.note || '未記載')}</div>
-              </div>
-            </div>
 
-            <div class="participants">
-              <div class="participant-row">
-                <div class="participant-label">クラブ</div>
-                <div class="participant-value">${escapeHtml(participantText(participants['クラブ']))}</div>
-              </div>
-              <div class="participant-row">
-                <div class="participant-label">スクール</div>
-                <div class="participant-value">${escapeHtml(participantText(participants['スクール']))}</div>
-              </div>
-              <div class="participant-row">
-                <div class="participant-label">一般</div>
-                <div class="participant-value">${escapeHtml(participantText(participants['一般']))}</div>
+              <div class="participants">
+                <div class="participant-row">
+                  <div class="participant-label">クラブ</div>
+                  <div class="participant-value">${escapeHtml(participantText(participants['クラブ']))}</div>
+                </div>
+                <div class="participant-row">
+                  <div class="participant-label">スクール</div>
+                  <div class="participant-value">${escapeHtml(participantText(participants['スクール']))}</div>
+                </div>
+                <div class="participant-row">
+                  <div class="participant-label">一般</div>
+                  <div class="participant-value">${escapeHtml(participantText(participants['一般']))}</div>
+                </div>
               </div>
             </div>
           </div>

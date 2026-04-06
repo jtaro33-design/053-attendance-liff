@@ -580,26 +580,23 @@
     }
 
     async function loadPractices() {
-      try {
-        const result = await fetchJsonWithTimeout(
-          WEB_APP_URL +
-            '?mode=publicPractices' +
-            '&lineUserId=' + encodeURIComponent(LINE_USER_ID) +
-            '&t=' + Date.now(),
-          10000
-        );
+  try {
+    const result = await fetchJsonWithTimeout(
+      WEB_APP_URL + '?mode=trialAvailablePractices&t=' + Date.now(),
+      10000
+    );
 
-        if (result.ok && Array.isArray(result.items)) {
-          practices = result.items.filter(function(item) {
-            return item.title === '通常練習';
-          });
-        } else {
-          practices = [];
-        }
-      } catch (error) {
-        practices = [];
-      }
+    if (result.ok && Array.isArray(result.items)) {
+      practices = result.items.filter(function(item) {
+        return item.title === '通常練習';
+      });
+    } else {
+      practices = [];
     }
+  } catch (error) {
+    practices = [];
+  }
+}
 
     function renderPracticeList() {
       let displayPractices = practices;

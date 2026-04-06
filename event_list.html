@@ -1,102 +1,781 @@
-function listPublicEvents_() {
-  try {
-    const notionApiKey = PropertiesService.getScriptProperties().getProperty('NOTION_API_KEY');
-    const databaseId = PropertiesService.getScriptProperties().getProperty('NOTION_DATABASE_ID_EVENT');
-
-    if (!notionApiKey) {
-      throw new Error('NOTION_API_KEY が未設定です');
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クリニック / イベント一覧</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f7f9fc;
+      color: #1f2937;
+      line-height: 1.6;
     }
-    if (!databaseId) {
-      throw new Error('NOTION_DATABASE_ID_EVENT が未設定です');
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
     }
 
-    const nowIso = new Date().toISOString();
+    .hero {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      text-align: center;
+      margin-bottom: 18px;
+    }
 
-    const requestBody = {
-      filter: {
-        and: [
-          {
-            property: '公開状態',
-            select: {
-              equals: '公開中'
-            }
-          },
-          {
-            property: '申込締切',
-            date: {
-              on_or_after: nowIso
-            }
-          },
-          {
-            property: '開催日',
-            date: {
-              on_or_after: nowIso
-            }
-          }
-        ]
-      },
-      sorts: [
-        {
-          property: 'おすすめ表示',
-          direction: 'descending'
-        },
-        {
-          property: '開催日',
-          direction: 'ascending'
-        }
-      ],
-      page_size: 100
+    h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      font-size: 15px;
+      color: #4b5563;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .top-actions a,
+    .top-actions button {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #e5e7eb;
+      color: #111827;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 14px;
+      color: #4b5563;
+      margin: 10px 0 18px;
+      white-space: pre-wrap;
+    }
+
+    .viewer-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #374151;
+      white-space: pre-wrap;
+    }
+
+    .section-block {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color: #0f172a;
+    }
+
+    .recommend-wrap {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    .recommend-note {
+      font-size: 13px;
+      color: #9a3412;
+      margin-top: -2px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+    }
+
+    .card.recommended {
+      border-color: #fdba74;
+      background: #fffdf8;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 0;
+      flex: 1;
+    }
+
+    .recommend-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #f97316;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .row {
+      margin-bottom: 8px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #374151;
+      margin-right: 6px;
+    }
+
+    .price-box {
+      margin-top: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .your-price {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f766e;
+      margin-bottom: 8px;
+    }
+
+    .your-price-label {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .sub-price {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .status-pill {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 30px 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .note {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px 12px;
+      white-space: pre-wrap;
+      min-height: 24px;
+      margin-top: 10px;
+    }
+
+    .notice {
+      margin: 20px 0;
+      padding: 14px;
+      background: #eff6ff;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #1e3a8a;
+    }
+
+    .comment-note {
+      margin-top: 0;
+      margin-bottom: 16px;
+      background: #f8fafc;
+      color: #374151;
+      border: 1px solid #e2e8f0;
+    }
+
+    .primary-button {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    .primary-button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .secondary-button {
+      background: #e5e7eb;
+      color: #111827;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .applied-button {
+      background: #d1fae5;
+      color: #065f46;
+      cursor: default;
+    }
+
+    .apply-box {
+      margin-top: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .apply-box.hidden {
+      display: none;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .field textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .mini-actions button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .success-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>クリニック / イベント一覧</h1>
+      <div class="sub">公開中のイベントのみ表示しています</div>
+    </div>
+
+    <div class="top-actions">
+      <a href="./entry_select.html">メニューへ戻る</a>
+      <button onclick="loadEvents()">一覧を更新</button>
+    </div>
+
+    <div id="viewerBox" class="viewer-box">あなたの区分を確認中です...</div>
+    <div id="status" class="status">読み込み中です...</div>
+
+    <div id="recommendSection" class="section-block hidden">
+      <div class="recommend-wrap">
+        <div class="section-title">おすすめクリニック</div>
+        <div class="recommend-note">おすすめ表示がONのイベントを上にまとめて表示しています</div>
+        <div id="recommendList"></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-title">公開中のイベント一覧</div>
+      <div id="listArea"></div>
+    </div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+    const LINE_USER_ID = localStorage.getItem('lineUserId') || '';
+
+    let viewerCategory = '一般';
+    let viewerProfile = {
+      found: false,
+      childName: '',
+      parentName: '',
+      category: '一般'
     };
+    let eventItems = [];
+    let appliedEventIds = [];
 
-    const response = UrlFetchApp.fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-      method: 'post',
-      contentType: 'application/json',
-      headers: {
-        Authorization: `Bearer ${notionApiKey}`,
-        'Notion-Version': '2022-06-28'
-      },
-      payload: JSON.stringify(requestBody),
-      muteHttpExceptions: true
-    });
-
-    const statusCode = response.getResponseCode();
-    const responseText = response.getContentText();
-
-    Logger.log(`[listPublicEvents_] status=${statusCode}`);
-    Logger.log(responseText);
-
-    if (statusCode < 200 || statusCode >= 300) {
-      throw new Error(`イベント一覧取得エラー status=${statusCode} body=${responseText}`);
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
     }
 
-    const json = JSON.parse(responseText);
-    const items = (json.results || []).map((page) => {
-      const props = page.properties || {};
+    function setViewerBox() {
+      const viewerBox = document.getElementById('viewerBox');
+
+      if (viewerProfile.found) {
+        viewerBox.textContent =
+          `現在の表示区分: ${viewerProfile.category}\n` +
+          `子ども氏名: ${viewerProfile.childName || '(未設定)'}\n` +
+          `保護者氏名: ${viewerProfile.parentName || '(未設定)'}`;
+      } else if (LINE_USER_ID) {
+        viewerBox.textContent =
+          'LINE連携済みです。\n' +
+          '会員情報が見つからないため、一般料金表示になっています。';
+      } else {
+        viewerBox.textContent =
+          'LINE userID が未取得です。\n' +
+          'この状態では一般料金表示になります。';
+      }
+    }
+
+    function formatJapanDate(dateString) {
+      if (!dateString) return '';
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(d);
+    }
+
+    function formatPrice(value) {
+      const num = Number(value || 0);
+      if (num === 0) return '無料';
+      return `${num.toLocaleString('ja-JP')}円`;
+    }
+
+    function getPriceByCategory(item, category) {
+      if (category === 'クラブ') {
+        return {
+          label: 'あなたの料金（クラブ）',
+          value: item.clubPrice
+        };
+      }
+      if (category === 'スクール') {
+        return {
+          label: 'あなたの料金（スクール）',
+          value: item.schoolPrice
+        };
+      }
+      return {
+        label: 'あなたの料金（一般）',
+        value: item.generalPrice
+      };
+    }
+
+    function isApplied(eventPageId) {
+      return appliedEventIds.includes(eventPageId);
+    }
+
+    function normalizeEventsResponse(result) {
+      if (Array.isArray(result)) {
+        return {
+          ok: true,
+          items: result
+        };
+      }
+
+      if (result && Array.isArray(result.items)) {
+        return {
+          ok: result.ok !== false,
+          items: result.items,
+          message: result.message || ''
+        };
+      }
 
       return {
-        pageId: (page.id || '').replace(/-/g, ''),
-        eventName: (((props['イベント名'] || {}).title || [])[0] || {}).plain_text || '',
-        eventDate: ((props['開催日'] || {}).date || {}).start || '',
-        startTime: (((props['開始時間'] || {}).rich_text || [])[0] || {}).plain_text || '',
-        endTime: (((props['終了時間'] || {}).rich_text || [])[0] || {}).plain_text || '',
-        place: (((props['会場'] || {}).rich_text || [])[0] || {}).plain_text || '',
-        targetLabel: (((props['対象表示'] || {}).rich_text || [])[0] || {}).plain_text || '',
-        clubPrice: (props['クラブ料金'] || {}).number || 0,
-        schoolPrice: (props['スクール料金'] || {}).number || 0,
-        generalPrice: (props['一般料金'] || {}).number || 0,
-        capacity: (props['定員'] || {}).number || 0,
-        currentCount: (props['現在申込数'] || {}).rollup ? Number((props['現在申込数'] || {}).rollup.number || 0) : 0,
-        remainingCount: (((props['残数'] || {}).formula || {}).number) || 0,
-        statusLabel: (((props['募集状況表示'] || {}).formula || {}).string) || '',
-        note: (((props['備考'] || {}).rich_text || [])[0] || {}).plain_text || '',
-        recommended: !!((props['おすすめ表示'] || {}).checkbox)
+        ok: false,
+        items: [],
+        message: (result && result.message) ? result.message : '不明なエラー'
       };
-    });
+    }
 
-    Logger.log('[listPublicEvents_] items=' + JSON.stringify(items));
-    return items;
-  } catch (error) {
-    Logger.log(`[listPublicEvents_] ${error.message}`);
-    throw error;
-  }
-}
+    function normalizeAppliedEventIdsResponse(result) {
+      if (Array.isArray(result)) {
+        return {
+          ok: true,
+          eventIds: result
+        };
+      }
+
+      if (result && Array.isArray(result.eventIds)) {
+        return {
+          ok: result.ok !== false,
+          eventIds: result.eventIds
+        };
+      }
+
+      return {
+        ok: false,
+        eventIds: []
+      };
+    }
+
+    async function loadViewerProfile() {
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?mode=viewerProfile&lineUserId=${encodeURIComponent(LINE_USER_ID)}`
+        );
+        const result = await response.json();
+
+        if (result.ok) {
+          viewerProfile = {
+            found: !!result.found,
+            childName: result.childName || '',
+            parentName: result.parentName || '',
+            category: result.category || '一般'
+          };
+        } else {
+          viewerProfile = {
+            found: false,
+            childName: '',
+            parentName: '',
+            category: '一般'
+          };
+        }
+      } catch (error) {
+        viewerProfile = {
+          found: false,
+          childName: '',
+          parentName: '',
+          category: '一般'
+        };
+      }
+
+      viewerCategory = viewerProfile.category || '一般';
+      setViewerBox();
+    }
+
+    async function loadAppliedEventIds() {
+      try {
+        const response = await fetch(
+          `${WEB_APP_URL}?mode=appliedEventIds&lineUserId=${encodeURIComponent(LINE_USER_ID)}`
+        );
+        const raw = await response.json();
+        const result = normalizeAppliedEventIdsResponse(raw);
+
+        if (result.ok && Array.isArray(result.eventIds)) {
+          appliedEventIds = result.eventIds;
+        } else {
+          appliedEventIds = [];
+        }
+      } catch (error) {
+        appliedEventIds = [];
+      }
+    }
+
+    function toggleApplyBox(index) {
+      const item = eventItems[index];
+      if (!item || isApplied(item.pageId)) return;
+
+      const box = document.getElementById(`applyBox_${index}`);
+      if (!box) return;
+
+      const isHidden = box.classList.contains('hidden');
+      box.classList.toggle('hidden');
+
+      if (isHidden) {
+        const childInput = document.getElementById(`childName_${index}`);
+        const parentInput = document.getElementById(`parentName_${index}`);
+
+        if (childInput && !childInput.value && viewerProfile.childName) {
+          childInput.value = viewerProfile.childName;
+        }
+        if (parentInput && !parentInput.value && viewerProfile.parentName) {
+          parentInput.value = viewerProfile.parentName;
+        }
+      }
+    }
+
+    function closeApplyBox(index) {
+      const box = document.getElementById(`applyBox_${index}`);
+      if (!box) return;
+      box.classList.add('hidden');
+    }
+
+    async function submitEventApplication(index) {
+      const item = eventItems[index];
+      if (!item) {
+        setStatus('イベント情報が見つかりません。');
+        return;
+      }
+
+      const childName = document.getElementById(`childName_${index}`).value.trim();
+      const parentName = document.getElementById(`parentName_${index}`).value.trim();
+      const note = document.getElementById(`note_${index}`).value.trim();
+      const submitBtn = document.getElementById(`submitBtn_${index}`);
+      const successBox = document.getElementById(`success_${index}`);
+
+      if (!childName) {
+        setStatus('子ども氏名を入力してください。');
+        return;
+      }
+      if (!parentName) {
+        setStatus('保護者氏名を入力してください。');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus('イベント申込を送信中です...');
+
+      try {
+        const form = new FormData();
+        form.append('formType', 'eventApplication');
+        form.append('eventPageId', item.pageId);
+        form.append('childName', childName);
+        form.append('parentName', parentName);
+        form.append('lineUserId', LINE_USER_ID);
+        form.append('appliedAt', new Date().toISOString());
+        form.append('note', note);
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: form
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          setStatus(`申込エラー: ${result.message || '不明なエラー'}`);
+          submitBtn.disabled = false;
+          return;
+        }
+
+        if (!appliedEventIds.includes(item.pageId)) {
+          appliedEventIds.push(item.pageId);
+        }
+
+        successBox.innerHTML =
+          `イベント申込ありがとうございます。<br>` +
+          `受付区分: ${result.category || '一般'} / 適用料金: ${formatPrice(result.appliedPrice || 0)}`;
+        successBox.classList.remove('hidden');
+
+        setStatus('イベント申込を受け付けました。');
+        await loadEvents();
+      } catch (error) {
+        setStatus(`申込エラー: ${error.message}`);
+        submitBtn.disabled = false;
+      }
+    }
+
+    function buildEventCardHtml(item, index, options = {}) {
+      const dateLabel = formatJapanDate(item.eventDate);
+      const timeLabel = item.startTime && item.endTime
+        ? `${item.startTime}〜${item.endTime}`
+        : '';
+      const noteText = item.note || '記載なし';
+      const statusText = item.statusLabel || '申込受付中';
+      const myPrice = getPriceByCategory(item, viewerCategory);
+      const applied = isApplied(item.pageId);
+      const isRecommended = !!item.recommended;
+      const hideBottomMargin = !!options.compact;
+
+      const actionButtonHtml = applied
+        ? `<button class="primary-button applied-button" disabled>申込済み</button>`
+        : `<button class="primary-button" onclick="toggleApplyBox(${index})">このイベントに申し込む</button>`;
+
+      return `
+        <div class="card ${isRecommended ? 'recommended' : ''}" style="${hideBottomMargin ? 'margin-bottom:0;' : ''}">
+          <div class="card-head">
+            <div class="title">${item.eventName || ''}</div>
+            ${isRecommended ? '<div class="recommend-badge">おすすめ</div>' : ''}
+          </div>
+
+          <div class="row"><span class="label">開催日:</span>${dateLabel}</div>
+          <div class="row"><span class="label">時間:</span>${timeLabel || '未設定'}</div>
+          <div class="row"><span class="label">会場:</span>${item.place || '未設定'}</div>
+          <div class="row"><span class="label">対象:</span>${item.targetLabel || '未設定'}</div>
+
+          <div class="price-box">
+            <div class="your-price-label">${myPrice.label}</div>
+            <div class="your-price">${formatPrice(myPrice.value)}</div>
+            <div class="sub-price">
+              クラブ: ${formatPrice(item.clubPrice)} / 
+              スクール: ${formatPrice(item.schoolPrice)} / 
+              一般: ${formatPrice(item.generalPrice)}
+            </div>
+          </div>
+
+          <div class="status-pill">${statusText}</div>
+
+          <div class="row" style="margin-top: 12px;"><span class="label">備考:</span></div>
+          <div class="note">${noteText}</div>
+
+          ${actionButtonHtml}
+
+          <div id="applyBox_${index}" class="apply-box hidden">
+            <div class="field">
+              <label for="childName_${index}">子ども氏名</label>
+              <input id="childName_${index}" type="text" placeholder="例）山田 太郎" value="${viewerProfile.childName || ''}">
+            </div>
+
+            <div class="field">
+              <label for="parentName_${index}">保護者氏名</label>
+              <input id="parentName_${index}" type="text" placeholder="例）山田 花子" value="${viewerProfile.parentName || ''}">
+            </div>
+
+            <div class="notice comment-note">
+              キャンセル・変更がある場合は、コメントでお知らせください。
+            </div>
+
+            <div class="field">
+              <label for="note_${index}">備考（任意）</label>
+              <textarea id="note_${index}" placeholder="質問や連絡事項があればご入力ください"></textarea>
+            </div>
+
+            <div class="mini-actions">
+              <button id="submitBtn_${index}" class="primary-button" onclick="submitEventApplication(${index})">申し込む</button>
+              <button class="secondary-button" onclick="closeApplyBox(${index})">閉じる</button>
+            </div>
+
+            <div id="success_${index}" class="success-message hidden"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRecommendSection(items) {
+      const recommendSection = document.getElementById('recommendSection');
+      const recommendList = document.getElementById('recommendList');
+      const recommendedItems = items.filter(item => !!item.recommended);
+
+      if (!recommendedItems.length) {
+        recommendSection.classList.add('hidden');
+        recommendList.innerHTML = '';
+        return;
+      }
+
+      recommendList.innerHTML = recommendedItems.map(function(item) {
+        const index = eventItems.findIndex(function(src) {
+          return src.pageId === item.pageId;
+        });
+        return buildEventCardHtml(item, index, { compact: true });
+      }).join('');
+
+      recommendSection.classList.remove('hidden');
+    }
+
+    function renderEvents(items) {
+      const listArea = document.getElementById('listArea');
+      listArea.innerHTML = '';
+
+      renderRecommendSection(items);
+
+      if (items.length === 0) {
+        listArea.innerHTML = '<div class="empty">現在、公開中のイベントはありません。</div>';
+        setStatus('現在、公開中のイベントはありません。');
+        return;
+      }
+
+      listArea.innerHTML = items.map(function(item, index) {
+        return buildEventCardHtml(item, index);
+      }).join('');
+
+      setStatus(`${items.length}件のイベントを表示しています。`);
+    }
+
+    async function loadEvents() {
+      setStatus('イベントを読み込み中です...');
+
+      try {
+        await Promise.all([
+          loadViewerProfile(),
+          loadAppliedEventIds()
+        ]);
+
+        const response = await fetch(`${WEB_APP_URL}?mode=publicEvents`);
+        const raw = await response.json();
+        const result = normalizeEventsResponse(raw);
+
+        if (!result.ok) {
+          setStatus(`読込エラー: ${result.message || '不明なエラー'}`);
+          return;
+        }
+
+        eventItems = Array.isArray(result.items) ? result.items : [];
+        renderEvents(eventItems);
+      } catch (error) {
+        setStatus(`読込エラー: ${error.message}`);
+      }
+    }
+
+    window.addEventListener('load', loadEvents);
+  </script>
+</body>
+</html>

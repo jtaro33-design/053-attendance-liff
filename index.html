@@ -832,12 +832,16 @@
     async function loadPractices() {
       try {
         const result = await fetchJsonWithTimeout(
-          WEB_APP_URL + '?mode=publicPractices&t=' + Date.now(),
+          WEB_APP_URL + '?mode=publicPractices&lineUserId=' + encodeURIComponent(LINE_USER_ID) + '&t=' + Date.now(),
           10000
         );
 
         if (result.ok && Array.isArray(result.items)) {
           practices = result.items.filter(function(item) {
+            return item.title === '通常練習';
+          });
+        } else if (Array.isArray(result)) {
+          practices = result.filter(function(item) {
             return item.title === '通常練習';
           });
         } else {
@@ -857,6 +861,24 @@
 
         if (result.ok && Array.isArray(result.items)) {
           events = result.items.map(function(item) {
+            return {
+              id: item.pageId || item.id || '',
+              date: item.eventDate || item.date || '',
+              title: item.eventName || item.title || '',
+              startTime: item.startTime || '',
+              endTime: item.endTime || '',
+              place: item.place || '',
+              note: item.note || '',
+              formUrl: item.formUrl || item.url || '',
+              statusLabel: item.statusLabel || '',
+              targetLabel: item.targetLabel || '',
+              raw: item
+            };
+          }).filter(function(item) {
+            return !!item.date;
+          });
+        } else if (Array.isArray(result)) {
+          events = result.map(function(item) {
             return {
               id: item.pageId || item.id || '',
               date: item.eventDate || item.date || '',

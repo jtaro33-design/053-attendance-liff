@@ -3,767 +3,738 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>053 管理ハブ</title>
+  <title>管理ハブ</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; }
+
     body {
+      margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0f172a; color: #e2e8f0; min-height: 100vh; line-height: 1.6;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.6;
     }
-    .header {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border-bottom: 2px solid #334155; padding: 16px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .header-title { font-size: 20px; font-weight: 800; color: #f8fafc; letter-spacing: 1px; }
-    .header-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
-    .header-badge {
-      font-size: 11px; color: #94a3b8; background: #1e293b;
-      border: 1px solid #334155; padding: 4px 10px; border-radius: 20px;
-    }
-    .container { max-width: 800px; margin: 0 auto; padding: 16px; }
 
-    .summary-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn,
+    button,
+    a {
+      font: inherit;
+    }
+
+    .btn,
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .primary {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .primary:hover {
+      opacity: 0.92;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .ghost-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .ghost-link:hover {
+      background: #f8fafc;
+    }
+
+    .status {
+      margin-bottom: 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #334155;
+      white-space: pre-wrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
     .summary-card {
-      background: #1e293b; border: 1px solid #334155;
-      border-radius: 14px; padding: 16px; text-align: center;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
-    .summary-num { font-size: 36px; font-weight: 800; color: #f8fafc; line-height: 1; }
-    .summary-num.warn { color: #fbbf24; }
-    .summary-num.ok { color: #34d399; }
-    .summary-label { font-size: 12px; color: #94a3b8; margin-top: 6px; font-weight: 600; }
 
-    .tab-nav {
-      display: flex; gap: 4px; margin-bottom: 16px; background: #1e293b;
-      border-radius: 12px; padding: 4px; border: 1px solid #334155;
+    .summary-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 8px;
     }
-    .tab-btn {
-      flex: 1; padding: 10px 8px; font-size: 13px; font-weight: 700;
-      color: #64748b; background: transparent; border: none;
-      border-radius: 10px; cursor: pointer; text-align: center;
+
+    .summary-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
     }
-    .tab-btn.active { background: #334155; color: #f8fafc; }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .summary-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #64748b;
+    }
 
-    .section-header {
+    .section {
+      margin-top: 22px;
+    }
+
+    .section-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
       flex-wrap: wrap;
+      margin-bottom: 12px;
     }
-    .section-title { font-size: 16px; font-weight: 800; color: #f8fafc; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0;
+    }
+
     .section-sub {
       font-size: 12px;
-      color: #94a3b8;
-      margin-top: 4px;
+      color: #64748b;
+      margin-top: 2px;
     }
+
     .section-actions {
       display: flex;
       gap: 8px;
-      align-items: center;
       flex-wrap: wrap;
+    }
+
+    .panel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
     }
 
     .card {
-      background: #1e293b; border: 1px solid #334155;
-      border-radius: 14px; margin-bottom: 12px; overflow: hidden;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
     }
-    .card-header {
-      padding: 16px; cursor: pointer; display: flex;
-      justify-content: space-between; align-items: flex-start;
-    }
-    .card-header:active { background: rgba(255,255,255,0.03); }
-    .card-main { font-size: 16px; font-weight: 700; color: #f1f5f9; }
-    .card-sub { font-size: 13px; color: #94a3b8; margin-top: 2px; }
-    .card-detail { font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.7; }
-    .card-detail-muted { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.7; }
-    .card-badge {
-      display: inline-block; font-size: 11px; font-weight: 700;
-      padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-    }
-    .badge-pending { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-    .badge-review { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
-    .badge-approved { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
-    .badge-event { background: rgba(168,85,247,0.15); color: #a78bfa; border: 1px solid rgba(168,85,247,0.3); }
-    .badge-count {
-      font-size: 12px; font-weight: 700; color: #34d399;
-      background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2);
-      padding: 2px 10px; border-radius: 20px;
-    }
-    .expand-icon { color: #64748b; font-size: 14px; margin-left: 8px; margin-top: 2px; transition: transform 0.2s; }
-    .card.open .expand-icon { transform: rotate(180deg); }
 
-    .card-body { display: none; padding: 0 16px 16px; border-top: 1px solid #334155; }
-    .card.open .card-body { display: block; }
-
-    .practice-date { font-size: 15px; font-weight: 800; color: #60a5fa; }
-    .practice-time { font-size: 13px; color: #94a3b8; }
-    .practice-place { font-size: 13px; color: #cbd5e1; margin-top: 2px; }
-
-    .participant-group { margin-top: 10px; }
-    .participant-group-title {
-      font-size: 12px; font-weight: 700; color: #94a3b8;
-      margin-bottom: 4px; padding-bottom: 3px; border-bottom: 1px solid #334155;
-    }
-    .participant-group-title.club { color: #60a5fa; border-color: rgba(96,165,250,0.3); }
-    .participant-group-title.school { color: #34d399; border-color: rgba(52,211,153,0.3); }
-    .participant-group-title.general { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-    .participant-names {
-      font-size: 13px; color: #cbd5e1; line-height: 1.8; padding: 4px 0;
-    }
-    .participant-empty { font-size: 12px; color: #475569; padding: 8px 0; }
-
-    .category-summary {
+    .card-head {
       display: flex;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
-    .category-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 5px 10px;
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .card-meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      border: 1px solid transparent;
-      min-height: 28px;
-    }
-    .category-chip.club {
-      color: #60a5fa;
-      background: rgba(96,165,250,0.12);
-      border-color: rgba(96,165,250,0.28);
-    }
-    .category-chip.school {
-      color: #34d399;
-      background: rgba(52,211,153,0.12);
-      border-color: rgba(52,211,153,0.28);
-    }
-    .category-chip.general {
-      color: #fbbf24;
-      background: rgba(251,191,36,0.12);
-      border-color: rgba(251,191,36,0.28);
-    }
-
-    .memo-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid #334155; }
-    .memo-label { font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 6px; }
-    .memo-input {
-      width: 100%; min-height: 60px; padding: 10px; border-radius: 8px;
-      border: 1px solid #475569; background: #0f172a; color: #e2e8f0;
-      font-size: 14px; font-family: inherit; resize: vertical;
-    }
-    .memo-input:focus { outline: none; border-color: #60a5fa; }
-    .memo-save-row { display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px; align-items: center; }
-    .memo-save-btn {
-      padding: 6px 18px; font-size: 12px; font-weight: 700;
-      border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer;
-    }
-    .memo-save-btn:disabled { background: #475569; cursor: not-allowed; }
-    .memo-status { font-size: 11px; color: #64748b; }
-
-    .event-counts { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
-    .event-count-item { font-size: 13px; color: #cbd5e1; }
-    .event-count-item strong { color: #f8fafc; }
-
-    .refresh-btn {
-      padding: 6px 16px; font-size: 12px; font-weight: 700;
-      border: 1px solid #475569; border-radius: 8px;
-      background: transparent; color: #94a3b8; cursor: pointer;
-    }
-    .refresh-btn:hover { background: #334155; color: #e2e8f0; }
-
-    .primary-link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 34px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      text-decoration: none;
-      background: #2563eb;
-      color: #ffffff;
-      border: 1px solid #2563eb;
       white-space: nowrap;
     }
-    .primary-link-btn:hover {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
+
+    .pill-default { background: #e2e8f0; color: #334155; }
+    .pill-open { background: #dbeafe; color: #1d4ed8; }
+    .pill-checking { background: #fef3c7; color: #b45309; }
+    .pill-approved { background: #dcfce7; color: #15803d; }
+    .pill-returned { background: #fee2e2; color: #b91c1c; }
+    .pill-completed { background: #cffafe; color: #0f766e; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
     }
 
-    .app-top-line {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      margin-bottom: 6px;
+    .info-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 66px;
     }
-    .info-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 999px;
+
+    .label {
+      display: block;
       font-size: 11px;
-      font-weight: 700;
-      background: rgba(148,163,184,0.14);
-      color: #cbd5e1;
-      border: 1px solid rgba(148,163,184,0.2);
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
     }
 
-    .loading-text { text-align: center; padding: 40px 0; color: #64748b; font-size: 14px; }
-    .empty-text { text-align: center; padding: 30px 0; color: #475569; font-size: 14px; }
-    .back-link {
-      display: block; text-align: center; text-decoration: none;
-      font-size: 14px; font-weight: 600; color: #64748b; padding: 12px; margin-top: 20px;
+    .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
-    @media (max-width: 640px) {
-      .summary-row {
+    .participants {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .participant-row {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .participant-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .participant-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .empty {
+      text-align: center;
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 32px 16px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .summary-grid,
+      .info-grid {
         grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div>
-      <div class="header-title">053 管理ハブ</div>
-      <div class="header-sub">Management Dashboard</div>
-    </div>
-    <div class="header-badge" id="lastUpdated">読み込み中...</div>
-  </div>
-
   <div class="container">
-    <div class="summary-row">
+    <div class="page-head">
+      <div>
+        <h1>管理ハブ</h1>
+        <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
+      </div>
+      <div class="top-actions">
+        <a href="./admin_trial_approval.html" class="ghost-link">無料体験承認管理へ</a>
+        <button class="secondary" onclick="loadHub()">一覧を更新</button>
+      </div>
+    </div>
+
+    <div id="status" class="status">読み込み中です。</div>
+
+    <div class="summary-grid">
       <div class="summary-card">
-        <div class="summary-num warn" id="sumApplications">-</div>
-        <div class="summary-label">承認待ち</div>
+        <div class="summary-label">会員申請</div>
+        <div class="summary-value" id="memberCount">-</div>
+        <div class="summary-note">受付 / 確認中 / 未反映承認</div>
       </div>
       <div class="summary-card">
-        <div class="summary-num" id="sumPractices">-</div>
-        <div class="summary-label">今後4週の練習</div>
+        <div class="summary-label">無料体験申請</div>
+        <div class="summary-value" id="trialCount">-</div>
+        <div class="summary-note">一覧に表示中の件数</div>
       </div>
       <div class="summary-card">
-        <div class="summary-num" id="sumEvents">-</div>
+        <div class="summary-label">今後4週間の練習</div>
+        <div class="summary-value" id="practiceCount">-</div>
+        <div class="summary-note">参加者込みで確認</div>
+      </div>
+      <div class="summary-card">
         <div class="summary-label">公開中イベント</div>
+        <div class="summary-value" id="eventCount">-</div>
+        <div class="summary-note">参加者込みで確認</div>
       </div>
     </div>
 
-    <div class="tab-nav">
-      <button class="tab-btn active" onclick="switchTab('applications')">入会申請</button>
-      <button class="tab-btn" onclick="switchTab('practices')">通常練習</button>
-      <button class="tab-btn" onclick="switchTab('events')">イベント</button>
+    <div class="two-col">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">会員申請</div>
+            <div class="section-sub">直近の確認対象を表示</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div id="memberList" class="list"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">無料体験申請</div>
+            <div class="section-sub">直近の無料体験申請を表示</div>
+          </div>
+          <div class="section-actions">
+            <a href="./admin_trial_approval.html" class="ghost-link">詳細管理へ</a>
+          </div>
+        </div>
+        <div class="panel">
+          <div id="trialList" class="list"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="tab-panel active" id="panel-applications">
-      <div class="section-header">
+    <div class="section">
+      <div class="section-head">
         <div>
-          <div class="section-title">入会申請一覧</div>
-          <div class="section-sub">承認・差戻し・区分確定は専用ページで行います</div>
-        </div>
-        <div class="section-actions">
-          <a href="./admin_member_approval.html" class="primary-link-btn" id="approvalPageLink">承認ページへ</a>
-          <button class="refresh-btn" onclick="loadApplications()">更新</button>
+          <div class="section-title">今後4週間の通常練習</div>
+          <div class="section-sub">参加予定人数と区分別参加者を確認</div>
         </div>
       </div>
-      <div id="applicationList"><div class="loading-text">読み込み中...</div></div>
-    </div>
-
-    <div class="tab-panel" id="panel-practices">
-      <div class="section-header">
-        <div class="section-title">通常練習（今後4週間）</div>
-        <button class="refresh-btn" onclick="loadPractices()">更新</button>
+      <div class="panel">
+        <div id="practiceList" class="list"></div>
       </div>
-      <div id="practiceList"><div class="loading-text">読み込み中...</div></div>
     </div>
 
-    <div class="tab-panel" id="panel-events">
-      <div class="section-header">
-        <div class="section-title">イベント / クリニック</div>
-        <button class="refresh-btn" onclick="loadEvents()">更新</button>
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">公開中イベント / クリニック</div>
+          <div class="section-sub">参加状況を区分別に確認</div>
+        </div>
       </div>
-      <div id="eventList"><div class="loading-text">読み込み中...</div></div>
+      <div class="panel">
+        <div id="eventList" class="list"></div>
+      </div>
     </div>
-
-    <a href="./entry_select.html" class="back-link">← 申込メニューへ戻る</a>
   </div>
 
   <script>
-    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
-    var appData = { applications: [], practices: [], events: [] };
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-      var idx = { applications: 0, practices: 1, events: 2 };
-      document.querySelectorAll('.tab-btn')[idx[tabId]].classList.add('active');
-      document.getElementById('panel-' + tabId).classList.add('active');
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
     }
 
-    function toggleCard(el) {
-      el.closest('.card').classList.toggle('open');
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    function formatDateJa(dateStr) {
-      if (!dateStr) return '';
-      var d = new Date(dateStr + 'T00:00:00');
-      if (isNaN(d.getTime())) return dateStr;
-      var w = ['日','月','火','水','木','金','土'];
-      return (d.getMonth() + 1) + '/' + d.getDate() + '（' + w[d.getDay()] + '）';
+    function formatDateOnly(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        month: 'numeric',
+        day: 'numeric',
+        weekday: 'short'
+      }).format(d);
     }
 
-    function formatDateTimeShort(isoStr) {
-      if (!isoStr) return '';
-      var d = new Date(isoStr);
-      if (isNaN(d.getTime())) return isoStr;
-      return (d.getMonth() + 1) + '/' + d.getDate();
+    function formatDateTime(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value;
+
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(d);
     }
 
-    function isToday(dateStr) {
-      if (!dateStr) return false;
-      var now = new Date();
-      var today = now.getFullYear() + '-' +
-        ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-        ('0' + now.getDate()).slice(-2);
-      return dateStr === today;
+    function getStatusPill(status) {
+      if (status === '受付') return '<span class="pill pill-open">受付</span>';
+      if (status === '確認中') return '<span class="pill pill-checking">確認中</span>';
+      if (status === '承認') return '<span class="pill pill-approved">承認</span>';
+      if (status === '差戻し') return '<span class="pill pill-returned">差戻し</span>';
+      if (status === '体験完了') return '<span class="pill pill-completed">体験完了</span>';
+      return '<span class="pill pill-default">' + escapeHtml(status || '未設定') + '</span>';
     }
 
-    function statusBadgeHtml(status) {
-      if (status === '受付') return '<span class="card-badge badge-pending">受付</span>';
-      if (status === '確認中') return '<span class="card-badge badge-review">確認中</span>';
-      if (status === '承認') return '<span class="card-badge badge-approved">承認（未反映）</span>';
-      if (status === '差戻し') return '<span class="card-badge badge-review">差戻し</span>';
-      if (status === '見送り') return '<span class="card-badge">見送り</span>';
-      return '<span class="card-badge">' + (status || '不明') + '</span>';
+    async function fetchJson(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      return await response.json();
     }
 
-    function updateApprovalLink() {
-      var link = document.getElementById('approvalPageLink');
-      var count = appData.applications.length;
-      if (!link) return;
-      link.textContent = count > 0 ? '承認ページへ（' + count + '件）' : '承認ページへ';
-    }
-
-    function getCategoryCounts(participants) {
-      var club = (participants && participants['クラブ']) ? participants['クラブ'].length : 0;
-      var school = (participants && participants['スクール']) ? participants['スクール'].length : 0;
-      var general = (participants && participants['一般']) ? participants['一般'].length : 0;
-      return {
-        club: club,
-        school: school,
-        general: general
-      };
-    }
-
-    function renderCategorySummary(participants) {
-      var counts = getCategoryCounts(participants);
-      return '' +
-        '<div class="category-summary">' +
-          '<span class="category-chip club">クラブ ' + counts.club + '名</span>' +
-          '<span class="category-chip school">スクール ' + counts.school + '名</span>' +
-          '<span class="category-chip general">一般 ' + counts.general + '名</span>' +
-        '</div>';
-    }
-
-    function renderParticipantGroups(participants) {
-      if (!participants) return '<div class="participant-empty">参加者情報なし</div>';
-
-      var clubList = participants['クラブ'] || [];
-      var schoolList = participants['スクール'] || [];
-      var generalList = participants['一般'] || [];
-      var total = clubList.length + schoolList.length + generalList.length;
-
-      if (total === 0) return '<div class="participant-empty">申込者はまだいません</div>';
-
-      var html = '';
-
-      if (clubList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title club">クラブ（' + clubList.length + '名）</div>';
-        html += '<div class="participant-names">' + clubList.join('、') + '</div>';
-        html += '</div>';
-      }
-
-      if (schoolList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title school">スクール（' + schoolList.length + '名）</div>';
-        html += '<div class="participant-names">' + schoolList.join('、') + '</div>';
-        html += '</div>';
-      }
-
-      if (generalList.length > 0) {
-        html += '<div class="participant-group">';
-        html += '<div class="participant-group-title general">一般（' + generalList.length + '名）</div>';
-        html += '<div class="participant-names">' + generalList.join('、') + '</div>';
-        html += '</div>';
-      }
-
-      return html;
-    }
-
-    function updateSummary() {
-      var ac = appData.applications.length;
-      var el = document.getElementById('sumApplications');
-      el.textContent = ac;
-      el.className = ac > 0 ? 'summary-num warn' : 'summary-num ok';
-
-      document.getElementById('sumPractices').textContent = appData.practices.length;
-      document.getElementById('sumEvents').textContent = appData.events.length;
-
-      var now = new Date();
-      document.getElementById('lastUpdated').textContent =
-        '最終更新 ' + now.getHours() + ':' + ('0' + now.getMinutes()).slice(-2);
-    }
-
-    async function fetchJsonSafely(url) {
-      var response = await fetch(url, {
-        method: 'GET',
-        cache: 'no-store'
-      });
-
-      var text = await response.text();
-
-      if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-      }
+    async function loadHub() {
+      setStatus('管理ハブを読み込み中です...');
 
       try {
-        return JSON.parse(text);
+        const [
+          memberRes,
+          trialRes,
+          practiceRes,
+          eventRes
+        ] = await Promise.all([
+          fetchJson(`${WEB_APP_URL}?mode=pendingMemberApplications&t=${Date.now()}`),
+          fetchJson(`${WEB_APP_URL}?mode=pendingTrialApplications&t=${Date.now()}`),
+          fetchJson(`${WEB_APP_URL}?mode=adminPractices4weeks&t=${Date.now()}`),
+          fetchJson(`${WEB_APP_URL}?mode=adminEventsWithParticipants&t=${Date.now()}`)
+        ]);
+
+        const memberItems = Array.isArray(memberRes) ? memberRes : [];
+        const trialItems = trialRes && Array.isArray(trialRes.items) ? trialRes.items : [];
+        const practiceItems = practiceRes && Array.isArray(practiceRes.items) ? practiceRes.items : [];
+        const eventItems = Array.isArray(eventRes) ? eventRes : [];
+
+        document.getElementById('memberCount').textContent = memberItems.length;
+        document.getElementById('trialCount').textContent = trialItems.length;
+        document.getElementById('practiceCount').textContent = practiceItems.length;
+        document.getElementById('eventCount').textContent = eventItems.length;
+
+        renderMemberApplications(memberItems);
+        renderTrialApplications(trialItems);
+        renderPractices(practiceItems);
+        renderEvents(eventItems);
+
+        setStatus('管理ハブを更新しました。');
       } catch (error) {
-        console.error('[fetchJsonSafely] JSON parse error', url, text);
-        throw new Error('JSON解析失敗');
+        setStatus('読込エラー: ' + error.message);
+        document.getElementById('memberCount').textContent = '-';
+        document.getElementById('trialCount').textContent = '-';
+        document.getElementById('practiceCount').textContent = '-';
+        document.getElementById('eventCount').textContent = '-';
+
+        document.getElementById('memberList').innerHTML = '<div class="empty">読込に失敗しました。</div>';
+        document.getElementById('trialList').innerHTML = '<div class="empty">読込に失敗しました。</div>';
+        document.getElementById('practiceList').innerHTML = '<div class="empty">読込に失敗しました。</div>';
+        document.getElementById('eventList').innerHTML = '<div class="empty">読込に失敗しました。</div>';
       }
     }
 
-    async function loadApplications() {
-      var c = document.getElementById('applicationList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+    function renderMemberApplications(items) {
+      const list = document.getElementById('memberList');
 
-      try {
-        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=pendingMemberApplications');
-        appData.applications = (json.ok && Array.isArray(json.items)) ? json.items : [];
-      } catch (e) {
-        console.error('[loadApplications]', e);
-        appData.applications = [];
-      }
-
-      renderApplications();
-      updateApprovalLink();
-      updateSummary();
-    }
-
-    function renderApplications() {
-      var c = document.getElementById('applicationList');
-      var items = appData.applications;
-
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">対応が必要な入会申請はありません</div>';
+      if (!items.length) {
+        list.innerHTML = '<div class="empty">確認対象の会員申請はありません。</div>';
         return;
       }
 
-      var html = '';
+      const previewItems = items.slice(0, 6);
 
-      items.forEach(function(item) {
-        html += '<div class="card"><div style="padding:16px;">';
+      list.innerHTML = previewItems.map(function(item) {
+        return `
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">${escapeHtml(item.childName || '氏名なし')}</div>
+                <div class="card-meta">${escapeHtml(item.grade || '')} / 保護者: ${escapeHtml(item.parentName || '')}</div>
+              </div>
+              <div>${getStatusPill(item.applicationStatus || '')}</div>
+            </div>
 
-        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">';
-        html += '<div>';
-        html += '<div class="card-main">' + (item.childName || '氏名なし') + '</div>';
-        html += '<div class="card-sub">' + (item.grade || '学年未設定') + '　保護者: ' + (item.parentName || '未入力') + '</div>';
-        html += '</div>';
-        html += statusBadgeHtml(item.applicationStatus);
-        html += '</div>';
-
-        html += '<div class="app-top-line">';
-        html += '<span class="info-chip">希望区分: ' + (item.desiredCategory || '未選択') + '</span>';
-        if (item.trialStatus) {
-          html += '<span class="info-chip">体験: ' + item.trialStatus + '</span>';
-        }
-        if (item.approvedCategory) {
-          html += '<span class="info-chip">承認区分: ' + item.approvedCategory + '</span>';
-        }
-        html += '</div>';
-
-        html += '<div class="card-detail">';
-        if (item.affiliation) html += '所属: ' + item.affiliation + '<br>';
-        if (item.phone) html += '電話番号: ' + item.phone + '<br>';
-        if (item.email) html += 'メール: ' + item.email + '<br>';
-        if (item.appliedAt) html += '申込日: ' + formatDateTimeShort(item.appliedAt);
-        html += '</div>';
-
-        if (item.note) {
-          html += '<div class="card-detail-muted">備考: ' + item.note + '</div>';
-        }
-
-        html += '</div></div>';
-      });
-
-      c.innerHTML = html;
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">希望区分</span>
+                <div class="value">${escapeHtml(item.desiredCategory || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">承認区分</span>
+                <div class="value">${escapeHtml(item.approvedCategory || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">無料体験利用状況</span>
+                <div class="value">${escapeHtml(item.trialStatus || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">申込日時</span>
+                <div class="value">${escapeHtml(formatDateTime(item.appliedAt) || '')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">所属</span>
+                <div class="value">${escapeHtml(item.affiliation || '未記載')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">相談・備考</span>
+                <div class="value">${escapeHtml(item.note || '未記載')}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    async function loadPractices() {
-      var c = document.getElementById('practiceList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+    function renderTrialApplications(items) {
+      const list = document.getElementById('trialList');
 
-      try {
-        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=adminPractices4weeks');
-
-        if (json.ok && Array.isArray(json.items) && json.items.length > 0) {
-          appData.practices = json.items;
-        } else {
-          appData.practices = [];
-        }
-      } catch (e) {
-        console.error('[loadPractices adminPractices4weeks]', e);
-        appData.practices = [];
-      }
-
-      if (appData.practices.length === 0) {
-        try {
-          var fbJson = await fetchJsonSafely(WEB_APP_URL + '?mode=publicPractices');
-
-          if (fbJson.ok && Array.isArray(fbJson.items)) {
-            var now = new Date();
-            now.setHours(0, 0, 0, 0);
-
-            var limit = new Date(now);
-            limit.setDate(now.getDate() + 28);
-
-            appData.practices = fbJson.items.filter(function(i) {
-              if (!i.date) return false;
-              var d = new Date(i.date + 'T00:00:00');
-              return d >= now && d <= limit;
-            }).map(function(i) {
-              return {
-                id: i.id,
-                date: i.date,
-                title: i.title || '',
-                startTime: i.startTime || '',
-                endTime: i.endTime || '',
-                place: i.place || '',
-                note: i.note || '',
-                participantCount: 0,
-                participants: null
-              };
-            });
-          }
-        } catch (e2) {
-          console.error('[loadPractices publicPractices]', e2);
-          appData.practices = [];
-        }
-      }
-
-      renderPractices();
-      updateSummary();
-    }
-
-    function renderPractices() {
-      var c = document.getElementById('practiceList');
-      var items = appData.practices;
-
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">今後4週間に公開中の通常練習はありません</div>';
+      if (!items.length) {
+        list.innerHTML = '<div class="empty">無料体験申請はありません。</div>';
         return;
       }
 
-      var html = '';
+      const previewItems = items.slice(0, 6);
 
-      items.forEach(function(item, idx) {
-        var todayTag = isToday(item.date)
-          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
-          : '';
+      list.innerHTML = previewItems.map(function(item) {
+        return `
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">${escapeHtml(item.childName || '氏名なし')}</div>
+                <div class="card-meta">${escapeHtml(item.grade || '')} / 保護者: ${escapeHtml(item.parentName || '')}</div>
+              </div>
+              <div>${getStatusPill(item.applicationStatus || '')}</div>
+            </div>
 
-        var count = item.participantCount || 0;
-
-        html += '<div class="card" id="pcard-' + idx + '">';
-
-        html += '<div class="card-header" onclick="toggleCard(this)">';
-        html += '<div style="flex:1;">';
-        html += '<div class="practice-date">' + formatDateJa(item.date) + todayTag + '</div>';
-        html += '<div class="practice-time">';
-        if (item.startTime || item.endTime) {
-          html += (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
-        }
-        html += '</div>';
-        if (item.place) html += '<div class="practice-place">' + item.place + '</div>';
-        html += '</div>';
-
-        html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="badge-count">' + count + '名</span>';
-        html += '<span class="expand-icon">▼</span>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '<div class="card-body">';
-        html += renderCategorySummary(item.participants);
-        html += renderParticipantGroups(item.participants);
-
-        html += '<div class="memo-section">';
-        html += '<div class="memo-label">練習メモ（備考）</div>';
-        html += '<textarea class="memo-input" id="pmemo-' + idx + '" placeholder="練習テーマ、連絡事項など">' + (item.note || '') + '</textarea>';
-        html += '<div class="memo-save-row">';
-        html += '<span class="memo-status" id="pmemo-status-' + idx + '"></span>';
-        html += '<button class="memo-save-btn" onclick="savePracticeMemo(\'' + item.id + '\',' + idx + ')">保存</button>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '</div>';
-        html += '</div>';
-      });
-
-      c.innerHTML = html;
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">所属チーム</span>
+                <div class="value">${escapeHtml(item.teamName || '未記載')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">申請日時</span>
+                <div class="value">${escapeHtml(formatDateTime(item.appliedAt) || '')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">希望練習日</span>
+                <div class="value">${escapeHtml(formatDateOnly(item.requestedPracticeDate) || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">希望練習ラベル</span>
+                <div class="value">${escapeHtml(item.requestedPracticeLabel || '未設定')}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    async function savePracticeMemo(practiceId, idx) {
-      var textarea = document.getElementById('pmemo-' + idx);
-      var statusEl = document.getElementById('pmemo-status-' + idx);
-      var btn = textarea.parentElement.querySelector('.memo-save-btn');
-      var memo = textarea.value;
-
-      btn.disabled = true;
-      statusEl.textContent = '保存中...';
-
-      try {
-        var json = await fetchJsonSafely(
-          WEB_APP_URL + '?mode=updatePracticeMemo' +
-          '&practiceId=' + encodeURIComponent(practiceId) +
-          '&memo=' + encodeURIComponent(memo)
-        );
-
-        if (json.ok) {
-          statusEl.textContent = '保存しました';
-          statusEl.style.color = '#34d399';
-        } else {
-          statusEl.textContent = 'エラー: ' + (json.message || '');
-          statusEl.style.color = '#f87171';
-        }
-      } catch (e) {
-        console.error('[savePracticeMemo]', e);
-        statusEl.textContent = '通信エラー';
-        statusEl.style.color = '#f87171';
-      }
-
-      btn.disabled = false;
-      setTimeout(function() {
-        statusEl.textContent = '';
-        statusEl.style.color = '';
-      }, 3000);
+    function participantText(list) {
+      if (!Array.isArray(list) || !list.length) return 'なし';
+      return list.join('、');
     }
 
-    async function loadEvents() {
-      var c = document.getElementById('eventList');
-      c.innerHTML = '<div class="loading-text">読み込み中...</div>';
+    function renderPractices(items) {
+      const list = document.getElementById('practiceList');
 
-      try {
-        var json = await fetchJsonSafely(WEB_APP_URL + '?mode=adminEventsWithParticipants');
-
-        if (json.ok && Array.isArray(json.items) && json.items.length > 0) {
-          appData.events = json.items;
-        } else {
-          appData.events = [];
-        }
-      } catch (e) {
-        console.error('[loadEvents adminEventsWithParticipants]', e);
-        appData.events = [];
-      }
-
-      if (appData.events.length === 0) {
-        try {
-          var fbJson = await fetchJsonSafely(WEB_APP_URL + '?mode=publicEvents');
-
-          if (fbJson.ok && Array.isArray(fbJson.items)) {
-            appData.events = fbJson.items.map(function(i) {
-              return Object.assign({}, i, { participants: i.participants || null });
-            });
-          }
-        } catch (e2) {
-          console.error('[loadEvents publicEvents]', e2);
-          appData.events = [];
-        }
-      }
-
-      renderEvents();
-      updateSummary();
-    }
-
-    function renderEvents() {
-      var c = document.getElementById('eventList');
-      var items = appData.events;
-
-      if (items.length === 0) {
-        c.innerHTML = '<div class="empty-text">公開中のイベント/クリニックはありません</div>';
+      if (!items.length) {
+        list.innerHTML = '<div class="empty">今後4週間の練習はありません。</div>';
         return;
       }
 
-      var html = '';
+      list.innerHTML = items.map(function(item) {
+        return `
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${escapeHtml(item.title || '')}</div>
+                <div class="card-meta">${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}</div>
+              </div>
+              <div><span class="pill pill-default">参加予定 ${Number(item.participantCount || 0)}名</span></div>
+            </div>
 
-      items.forEach(function(item, idx) {
-        var todayTag = isToday(item.eventDate)
-          ? ' <span style="color:#fbbf24;font-size:12px;font-weight:700;">TODAY</span>'
-          : '';
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">備考</span>
+                <div class="value">${escapeHtml(item.note || '未記載')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">練習ID</span>
+                <div class="value">${escapeHtml(item.id || '')}</div>
+              </div>
+            </div>
 
-        html += '<div class="card" id="ecard-' + idx + '">';
-
-        html += '<div class="card-header" onclick="toggleCard(this)">';
-        html += '<div style="flex:1;">';
-        html += '<div class="card-main">' + (item.eventName || 'イベント名なし') + todayTag + '</div>';
-        html += '<div class="card-sub">' + formatDateJa(item.eventDate);
-        if (item.startTime || item.endTime) {
-          html += '　' + (item.startTime || '') + (item.startTime && item.endTime ? '〜' : '') + (item.endTime || '');
-        }
-        html += '</div>';
-        html += '</div>';
-
-        html += '<div style="display:flex;align-items:center;gap:6px;">';
-        html += '<span class="card-badge badge-event">' + (item.statusLabel || '募集中') + '</span>';
-        html += '<span class="expand-icon">▼</span>';
-        html += '</div>';
-        html += '</div>';
-
-        html += '<div class="card-body">';
-
-        if (item.place) html += '<div class="card-detail">' + item.place + '</div>';
-
-        html += '<div class="event-counts">';
-        html += '<div class="event-count-item">申込: <strong>' + (item.currentCount || 0) + '</strong>名</div>';
-        html += '<div class="event-count-item">定員: <strong>' + (item.capacity || '-') + '</strong>名</div>';
-        html += '<div class="event-count-item">残: <strong>' + (item.remainingCount || 0) + '</strong>名</div>';
-        html += '</div>';
-
-        html += renderCategorySummary(item.participants);
-
-        html += '<div class="card-detail" style="margin-top:8px;">';
-        html += '料金: クラブ ' + (item.clubPrice || 0) + '円 / スクール ' + (item.schoolPrice || 0) + '円 / 一般 ' + (item.generalPrice || 0) + '円';
-        html += '</div>';
-
-        if (item.targetLabel) html += '<div class="card-detail">対象: ' + item.targetLabel + '</div>';
-
-        html += '<div style="margin-top:12px;">';
-        html += renderParticipantGroups(item.participants);
-        html += '</div>';
-
-        if (item.note) html += '<div class="card-detail" style="margin-top:8px;">備考: ' + item.note + '</div>';
-
-        html += '</div>';
-        html += '</div>';
-      });
-
-      c.innerHTML = html;
+            <div class="participants">
+              <div class="participant-row">
+                <div class="participant-label">クラブ</div>
+                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['クラブ']))}</div>
+              </div>
+              <div class="participant-row">
+                <div class="participant-label">スクール</div>
+                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['スクール']))}</div>
+              </div>
+              <div class="participant-row">
+                <div class="participant-label">一般</div>
+                <div class="participant-value">${escapeHtml(participantText(item.participants && item.participants['一般']))}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    window.addEventListener('load', async function() {
-      await Promise.all([ loadApplications(), loadPractices(), loadEvents() ]);
-    });
+    function renderEvents(items) {
+      const list = document.getElementById('eventList');
+
+      if (!items.length) {
+        list.innerHTML = '<div class="empty">公開中イベントはありません。</div>';
+        return;
+      }
+
+      list.innerHTML = items.map(function(item) {
+        const participants = item.participants || {};
+        return `
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">${escapeHtml(item.eventName || 'イベント名未設定')}</div>
+                <div class="card-meta">${escapeHtml(formatDateOnly(item.eventDate) || '')}｜${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}</div>
+              </div>
+              <div><span class="pill pill-default">${escapeHtml(item.statusLabel || '受付状況未設定')}</span></div>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">対象</span>
+                <div class="value">${escapeHtml(item.targetLabel || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">現在申込数 / 残数</span>
+                <div class="value">${Number(item.currentCount || 0)}名 / ${Number(item.remainingCount || 0)}枠</div>
+              </div>
+              <div class="info-box">
+                <span class="label">料金</span>
+                <div class="value">クラブ ${Number(item.clubPrice || 0).toLocaleString()}円 / スクール ${Number(item.schoolPrice || 0).toLocaleString()}円 / 一般 ${Number(item.generalPrice || 0).toLocaleString()}円</div>
+              </div>
+              <div class="info-box">
+                <span class="label">備考</span>
+                <div class="value">${escapeHtml(item.note || '未記載')}</div>
+              </div>
+            </div>
+
+            <div class="participants">
+              <div class="participant-row">
+                <div class="participant-label">クラブ</div>
+                <div class="participant-value">${escapeHtml(participantText(participants['クラブ']))}</div>
+              </div>
+              <div class="participant-row">
+                <div class="participant-label">スクール</div>
+                <div class="participant-value">${escapeHtml(participantText(participants['スクール']))}</div>
+              </div>
+              <div class="participant-row">
+                <div class="participant-label">一般</div>
+                <div class="participant-value">${escapeHtml(participantText(participants['一般']))}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.addEventListener('load', loadHub);
   </script>
 </body>
 </html>

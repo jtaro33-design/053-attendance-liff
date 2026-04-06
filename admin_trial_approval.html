@@ -589,42 +589,42 @@
     }
 
     function createReplyDraft(pageId) {
-      const approvedPracticeDateEl = document.getElementById(`approvedPracticeDate-${pageId}`);
-      const approvedPracticeLabelEl = document.getElementById(`approvedPracticeLabel-${pageId}`);
-      const requestedPracticeDateEl = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
-      const requestedPracticeLabelEl = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
-      const replyDraftEl = document.getElementById(`replyDraft-${pageId}`);
+  const approvedPracticeDateEl = document.getElementById(`approvedPracticeDate-${pageId}`);
+  const approvedPracticeLabelEl = document.getElementById(`approvedPracticeLabel-${pageId}`);
+  const requestedPracticeDateEl = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
+  const requestedPracticeLabelEl = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
+  const replyDraftEl = document.getElementById(`replyDraft-${pageId}`);
 
-      if (!replyDraftEl) return;
+  if (!replyDraftEl) return;
 
-      const approvedPracticeDate = approvedPracticeDateEl ? approvedPracticeDateEl.value.trim() : '';
-      const approvedPracticeLabel = approvedPracticeLabelEl ? approvedPracticeLabelEl.value.trim() : '';
-      const requestedPracticeDate = requestedPracticeDateEl ? requestedPracticeDateEl.value.trim() : '';
-      const requestedPracticeLabel = requestedPracticeLabelEl ? requestedPracticeLabelEl.value.trim() : '';
+  const approvedPracticeDate = approvedPracticeDateEl ? approvedPracticeDateEl.value.trim() : '';
+  const approvedPracticeLabel = approvedPracticeLabelEl ? approvedPracticeLabelEl.value.trim() : '';
+  const requestedPracticeDate = requestedPracticeDateEl ? requestedPracticeDateEl.value.trim() : '';
+  const requestedPracticeLabel = requestedPracticeLabelEl ? requestedPracticeLabelEl.value.trim() : '';
 
-      const finalDate = approvedPracticeDate || requestedPracticeDate;
-      const finalLabel = approvedPracticeLabel || requestedPracticeLabel;
+  const finalDate = approvedPracticeDate || requestedPracticeDate;
+  const finalLabel = approvedPracticeLabel || requestedPracticeLabel;
 
-      let scheduleText = '';
-      if (finalLabel) {
-        scheduleText = finalLabel;
-      } else if (finalDate) {
-        scheduleText = formatDateOnly(finalDate);
-      }
+  let scheduleText = '';
+  if (finalLabel) {
+    scheduleText = finalLabel;
+  } else if (finalDate) {
+    scheduleText = formatDateOnly(finalDate);
+  }
 
-      let draft = '無料体験のお申し込みありがとうございます。\n';
+  let draft = '無料体験のお申し込みありがとうございます。\n';
 
-      if (scheduleText) {
-        draft += scheduleText + ' でご案内予定です。\n';
-      } else {
-        draft += '内容確認のうえ、体験日をご案内いたします。\n';
-      }
+  if (scheduleText) {
+    draft += scheduleText + ' でご案内予定です。\n';
+  } else {
+    draft += '体験日程は内容確認のうえ、改めてご案内いたします。\n';
+  }
 
-      draft += '当日はお気をつけてお越しください。\n';
-      draft += 'ご不明点がありましたら、このLINEにご返信ください。';
+  draft += 'まずは一度、実際の練習の雰囲気を見ていただければと思います。\n';
+  draft += 'ご不明点があれば、このLINEにご返信ください。';
 
-      replyDraftEl.value = draft;
-    }
+  replyDraftEl.value = draft;
+}
 
     function renderList() {
       const listArea = document.getElementById('listArea');

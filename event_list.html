@@ -92,19 +92,36 @@
     }
 
     .recommend-wrap {
-      background: #fff7ed;
-      border: 1px solid #fdba74;
+      background: #fffaf3;
+      border: 1px solid #f3d3a1;
       border-radius: 18px;
-      padding: 14px;
+      padding: 16px 14px 8px;
       margin-bottom: 18px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .recommend-wrap::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      width: 4px;
+      height: 24px;
+      border-radius: 999px;
+      background: #f59e0b;
+    }
+
+    .recommend-head {
+      padding-left: 12px;
+      margin-bottom: 10px;
     }
 
     .recommend-note {
       font-size: 13px;
-      color: #9a3412;
+      color: #92400e;
       margin-top: -2px;
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
 
     .card {
@@ -117,8 +134,9 @@
     }
 
     .card.recommended {
-      border-color: #fdba74;
-      background: #fffdf8;
+      border-color: #f3d3a1;
+      background: #fffefb;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     }
 
     .card-head {
@@ -142,8 +160,9 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 800;
-      background: #f97316;
-      color: #ffffff;
+      background: #fff1d6;
+      color: #b45309;
+      border: 1px solid #f3d3a1;
       white-space: nowrap;
     }
 
@@ -351,8 +370,10 @@
 
     <div id="recommendSection" class="section-block hidden">
       <div class="recommend-wrap">
-        <div class="section-title">おすすめクリニック</div>
-        <div class="recommend-note">おすすめ表示がONのイベントを上にまとめて表示しています</div>
+        <div class="recommend-head">
+          <div class="section-title">注目のイベント / クリニック</div>
+          <div class="recommend-note">特に見てほしいイベントを上にまとめて表示しています</div>
+        </div>
         <div id="recommendList"></div>
       </div>
     </div>
@@ -654,7 +675,7 @@
         <div class="card ${isRecommended ? 'recommended' : ''}" style="${hideBottomMargin ? 'margin-bottom:0;' : ''}">
           <div class="card-head">
             <div class="title">${item.eventName || ''}</div>
-            ${isRecommended ? '<div class="recommend-badge">おすすめ</div>' : ''}
+            ${isRecommended ? '<div class="recommend-badge">注目</div>' : ''}
           </div>
 
           <div class="row"><span class="label">開催日:</span>${dateLabel}</div>

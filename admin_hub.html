@@ -85,22 +85,36 @@
       background: #cbd5e1;
     }
 
-    .ghost-link {
+    .hub-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
-      color: #334155;
       border-radius: 10px;
       padding: 10px 14px;
       font-size: 13px;
       font-weight: 700;
+      border: 1px solid transparent;
     }
 
-    .ghost-link:hover {
-      background: #f8fafc;
+    .hub-link.member {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .hub-link.member:hover {
+      background: #dbeafe;
+    }
+
+    .hub-link.trial {
+      background: #ecfeff;
+      color: #0f766e;
+      border-color: #a5f3fc;
+    }
+
+    .hub-link.trial:hover {
+      background: #cffafe;
     }
 
     .status {
@@ -122,11 +136,26 @@
     }
 
     .summary-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 16px;
+      border: 1px solid #e2e8f0;
       box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .summary-card.member {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    }
+
+    .summary-card.trial {
+      background: linear-gradient(180deg, #ecfeff 0%, #ffffff 100%);
+    }
+
+    .summary-card.practice {
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
+
+    .summary-card.event {
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
     }
 
     .summary-label {
@@ -182,11 +211,27 @@
     }
 
     .panel {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 14px;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+
+    .panel.member {
+      background: #f8fbff;
+    }
+
+    .panel.trial {
+      background: #f7feff;
+    }
+
+    .panel.practice {
+      background: #fbfefb;
+    }
+
+    .panel.event {
+      background: #fffdfa;
     }
 
     .list {
@@ -195,10 +240,29 @@
     }
 
     .card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
       border-radius: 14px;
       padding: 14px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .card.member {
+      background: #ffffff;
+      border-left: 5px solid #60a5fa;
+    }
+
+    .card.trial {
+      background: #ffffff;
+      border-left: 5px solid #22c55e;
+    }
+
+    .card.practice {
+      background: #ffffff;
+      border-left: 5px solid #16a34a;
+    }
+
+    .card.event {
+      background: #ffffff;
+      border-left: 5px solid #f59e0b;
     }
 
     .card-head {
@@ -338,7 +402,8 @@
         <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
       </div>
       <div class="top-actions">
-        <a href="./admin_trial_approval.html" class="ghost-link">無料体験承認管理へ</a>
+        <a href="./admin_member_application.html" class="hub-link member">会員申請管理へ</a>
+        <a href="./admin_trial_approval.html" class="hub-link trial">無料体験承認管理へ</a>
         <button class="secondary" onclick="loadHub()">一覧を更新</button>
       </div>
     </div>
@@ -346,22 +411,22 @@
     <div id="status" class="status">読み込み中です。</div>
 
     <div class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-card member">
         <div class="summary-label">会員申請</div>
         <div class="summary-value" id="memberCount">-</div>
         <div class="summary-note">受付 / 確認中 / 未反映承認</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card trial">
         <div class="summary-label">無料体験申請</div>
         <div class="summary-value" id="trialCount">-</div>
         <div class="summary-note">一覧に表示中の件数</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card practice">
         <div class="summary-label">今後4週間の練習</div>
         <div class="summary-value" id="practiceCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card event">
         <div class="summary-label">公開中イベント</div>
         <div class="summary-value" id="eventCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
@@ -375,8 +440,11 @@
             <div class="section-title">会員申請</div>
             <div class="section-sub">直近の確認対象を表示</div>
           </div>
+          <div class="section-actions">
+            <a href="./admin_member_application.html" class="hub-link member">詳細管理へ</a>
+          </div>
         </div>
-        <div class="panel">
+        <div class="panel member">
           <div id="memberList" class="list"></div>
         </div>
       </div>
@@ -388,10 +456,10 @@
             <div class="section-sub">直近の無料体験申請を表示</div>
           </div>
           <div class="section-actions">
-            <a href="./admin_trial_approval.html" class="ghost-link">詳細管理へ</a>
+            <a href="./admin_trial_approval.html" class="hub-link trial">詳細管理へ</a>
           </div>
         </div>
-        <div class="panel">
+        <div class="panel trial">
           <div id="trialList" class="list"></div>
         </div>
       </div>
@@ -404,7 +472,7 @@
           <div class="section-sub">参加予定人数と区分別参加者を確認</div>
         </div>
       </div>
-      <div class="panel">
+      <div class="panel practice">
         <div id="practiceList" class="list"></div>
       </div>
     </div>
@@ -416,7 +484,7 @@
           <div class="section-sub">参加状況を区分別に確認</div>
         </div>
       </div>
-      <div class="panel">
+      <div class="panel event">
         <div id="eventList" class="list"></div>
       </div>
     </div>
@@ -575,7 +643,7 @@
 
       list.innerHTML = previewItems.map(function(item) {
         return `
-          <div class="card">
+          <div class="card member">
             <div class="card-head">
               <div>
                 <div class="card-title">${escapeHtml(item.childName || '氏名なし')}</div>
@@ -627,7 +695,7 @@
 
       list.innerHTML = previewItems.map(function(item) {
         return `
-          <div class="card">
+          <div class="card trial">
             <div class="card-head">
               <div>
                 <div class="card-title">${escapeHtml(item.childName || '氏名なし')}</div>
@@ -674,7 +742,7 @@
 
       list.innerHTML = items.map(function(item) {
         return `
-          <div class="card">
+          <div class="card practice">
             <div class="card-head">
               <div>
                 <div class="card-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${escapeHtml(item.title || '')}</div>
@@ -689,8 +757,8 @@
                 <div class="value">${escapeHtml(item.note || '未記載')}</div>
               </div>
               <div class="info-box">
-                <span class="label">練習ID</span>
-                <div class="value">${escapeHtml(item.id || '')}</div>
+                <span class="label">表示メモ</span>
+                <div class="value">${Number(item.participantCount || 0) > 0 ? '参加者あり' : '参加者なし'}</div>
               </div>
             </div>
 
@@ -724,7 +792,7 @@
       list.innerHTML = items.map(function(item) {
         const participants = item.participants || {};
         return `
-          <div class="card">
+          <div class="card event">
             <div class="card-head">
               <div>
                 <div class="card-title">${escapeHtml(item.eventName || 'イベント名未設定')}</div>

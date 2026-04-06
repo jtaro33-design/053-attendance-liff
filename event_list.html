@@ -139,6 +139,13 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     }
 
+    .card.applied {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      box-shadow: none;
+      opacity: 0.92;
+    }
+
     .card-head {
       display: flex;
       align-items: flex-start;
@@ -163,6 +170,18 @@
       background: #fff1d6;
       color: #b45309;
       border: 1px solid #f3d3a1;
+      white-space: nowrap;
+    }
+
+    .applied-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #e5e7eb;
+      color: #475569;
+      border: 1px solid #cbd5e1;
       white-space: nowrap;
     }
 
@@ -282,9 +301,20 @@
     }
 
     .applied-button {
-      background: #d1fae5;
-      color: #065f46;
-      cursor: default;
+      background: #d1d5db;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .applied-note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #eef2f7;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
     }
 
     .apply-box {
@@ -460,10 +490,6 @@
       };
     }
 
-    function isApplied(eventPageId) {
-      return appliedEventIds.includes(eventPageId);
-    }
-
     function normalizeEventsResponse(result) {
       if (Array.isArray(result)) {
         return {
@@ -506,6 +532,10 @@
         ok: false,
         eventIds: []
       };
+    }
+
+    function isApplied(eventPageId) {
+      return appliedEventIds.includes(eventPageId);
     }
 
     async function loadViewerProfile() {
@@ -667,15 +697,23 @@
       const isRecommended = !!item.recommended;
       const hideBottomMargin = !!options.compact;
 
+      const badgeHtml = applied
+        ? '<div class="applied-badge">申込済み</div>'
+        : (isRecommended ? '<div class="recommend-badge">注目</div>' : '');
+
       const actionButtonHtml = applied
-        ? `<button class="primary-button applied-button" disabled>申込済み</button>`
+        ? '<button class="primary-button applied-button" disabled>このイベントは申込済みです</button>'
         : `<button class="primary-button" onclick="toggleApplyBox(${index})">このイベントに申し込む</button>`;
 
+      const appliedNoteHtml = applied
+        ? '<div class="applied-note">すでにお申し込みいただいています。内容確認や変更がある場合はLINEでご連絡ください。</div>'
+        : '';
+
       return `
-        <div class="card ${isRecommended ? 'recommended' : ''}" style="${hideBottomMargin ? 'margin-bottom:0;' : ''}">
+        <div class="card ${isRecommended ? 'recommended' : ''} ${applied ? 'applied' : ''}" style="${hideBottomMargin ? 'margin-bottom:0;' : ''}">
           <div class="card-head">
             <div class="title">${item.eventName || ''}</div>
-            ${isRecommended ? '<div class="recommend-badge">注目</div>' : ''}
+            ${badgeHtml}
           </div>
 
           <div class="row"><span class="label">開催日:</span>${dateLabel}</div>
@@ -699,6 +737,7 @@
           <div class="note">${noteText}</div>
 
           ${actionButtonHtml}
+          ${appliedNoteHtml}
 
           <div id="applyBox_${index}" class="apply-box hidden">
             <div class="field">

@@ -37,6 +37,12 @@
       text-align: center;
     }
 
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 20px 0 10px;
+    }
+
     .back-to-menu {
       display: block;
       text-align: center;
@@ -409,7 +415,7 @@
 
       <div class="notice">
         無料体験はお一人様1回までです。<br>
-        内容確認後、管理者承認を経てご案内します。
+        お申し込み後、内容確認のうえ管理者承認後にご案内します。
       </div>
 
       <div id="calendarWrapper" class="calendar-wrapper hidden">
@@ -456,7 +462,8 @@
     let viewerProfile = {
       found: false,
       childName: '',
-      parentName: ''
+      parentName: '',
+      category: '一般'
     };
     let currentCalendarMonth = null;
     let selectedPracticeDate = '';
@@ -556,7 +563,8 @@
           viewerProfile = {
             found: !!result.found,
             childName: result.childName || '',
-            parentName: result.parentName || ''
+            parentName: result.parentName || '',
+            category: result.category || '一般'
           };
         }
       } catch (error) {}
@@ -574,7 +582,10 @@
     async function loadPractices() {
       try {
         const result = await fetchJsonWithTimeout(
-          WEB_APP_URL + '?mode=publicPractices&t=' + Date.now(),
+          WEB_APP_URL +
+            '?mode=publicPractices' +
+            '&lineUserId=' + encodeURIComponent(LINE_USER_ID) +
+            '&t=' + Date.now(),
           10000
         );
 

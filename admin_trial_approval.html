@@ -588,6 +588,44 @@
       if (targetLabel && sourceLabel) targetLabel.value = sourceLabel.value || '';
     }
 
+    function createReplyDraft(pageId) {
+      const approvedPracticeDateEl = document.getElementById(`approvedPracticeDate-${pageId}`);
+      const approvedPracticeLabelEl = document.getElementById(`approvedPracticeLabel-${pageId}`);
+      const requestedPracticeDateEl = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
+      const requestedPracticeLabelEl = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
+      const replyDraftEl = document.getElementById(`replyDraft-${pageId}`);
+
+      if (!replyDraftEl) return;
+
+      const approvedPracticeDate = approvedPracticeDateEl ? approvedPracticeDateEl.value.trim() : '';
+      const approvedPracticeLabel = approvedPracticeLabelEl ? approvedPracticeLabelEl.value.trim() : '';
+      const requestedPracticeDate = requestedPracticeDateEl ? requestedPracticeDateEl.value.trim() : '';
+      const requestedPracticeLabel = requestedPracticeLabelEl ? requestedPracticeLabelEl.value.trim() : '';
+
+      const finalDate = approvedPracticeDate || requestedPracticeDate;
+      const finalLabel = approvedPracticeLabel || requestedPracticeLabel;
+
+      let scheduleText = '';
+      if (finalLabel) {
+        scheduleText = finalLabel;
+      } else if (finalDate) {
+        scheduleText = formatDateOnly(finalDate);
+      }
+
+      let draft = '無料体験のお申し込みありがとうございます。\n';
+
+      if (scheduleText) {
+        draft += scheduleText + ' でご案内予定です。\n';
+      } else {
+        draft += '内容確認のうえ、体験日をご案内いたします。\n';
+      }
+
+      draft += '当日はお気をつけてお越しください。\n';
+      draft += 'ご不明点がありましたら、このLINEにご返信ください。';
+
+      replyDraftEl.value = draft;
+    }
+
     function renderList() {
       const listArea = document.getElementById('listArea');
       const items = getFilteredItems();
@@ -696,6 +734,9 @@
             <div class="manage-box">
               <span class="label">返信文下書き</span>
               <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き">${escapeHtml(item.replyDraft || '')}</textarea>
+              <div class="save-row" style="justify-content:flex-start; margin-top:8px;">
+                <button type="button" class="ghost" onclick="createReplyDraft('${item.pageId}')">返信文下書きを作成</button>
+              </div>
             </div>
 
             <div class="manage-box">

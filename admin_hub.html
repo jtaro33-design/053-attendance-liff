@@ -461,7 +461,7 @@
         <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
       </div>
       <div class="top-actions">
-        <a href="./admin_member_application.html" class="hub-link member">会員申請管理へ</a>
+        <a href="./admin_member_approval.html" class="hub-link member">会員申請管理へ</a>
         <a href="./admin_trial_approval.html" class="hub-link trial">無料体験承認管理へ</a>
         <button class="secondary" onclick="loadHub()">一覧を更新</button>
       </div>
@@ -480,7 +480,7 @@
         <div class="summary-value" id="trialCount">-</div>
         <div class="summary-note">一覧に表示中の件数</div>
       </div>
-      <div class="summary-card practice">
+      <div class="summary-card.practice">
         <div class="summary-label">今後4週間の練習</div>
         <div class="summary-value" id="practiceCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
@@ -500,7 +500,7 @@
             <div class="section-sub">直近の確認対象を表示</div>
           </div>
           <div class="section-actions">
-            <a href="./admin_member_application.html" class="hub-link member">詳細管理へ</a>
+            <a href="./admin_member_approval.html" class="hub-link member">詳細管理へ</a>
           </div>
         </div>
         <div class="panel member">
@@ -608,7 +608,9 @@
     }
 
     function normalizeMemberItems(data) {
-      return Array.isArray(data) ? data : [];
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.items)) return data.items;
+      return [];
     }
 
     function normalizeTrialItems(data) {

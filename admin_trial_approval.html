@@ -97,23 +97,6 @@
       background: #f8fafc;
     }
 
-    .send-btn {
-      background: #0f766e;
-      color: #ffffff;
-    }
-
-    .send-btn:hover {
-      background: #115e59;
-    }
-
-    .send-btn:disabled,
-    .primary:disabled,
-    .secondary:disabled,
-    .ghost:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     a.btn-link {
       display: inline-flex;
       align-items: center;
@@ -209,6 +192,41 @@
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
     }
 
+    .card.status-received {
+      background: #f8fbff;
+      border-left: 6px solid #3b82f6;
+    }
+
+    .card.status-checking {
+      background: #fffdf7;
+      border-left: 6px solid #f59e0b;
+    }
+
+    .card.status-approved {
+      background: #f7fff9;
+      border-left: 6px solid #22c55e;
+    }
+
+    .card.status-returned {
+      background: #fff8f8;
+      border-left: 6px solid #ef4444;
+    }
+
+    .card.status-rejected {
+      background: #fbfbfb;
+      border-left: 6px solid #94a3b8;
+    }
+
+    .card.status-cancelled {
+      background: #faf8ff;
+      border-left: 6px solid #8b5cf6;
+    }
+
+    .card.status-completed {
+      background: #f4fffe;
+      border-left: 6px solid #14b8a6;
+    }
+
     .card-head {
       display: flex;
       justify-content: space-between;
@@ -245,7 +263,7 @@
     .pill-returned { background: #fee2e2; color: #b91c1c; }
     .pill-rejected { background: #e5e7eb; color: #374151; }
     .pill-cancelled { background: #ede9fe; color: #6d28d9; }
-    .pill-completed { background: #cffafe; color: #0f766e; }
+    .pill-completed { background: #ccfbf1; color: #0f766e; }
     .pill-default { background: #e5e7eb; color: #374151; }
 
     .info-grid,
@@ -333,43 +351,6 @@
       min-height: 18px;
     }
 
-    .send-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      align-items: center;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-
-    .send-status {
-      font-size: 12px;
-      color: #64748b;
-      min-height: 18px;
-    }
-
-    .send-note {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #64748b;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
-
-    .send-note.ok {
-      color: #0f766e;
-      background: #ecfeff;
-      border-color: #a5f3fc;
-    }
-
-    .send-note.warn {
-      color: #92400e;
-      background: #fffbeb;
-      border-color: #fde68a;
-    }
-
     .empty {
       text-align: center;
       background: #fff;
@@ -409,9 +390,9 @@
         <div class="summary-note">現在のフィルタ適用後</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">受付 / 確認中</div>
+        <div class="summary-label">対応中</div>
         <div class="summary-value" id="summaryOpen">-</div>
-        <div class="summary-note">優先して確認したい件数</div>
+        <div class="summary-note">受付 / 確認中 / 承認</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">一覧状態</div>
@@ -423,7 +404,8 @@
     <div id="status" class="status">読み込み中です。</div>
 
     <div class="filters" id="filters">
-      <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">すべて</button>
+      <button class="filter-chip active" data-filter="active" onclick="setFilter('active')">対応中</button>
+      <button class="filter-chip" data-filter="all" onclick="setFilter('all')">すべて</button>
       <button class="filter-chip" data-filter="受付" onclick="setFilter('受付')">受付</button>
       <button class="filter-chip" data-filter="確認中" onclick="setFilter('確認中')">確認中</button>
       <button class="filter-chip" data-filter="承認" onclick="setFilter('承認')">承認</button>
@@ -440,7 +422,7 @@
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
     let allItems = [];
-    let currentFilter = 'all';
+    let currentFilter = 'active';
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -505,9 +487,32 @@
       }
     }
 
+    function getCardStatusClass(status) {
+      switch (status) {
+        case '受付':
+          return 'status-received';
+        case '確認中':
+          return 'status-checking';
+        case '承認':
+          return 'status-approved';
+        case '差戻し':
+          return 'status-returned';
+        case '見送り':
+          return 'status-rejected';
+        case 'キャンセル':
+          return 'status-cancelled';
+        case '体験完了':
+          return 'status-completed';
+        default:
+          return '';
+      }
+    }
+
     function updateSummary(items) {
       const openCount = allItems.filter(function(item) {
-        return item.applicationStatus === '受付' || item.applicationStatus === '確認中';
+        return item.applicationStatus === '受付' ||
+               item.applicationStatus === '確認中' ||
+               item.applicationStatus === '承認';
       }).length;
 
       document.getElementById('summaryCount').textContent = items.length;
@@ -524,6 +529,13 @@
 
     function getFilteredItems() {
       if (currentFilter === 'all') return allItems.slice();
+
+      if (currentFilter === 'active') {
+        return allItems.filter(function(item) {
+          return item.applicationStatus !== '体験完了';
+        });
+      }
+
       return allItems.filter(function(item) {
         return item.applicationStatus === currentFilter;
       });
@@ -534,7 +546,7 @@
       document.getElementById('listArea').innerHTML = '';
 
       try {
-        const response = await fetch(`${WEB_APP_URL}?mode=pendingTrialApplications`);
+        const response = await fetch(`${WEB_APP_URL}?mode=pendingTrialApplications&t=${Date.now()}`);
         const result = await response.json();
 
         if (!result.ok) {
@@ -640,8 +652,6 @@
       if (targetId && sourceId) targetId.value = sourceId.value || '';
       if (targetDate && sourceDate) targetDate.value = sourceDate.value || '';
       if (targetLabel && sourceLabel) targetLabel.value = sourceLabel.value || '';
-
-      updateSendButtonState(pageId);
     }
 
     function createReplyDraft(pageId) {
@@ -680,136 +690,6 @@
       draft += 'ご不明点があれば、このLINEにご返信ください。';
 
       replyDraftEl.value = draft;
-      updateSendButtonState(pageId);
-    }
-
-    function canSendReply(pageId) {
-      const statusSelect = document.getElementById(`applicationStatus-${pageId}`);
-      const replyDraft = document.getElementById(`replyDraft-${pageId}`);
-      const hiddenLineUserId = document.getElementById(`lineUserIdRaw-${pageId}`);
-
-      const applicationStatus = statusSelect ? String(statusSelect.value || '').trim() : '';
-      const draftText = replyDraft ? String(replyDraft.value || '').trim() : '';
-      const lineUserId = hiddenLineUserId ? String(hiddenLineUserId.value || '').trim() : '';
-
-      if (applicationStatus !== '承認') {
-        return { ok: false, reason: '承認ステータスではありません' };
-      }
-      if (!lineUserId) {
-        return { ok: false, reason: 'LINE userID がありません' };
-      }
-      if (!draftText) {
-        return { ok: false, reason: '返信文下書きが空です' };
-      }
-
-      return { ok: true, reason: '' };
-    }
-
-    function updateSendButtonState(pageId) {
-      const sendBtn = document.getElementById(`sendBtn-${pageId}`);
-      const sendNote = document.getElementById(`sendNote-${pageId}`);
-      if (!sendBtn || !sendNote) return;
-
-      const result = canSendReply(pageId);
-      sendBtn.disabled = !result.ok;
-
-      if (result.ok) {
-        sendNote.className = 'send-note ok';
-        sendNote.textContent = '送信可能です。承認済み・LINE userIDあり・返信文下書きありの状態です。';
-      } else {
-        sendNote.className = 'send-note warn';
-        sendNote.textContent = '送信不可: ' + result.reason;
-      }
-    }
-
-    async function sendTrialReply(pageId, buttonEl) {
-      const statusSelect = document.getElementById(`applicationStatus-${pageId}`);
-      const adminMemo = document.getElementById(`adminMemo-${pageId}`);
-      const approvedPracticeId = document.getElementById(`approvedPracticeId-${pageId}`);
-      const approvedPracticeDate = document.getElementById(`approvedPracticeDate-${pageId}`);
-      const approvedPracticeLabel = document.getElementById(`approvedPracticeLabel-${pageId}`);
-      const replyDraft = document.getElementById(`replyDraft-${pageId}`);
-      const trialCompletedDate = document.getElementById(`trialCompletedDate-${pageId}`);
-      const sendStatus = document.getElementById(`sendStatus-${pageId}`);
-      const replySent = document.getElementById(`replySent-${pageId}`);
-
-      const check = canSendReply(pageId);
-      if (!check.ok) {
-        sendStatus.textContent = '送信不可: ' + check.reason;
-        updateSendButtonState(pageId);
-        return;
-      }
-
-      const confirmed = window.confirm(
-        'この返信文を申請者へ送信します。\n送信後は返信済みに更新されます。\nよろしいですか？'
-      );
-      if (!confirmed) {
-        sendStatus.textContent = '送信を中止しました';
-        return;
-      }
-
-      buttonEl.disabled = true;
-      sendStatus.textContent = '送信中です...';
-
-      try {
-        const body = new URLSearchParams();
-        body.append('action', 'sendTrialReplyMessage');
-        body.append('pageId', pageId);
-        body.append('applicationStatus', statusSelect ? statusSelect.value : '');
-        body.append('adminMemo', adminMemo ? adminMemo.value : '');
-        body.append('approvedPracticeId', approvedPracticeId ? approvedPracticeId.value : '');
-        body.append('approvedPracticeDate', approvedPracticeDate ? approvedPracticeDate.value : '');
-        body.append('approvedPracticeLabel', approvedPracticeLabel ? approvedPracticeLabel.value : '');
-        body.append('replyDraft', replyDraft ? replyDraft.value : '');
-        body.append('trialCompletedDate', trialCompletedDate ? trialCompletedDate.value : '');
-
-        const response = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
-          body: body.toString()
-        });
-
-        const result = await response.json();
-
-        if (!result.ok) {
-          sendStatus.textContent = '送信失敗: ' + (result.message || '不明なエラー');
-          buttonEl.disabled = false;
-          return;
-        }
-
-        if (replySent) {
-          replySent.checked = true;
-        }
-
-        allItems = allItems.map(function(item) {
-          if (item.pageId !== pageId) return item;
-          return {
-            ...item,
-            applicationStatus: statusSelect ? statusSelect.value : item.applicationStatus,
-            adminMemo: adminMemo ? adminMemo.value : item.adminMemo,
-            approvedPracticeId: approvedPracticeId ? approvedPracticeId.value : item.approvedPracticeId,
-            approvedPracticeDate: approvedPracticeDate ? approvedPracticeDate.value : item.approvedPracticeDate,
-            approvedPracticeLabel: approvedPracticeLabel ? approvedPracticeLabel.value : item.approvedPracticeLabel,
-            replyDraft: replyDraft ? replyDraft.value : item.replyDraft,
-            replySent: true,
-            trialCompletedDate: trialCompletedDate ? trialCompletedDate.value : item.trialCompletedDate
-          };
-        });
-
-        sendStatus.textContent = '送信しました';
-        updateSendButtonState(pageId);
-
-        setTimeout(function() {
-          renderList();
-        }, 300);
-      } catch (error) {
-        sendStatus.textContent = '送信失敗: ' + error.message;
-        buttonEl.disabled = false;
-      } finally {
-        updateSendButtonState(pageId);
-      }
     }
 
     function renderList() {
@@ -827,7 +707,7 @@
 
       items.forEach(function(item) {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card ' + getCardStatusClass(item.applicationStatus);
 
         const statusClass = getStatusPillClass(item.applicationStatus);
         const appliedAtText = formatJapanDate(item.appliedAt);
@@ -878,12 +758,11 @@
           <input type="hidden" id="requestedPracticeId-${item.pageId}" value="${escapeHtml(item.requestedPracticeId || '')}">
           <input type="hidden" id="requestedPracticeDateRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeDate || '')}">
           <input type="hidden" id="requestedPracticeLabelRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeLabel || '')}">
-          <input type="hidden" id="lineUserIdRaw-${item.pageId}" value="${escapeHtml(item.lineUserId || '')}">
 
           <div class="manage-grid">
             <div class="manage-box">
               <span class="label">申請ステータス</span>
-              <select class="field" id="applicationStatus-${item.pageId}" onchange="updateSendButtonState('${item.pageId}')">
+              <select class="field" id="applicationStatus-${item.pageId}">
                 <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
                 <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
                 <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
@@ -919,7 +798,7 @@
 
             <div class="manage-box">
               <span class="label">返信文下書き</span>
-              <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き" oninput="updateSendButtonState('${item.pageId}')">${escapeHtml(item.replyDraft || '')}</textarea>
+              <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き">${escapeHtml(item.replyDraft || '')}</textarea>
               <div class="save-row" style="justify-content:flex-start; margin-top:8px;">
                 <button type="button" class="ghost" onclick="createReplyDraft('${item.pageId}')">返信文下書きを作成</button>
               </div>
@@ -942,13 +821,6 @@
             </div>
           </div>
 
-          <div class="send-row">
-            <span class="send-status" id="sendStatus-${item.pageId}"></span>
-            <button type="button" class="send-btn" id="sendBtn-${item.pageId}" onclick="sendTrialReply('${item.pageId}', this)">返信文を送信</button>
-          </div>
-
-          <div class="send-note" id="sendNote-${item.pageId}">送信条件を確認中です。</div>
-
           <div class="save-row">
             <span class="save-status" id="saveStatus-${item.pageId}"></span>
             <button type="button" class="primary" onclick="saveTrialApplication('${item.pageId}', this)">保存</button>
@@ -956,7 +828,6 @@
         `;
 
         listArea.appendChild(card);
-        updateSendButtonState(item.pageId);
       });
 
       setStatus(`${items.length}件を表示しています。`);

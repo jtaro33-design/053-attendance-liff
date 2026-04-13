@@ -97,6 +97,23 @@
       background: #f8fafc;
     }
 
+    .send-btn {
+      background: #0f766e;
+      color: #ffffff;
+    }
+
+    .send-btn:hover {
+      background: #115e59;
+    }
+
+    .send-btn:disabled,
+    .primary:disabled,
+    .secondary:disabled,
+    .ghost:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     a.btn-link {
       display: inline-flex;
       align-items: center;
@@ -314,6 +331,43 @@
       font-size: 12px;
       color: #64748b;
       min-height: 18px;
+    }
+
+    .send-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .send-status {
+      font-size: 12px;
+      color: #64748b;
+      min-height: 18px;
+    }
+
+    .send-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .send-note.ok {
+      color: #0f766e;
+      background: #ecfeff;
+      border-color: #a5f3fc;
+    }
+
+    .send-note.warn {
+      color: #92400e;
+      background: #fffbeb;
+      border-color: #fde68a;
     }
 
     .empty {
@@ -586,45 +640,177 @@
       if (targetId && sourceId) targetId.value = sourceId.value || '';
       if (targetDate && sourceDate) targetDate.value = sourceDate.value || '';
       if (targetLabel && sourceLabel) targetLabel.value = sourceLabel.value || '';
+
+      updateSendButtonState(pageId);
     }
 
     function createReplyDraft(pageId) {
-  const approvedPracticeDateEl = document.getElementById(`approvedPracticeDate-${pageId}`);
-  const approvedPracticeLabelEl = document.getElementById(`approvedPracticeLabel-${pageId}`);
-  const requestedPracticeDateEl = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
-  const requestedPracticeLabelEl = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
-  const replyDraftEl = document.getElementById(`replyDraft-${pageId}`);
+      const approvedPracticeDateEl = document.getElementById(`approvedPracticeDate-${pageId}`);
+      const approvedPracticeLabelEl = document.getElementById(`approvedPracticeLabel-${pageId}`);
+      const requestedPracticeDateEl = document.getElementById(`requestedPracticeDateRaw-${pageId}`);
+      const requestedPracticeLabelEl = document.getElementById(`requestedPracticeLabelRaw-${pageId}`);
+      const replyDraftEl = document.getElementById(`replyDraft-${pageId}`);
 
-  if (!replyDraftEl) return;
+      if (!replyDraftEl) return;
 
-  const approvedPracticeDate = approvedPracticeDateEl ? approvedPracticeDateEl.value.trim() : '';
-  const approvedPracticeLabel = approvedPracticeLabelEl ? approvedPracticeLabelEl.value.trim() : '';
-  const requestedPracticeDate = requestedPracticeDateEl ? requestedPracticeDateEl.value.trim() : '';
-  const requestedPracticeLabel = requestedPracticeLabelEl ? requestedPracticeLabelEl.value.trim() : '';
+      const approvedPracticeDate = approvedPracticeDateEl ? approvedPracticeDateEl.value.trim() : '';
+      const approvedPracticeLabel = approvedPracticeLabelEl ? approvedPracticeLabelEl.value.trim() : '';
+      const requestedPracticeDate = requestedPracticeDateEl ? requestedPracticeDateEl.value.trim() : '';
+      const requestedPracticeLabel = requestedPracticeLabelEl ? requestedPracticeLabelEl.value.trim() : '';
 
-  const finalDate = approvedPracticeDate || requestedPracticeDate;
-  const finalLabel = approvedPracticeLabel || requestedPracticeLabel;
+      const finalDate = approvedPracticeDate || requestedPracticeDate;
+      const finalLabel = approvedPracticeLabel || requestedPracticeLabel;
 
-  let scheduleText = '';
-  if (finalLabel) {
-    scheduleText = finalLabel;
-  } else if (finalDate) {
-    scheduleText = formatDateOnly(finalDate);
-  }
+      let scheduleText = '';
+      if (finalLabel) {
+        scheduleText = finalLabel;
+      } else if (finalDate) {
+        scheduleText = formatDateOnly(finalDate);
+      }
 
-  let draft = '無料体験のお申し込みありがとうございます。\n';
+      let draft = '無料体験のお申し込みありがとうございます。\n';
 
-  if (scheduleText) {
-    draft += scheduleText + ' でご案内予定です。\n';
-  } else {
-    draft += '体験日程は内容確認のうえ、改めてご案内いたします。\n';
-  }
+      if (scheduleText) {
+        draft += scheduleText + ' でご案内予定です。\n';
+      } else {
+        draft += '体験日程は内容確認のうえ、改めてご案内いたします。\n';
+      }
 
-  draft += 'まずは一度、実際の練習の雰囲気を見ていただければと思います。\n';
-  draft += 'ご不明点があれば、このLINEにご返信ください。';
+      draft += 'まずは一度、実際の練習の雰囲気を見ていただければと思います。\n';
+      draft += 'ご不明点があれば、このLINEにご返信ください。';
 
-  replyDraftEl.value = draft;
-}
+      replyDraftEl.value = draft;
+      updateSendButtonState(pageId);
+    }
+
+    function canSendReply(pageId) {
+      const statusSelect = document.getElementById(`applicationStatus-${pageId}`);
+      const replyDraft = document.getElementById(`replyDraft-${pageId}`);
+      const hiddenLineUserId = document.getElementById(`lineUserIdRaw-${pageId}`);
+
+      const applicationStatus = statusSelect ? String(statusSelect.value || '').trim() : '';
+      const draftText = replyDraft ? String(replyDraft.value || '').trim() : '';
+      const lineUserId = hiddenLineUserId ? String(hiddenLineUserId.value || '').trim() : '';
+
+      if (applicationStatus !== '承認') {
+        return { ok: false, reason: '承認ステータスではありません' };
+      }
+      if (!lineUserId) {
+        return { ok: false, reason: 'LINE userID がありません' };
+      }
+      if (!draftText) {
+        return { ok: false, reason: '返信文下書きが空です' };
+      }
+
+      return { ok: true, reason: '' };
+    }
+
+    function updateSendButtonState(pageId) {
+      const sendBtn = document.getElementById(`sendBtn-${pageId}`);
+      const sendNote = document.getElementById(`sendNote-${pageId}`);
+      if (!sendBtn || !sendNote) return;
+
+      const result = canSendReply(pageId);
+      sendBtn.disabled = !result.ok;
+
+      if (result.ok) {
+        sendNote.className = 'send-note ok';
+        sendNote.textContent = '送信可能です。承認済み・LINE userIDあり・返信文下書きありの状態です。';
+      } else {
+        sendNote.className = 'send-note warn';
+        sendNote.textContent = '送信不可: ' + result.reason;
+      }
+    }
+
+    async function sendTrialReply(pageId, buttonEl) {
+      const statusSelect = document.getElementById(`applicationStatus-${pageId}`);
+      const adminMemo = document.getElementById(`adminMemo-${pageId}`);
+      const approvedPracticeId = document.getElementById(`approvedPracticeId-${pageId}`);
+      const approvedPracticeDate = document.getElementById(`approvedPracticeDate-${pageId}`);
+      const approvedPracticeLabel = document.getElementById(`approvedPracticeLabel-${pageId}`);
+      const replyDraft = document.getElementById(`replyDraft-${pageId}`);
+      const trialCompletedDate = document.getElementById(`trialCompletedDate-${pageId}`);
+      const sendStatus = document.getElementById(`sendStatus-${pageId}`);
+      const replySent = document.getElementById(`replySent-${pageId}`);
+
+      const check = canSendReply(pageId);
+      if (!check.ok) {
+        sendStatus.textContent = '送信不可: ' + check.reason;
+        updateSendButtonState(pageId);
+        return;
+      }
+
+      const confirmed = window.confirm(
+        'この返信文を申請者へ送信します。\n送信後は返信済みに更新されます。\nよろしいですか？'
+      );
+      if (!confirmed) {
+        sendStatus.textContent = '送信を中止しました';
+        return;
+      }
+
+      buttonEl.disabled = true;
+      sendStatus.textContent = '送信中です...';
+
+      try {
+        const body = new URLSearchParams();
+        body.append('action', 'sendTrialReplyMessage');
+        body.append('pageId', pageId);
+        body.append('applicationStatus', statusSelect ? statusSelect.value : '');
+        body.append('adminMemo', adminMemo ? adminMemo.value : '');
+        body.append('approvedPracticeId', approvedPracticeId ? approvedPracticeId.value : '');
+        body.append('approvedPracticeDate', approvedPracticeDate ? approvedPracticeDate.value : '');
+        body.append('approvedPracticeLabel', approvedPracticeLabel ? approvedPracticeLabel.value : '');
+        body.append('replyDraft', replyDraft ? replyDraft.value : '');
+        body.append('trialCompletedDate', trialCompletedDate ? trialCompletedDate.value : '');
+
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: body.toString()
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          sendStatus.textContent = '送信失敗: ' + (result.message || '不明なエラー');
+          buttonEl.disabled = false;
+          return;
+        }
+
+        if (replySent) {
+          replySent.checked = true;
+        }
+
+        allItems = allItems.map(function(item) {
+          if (item.pageId !== pageId) return item;
+          return {
+            ...item,
+            applicationStatus: statusSelect ? statusSelect.value : item.applicationStatus,
+            adminMemo: adminMemo ? adminMemo.value : item.adminMemo,
+            approvedPracticeId: approvedPracticeId ? approvedPracticeId.value : item.approvedPracticeId,
+            approvedPracticeDate: approvedPracticeDate ? approvedPracticeDate.value : item.approvedPracticeDate,
+            approvedPracticeLabel: approvedPracticeLabel ? approvedPracticeLabel.value : item.approvedPracticeLabel,
+            replyDraft: replyDraft ? replyDraft.value : item.replyDraft,
+            replySent: true,
+            trialCompletedDate: trialCompletedDate ? trialCompletedDate.value : item.trialCompletedDate
+          };
+        });
+
+        sendStatus.textContent = '送信しました';
+        updateSendButtonState(pageId);
+
+        setTimeout(function() {
+          renderList();
+        }, 300);
+      } catch (error) {
+        sendStatus.textContent = '送信失敗: ' + error.message;
+        buttonEl.disabled = false;
+      } finally {
+        updateSendButtonState(pageId);
+      }
+    }
 
     function renderList() {
       const listArea = document.getElementById('listArea');
@@ -646,7 +832,6 @@
         const statusClass = getStatusPillClass(item.applicationStatus);
         const appliedAtText = formatJapanDate(item.appliedAt);
         const requestedDateText = formatDateOnly(item.requestedPracticeDate);
-        const approvedDateText = formatDateOnly(item.approvedPracticeDate);
         const trialCompletedText = formatDateOnly(item.trialCompletedDate);
 
         card.innerHTML = `
@@ -693,11 +878,12 @@
           <input type="hidden" id="requestedPracticeId-${item.pageId}" value="${escapeHtml(item.requestedPracticeId || '')}">
           <input type="hidden" id="requestedPracticeDateRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeDate || '')}">
           <input type="hidden" id="requestedPracticeLabelRaw-${item.pageId}" value="${escapeHtml(item.requestedPracticeLabel || '')}">
+          <input type="hidden" id="lineUserIdRaw-${item.pageId}" value="${escapeHtml(item.lineUserId || '')}">
 
           <div class="manage-grid">
             <div class="manage-box">
               <span class="label">申請ステータス</span>
-              <select class="field" id="applicationStatus-${item.pageId}">
+              <select class="field" id="applicationStatus-${item.pageId}" onchange="updateSendButtonState('${item.pageId}')">
                 <option value="受付" ${item.applicationStatus === '受付' ? 'selected' : ''}>受付</option>
                 <option value="確認中" ${item.applicationStatus === '確認中' ? 'selected' : ''}>確認中</option>
                 <option value="承認" ${item.applicationStatus === '承認' ? 'selected' : ''}>承認</option>
@@ -733,7 +919,7 @@
 
             <div class="manage-box">
               <span class="label">返信文下書き</span>
-              <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き">${escapeHtml(item.replyDraft || '')}</textarea>
+              <textarea class="field-textarea" id="replyDraft-${item.pageId}" placeholder="承認後に送る文面の下書き" oninput="updateSendButtonState('${item.pageId}')">${escapeHtml(item.replyDraft || '')}</textarea>
               <div class="save-row" style="justify-content:flex-start; margin-top:8px;">
                 <button type="button" class="ghost" onclick="createReplyDraft('${item.pageId}')">返信文下書きを作成</button>
               </div>
@@ -756,6 +942,13 @@
             </div>
           </div>
 
+          <div class="send-row">
+            <span class="send-status" id="sendStatus-${item.pageId}"></span>
+            <button type="button" class="send-btn" id="sendBtn-${item.pageId}" onclick="sendTrialReply('${item.pageId}', this)">返信文を送信</button>
+          </div>
+
+          <div class="send-note" id="sendNote-${item.pageId}">送信条件を確認中です。</div>
+
           <div class="save-row">
             <span class="save-status" id="saveStatus-${item.pageId}"></span>
             <button type="button" class="primary" onclick="saveTrialApplication('${item.pageId}', this)">保存</button>
@@ -763,6 +956,7 @@
         `;
 
         listArea.appendChild(card);
+        updateSendButtonState(item.pageId);
       });
 
       setStatus(`${items.length}件を表示しています。`);

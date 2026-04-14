@@ -7,71 +7,39 @@
   <style>
     * { box-sizing: border-box; }
 
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --line: #e2e8f0;
-      --text: #0f172a;
-      --muted: #64748b;
-      --blue: #2563eb;
-      --blue-soft: #eff6ff;
-      --green: #16a34a;
-      --green-soft: #f0fdf4;
-      --orange: #f59e0b;
-      --orange-soft: #fff7ed;
-      --teal: #0f766e;
-      --teal-soft: #ecfeff;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-      --shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
-      --radius: 16px;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #f8fafc;
+      color: #0f172a;
       line-height: 1.6;
     }
 
     .container {
-      max-width: 1240px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 20px 16px 40px;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 22px 20px;
-      margin-bottom: 16px;
     }
 
     .page-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
+      margin-bottom: 18px;
     }
 
     h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
-      color: var(--text);
+      color: #0f172a;
       letter-spacing: 0.01em;
     }
 
     .sub {
-      margin-top: 8px;
+      margin-top: 6px;
       font-size: 13px;
       color: #475569;
     }
@@ -85,49 +53,28 @@
 
     .btn,
     button,
-    a,
-    input,
-    select {
+    a {
       font: inherit;
     }
 
     .btn,
     button {
       border: none;
-      border-radius: 12px;
-      padding: 11px 14px;
+      border-radius: 10px;
+      padding: 10px 14px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       transition: 0.2s ease;
     }
 
-    .primary {
-      background: var(--blue);
-      color: #ffffff;
-    }
-
-    .primary:hover {
-      opacity: 0.92;
-    }
-
     .secondary {
       background: #e2e8f0;
-      color: var(--text);
+      color: #0f172a;
     }
 
     .secondary:hover {
       background: #cbd5e1;
-    }
-
-    .ghost {
-      background: #ffffff;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .ghost:hover {
-      background: #f8fafc;
     }
 
     .hub-link {
@@ -135,8 +82,8 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      border-radius: 12px;
-      padding: 11px 14px;
+      border-radius: 10px;
+      padding: 10px 14px;
       font-size: 13px;
       font-weight: 700;
       border: 1px solid transparent;
@@ -164,133 +111,95 @@
     }
 
     .status {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       background: #ffffff;
       border: 1px solid #dbe3ee;
-      border-left: 5px solid var(--blue);
+      border-left: 5px solid #2563eb;
       border-radius: 14px;
       padding: 13px 15px;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       color: #334155;
       white-space: pre-wrap;
       box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
-    }
-
-    .quick-nav {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      padding: 10px 0 14px;
-      background: linear-gradient(to bottom, rgba(248,250,252,0.96), rgba(248,250,252,0.88), rgba(248,250,252,0));
-      backdrop-filter: blur(6px);
-      margin-bottom: 6px;
-    }
-
-    .quick-nav-inner {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .quick-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 800;
-      color: #334155;
-      background: #ffffff;
-      border: 1px solid var(--line);
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
-    }
-
-    .quick-link:hover {
-      background: #f8fafc;
     }
 
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
 
     .summary-card {
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 16px;
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      background: var(--card);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
 
     .summary-card.member {
-      background: linear-gradient(180deg, var(--blue-soft) 0%, #ffffff 100%);
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
     }
 
     .summary-card.trial {
-      background: linear-gradient(180deg, var(--teal-soft) 0%, #ffffff 100%);
+      background: linear-gradient(180deg, #ecfeff 0%, #ffffff 100%);
     }
 
     .summary-card.practice {
-      background: linear-gradient(180deg, var(--green-soft) 0%, #ffffff 100%);
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
     }
 
     .summary-card.event {
-      background: linear-gradient(180deg, var(--orange-soft) 0%, #ffffff 100%);
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
     }
 
     .summary-label {
       font-size: 12px;
       font-weight: 800;
-      color: var(--muted);
+      color: #64748b;
       margin-bottom: 10px;
       letter-spacing: 0.02em;
     }
 
     .summary-value {
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 800;
-      color: var(--text);
+      color: #0f172a;
       line-height: 1;
     }
 
     .summary-note {
       margin-top: 10px;
       font-size: 12px;
-      color: var(--muted);
+      color: #64748b;
       line-height: 1.5;
     }
 
     .section {
-      margin-top: 26px;
-      scroll-margin-top: 90px;
+      margin-top: 24px;
     }
 
     .section-head {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
 
     .section-title {
-      font-size: 21px;
+      font-size: 20px;
       font-weight: 800;
-      color: var(--text);
+      color: #0f172a;
       margin: 0;
       letter-spacing: 0.01em;
     }
 
     .section-sub {
       font-size: 12px;
-      color: var(--muted);
+      color: #64748b;
       margin-top: 3px;
     }
 
@@ -301,46 +210,27 @@
     }
 
     .panel {
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 14px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--line);
-      background: var(--card);
-    }
-
-    .panel.member { background: #f8fbff; }
-    .panel.trial { background: #f7feff; }
-    .panel.practice { background: #fbfefb; }
-    .panel.event { background: #fffdfa; }
-
-    .filter-bar {
-      display: grid;
-      grid-template-columns: 1.4fr 0.8fr 0.8fr auto auto;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .filter-bar.simple {
-      grid-template-columns: 1fr auto;
-    }
-
-    .filter-bar input,
-    .filter-bar select {
-      width: 100%;
-      min-height: 42px;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      border: 1px solid #e2e8f0;
       background: #ffffff;
-      color: #0f172a;
-      font-size: 14px;
     }
 
-    .filter-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
+    .panel.member {
+      background: #f8fbff;
+    }
+
+    .panel.trial {
+      background: #f7feff;
+    }
+
+    .panel.practice {
+      background: #fbfefb;
+    }
+
+    .panel.event {
+      background: #fffdfa;
     }
 
     .list {
@@ -349,16 +239,27 @@
     }
 
     .card {
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 14px;
-      border: 1px solid var(--line);
+      border: 1px solid #e2e8f0;
       background: #ffffff;
     }
 
-    .card.member { border-left: 5px solid #60a5fa; }
-    .card.trial { border-left: 5px solid #22c55e; }
-    .card.practice { border-left: 5px solid #16a34a; }
-    .card.event { border-left: 5px solid #f59e0b; }
+    .card.member {
+      border-left: 5px solid #60a5fa;
+    }
+
+    .card.trial {
+      border-left: 5px solid #22c55e;
+    }
+
+    .card.practice {
+      border-left: 5px solid #16a34a;
+    }
+
+    .card.event {
+      border-left: 5px solid #f59e0b;
+    }
 
     .card-head {
       display: flex;
@@ -372,14 +273,14 @@
     .card-title {
       font-size: 17px;
       font-weight: 800;
-      color: var(--text);
+      color: #0f172a;
       line-height: 1.4;
     }
 
     .card-meta {
       margin-top: 4px;
       font-size: 13px;
-      color: var(--muted);
+      color: #64748b;
     }
 
     .pill {
@@ -406,7 +307,7 @@
 
     .info-box {
       background: #ffffff;
-      border: 1px solid var(--line);
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 10px 12px;
       min-height: 68px;
@@ -416,7 +317,7 @@
       display: block;
       font-size: 11px;
       font-weight: 800;
-      color: var(--muted);
+      color: #64748b;
       margin-bottom: 5px;
       letter-spacing: 0.02em;
     }
@@ -424,7 +325,7 @@
     .value {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text);
+      color: #0f172a;
       white-space: pre-wrap;
       word-break: break-word;
       line-height: 1.5;
@@ -438,7 +339,7 @@
 
     .participant-row {
       background: #ffffff;
-      border: 1px solid var(--line);
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 10px 12px;
     }
@@ -446,36 +347,16 @@
     .participant-label {
       font-size: 12px;
       font-weight: 800;
-      color: var(--muted);
+      color: #64748b;
       margin-bottom: 4px;
     }
 
     .participant-value {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text);
+      color: #0f172a;
       word-break: break-word;
       line-height: 1.6;
-    }
-
-    .count-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 12px;
-      font-weight: 800;
-      color: #334155;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
     }
 
     .empty {
@@ -484,7 +365,7 @@
       border: 1px dashed #cbd5e1;
       border-radius: 16px;
       padding: 32px 16px;
-      color: var(--muted);
+      color: #64748b;
       font-size: 14px;
     }
 
@@ -495,11 +376,10 @@
     }
 
     .accordion-card {
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
-      border: 1px solid var(--line);
+      border: 1px solid #e2e8f0;
       background: #ffffff;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
     }
 
     .accordion-summary {
@@ -531,26 +411,21 @@
     .accordion-title {
       font-size: 16px;
       font-weight: 800;
-      color: var(--text);
+      color: #0f172a;
       line-height: 1.5;
-      word-break: break-word;
     }
 
     .accordion-meta {
       margin-top: 4px;
       font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
+      color: #64748b;
     }
 
     .accordion-arrow {
       flex-shrink: 0;
       font-size: 18px;
       font-weight: 800;
-      color: var(--muted);
+      color: #64748b;
       transition: transform 0.2s ease;
     }
 
@@ -568,26 +443,6 @@
       display: block;
     }
 
-    .muted-note {
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 1080px) {
-      .filter-bar {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .filter-bar .wide {
-        grid-column: 1 / -1;
-      }
-    }
-
     @media (max-width: 960px) {
       .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -600,9 +455,7 @@
 
     @media (max-width: 720px) {
       .summary-grid,
-      .info-grid,
-      .filter-bar,
-      .filter-bar.simple {
+      .info-grid {
         grid-template-columns: 1fr;
       }
 
@@ -621,39 +474,24 @@
       .summary-value {
         font-size: 28px;
       }
-
-      .quick-nav {
-        top: 0;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="hero">
-      <div class="page-head">
-        <div>
-          <h1>管理ハブ</h1>
-          <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
-        </div>
-        <div class="top-actions">
-          <a href="./admin_member_approval.html" class="hub-link member">会員申請管理へ</a>
-          <a href="./admin_trial_approval.html" class="hub-link trial">無料体験承認管理へ</a>
-          <button class="secondary" onclick="loadHub()">一覧を更新</button>
-        </div>
+    <div class="page-head">
+      <div>
+        <h1>管理ハブ</h1>
+        <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
+      </div>
+      <div class="top-actions">
+        <a href="./admin_member_approval.html" class="hub-link member">会員申請管理へ</a>
+        <a href="./admin_trial_approval.html" class="hub-link trial">無料体験承認管理へ</a>
+        <button class="secondary" onclick="loadHub()">一覧を更新</button>
       </div>
     </div>
 
     <div id="status" class="status">読み込み中です。</div>
-
-    <div class="quick-nav">
-      <div class="quick-nav-inner">
-        <a class="quick-link" href="#memberSection">会員申請</a>
-        <a class="quick-link" href="#trialSection">無料体験</a>
-        <a class="quick-link" href="#practiceSection">通常練習</a>
-        <a class="quick-link" href="#eventSection">イベント / クリニック</a>
-      </div>
-    </div>
 
     <div class="summary-grid">
       <div class="summary-card member">
@@ -664,14 +502,14 @@
       <div class="summary-card trial">
         <div class="summary-label">無料体験申請</div>
         <div class="summary-value" id="trialCount">-</div>
-        <div class="summary-note">一覧に表示中の件数</div>
+        <div class="summary-note">現場対応が必要な申請のみ表示</div>
       </div>
       <div class="summary-card practice">
         <div class="summary-label">今後4週間の練習</div>
         <div class="summary-value" id="practiceCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
       </div>
-      <div class="summary-card event">
+      <div class="summary-card.event">
         <div class="summary-label">公開中イベント</div>
         <div class="summary-value" id="eventCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
@@ -679,97 +517,57 @@
     </div>
 
     <div class="two-col">
-      <div class="section" id="memberSection">
+      <div class="section">
         <div class="section-head">
           <div>
             <div class="section-title">会員申請</div>
-            <div class="section-sub">直近の確認対象を見やすく整理して表示</div>
+            <div class="section-sub">直近の確認対象を表示</div>
           </div>
           <div class="section-actions">
             <a href="./admin_member_approval.html" class="hub-link member">詳細管理へ</a>
           </div>
         </div>
         <div class="panel member">
-          <div class="filter-bar simple">
-            <input id="memberSearch" type="text" placeholder="子ども氏名 / 保護者氏名 / 希望区分で検索" oninput="renderMemberApplications()">
-            <button class="ghost" onclick="resetMemberFilter()">絞込解除</button>
-          </div>
           <div id="memberList" class="list"></div>
         </div>
       </div>
 
-      <div class="section" id="trialSection">
+      <div class="section">
         <div class="section-head">
           <div>
             <div class="section-title">無料体験申請</div>
-            <div class="section-sub">直近の無料体験申請を見やすく確認</div>
+            <div class="section-sub">直近の無料体験申請を表示</div>
           </div>
           <div class="section-actions">
             <a href="./admin_trial_approval.html" class="hub-link trial">詳細管理へ</a>
           </div>
         </div>
         <div class="panel trial">
-          <div class="filter-bar simple">
-            <input id="trialSearch" type="text" placeholder="子ども氏名 / 保護者氏名 / 所属チームで検索" oninput="renderTrialApplications()">
-            <button class="ghost" onclick="resetTrialFilter()">絞込解除</button>
-          </div>
           <div id="trialList" class="list"></div>
         </div>
       </div>
     </div>
 
-    <div class="section" id="practiceSection">
+    <div class="section">
       <div class="section-head">
         <div>
           <div class="section-title">今後4週間の通常練習</div>
-          <div class="section-sub">最初は簡潔表示、必要な練習だけ展開して詳細確認</div>
+          <div class="section-sub">最初は簡潔表示、クリックで詳細展開</div>
         </div>
       </div>
       <div class="panel practice">
-        <div class="filter-bar">
-          <input id="practiceSearch" class="wide" type="text" placeholder="日付 / タイトル / 会場 / 参加者名で検索" oninput="renderPractices()">
-          <select id="practiceCategoryFilter" onchange="renderPractices()">
-            <option value="">参加区分: すべて</option>
-            <option value="クラブ">クラブあり</option>
-            <option value="スクール">スクールあり</option>
-            <option value="一般">一般あり</option>
-          </select>
-          <select id="practiceOpenFilter" onchange="renderPractices()">
-            <option value="">表示: すべて</option>
-            <option value="withParticipants">参加者ありのみ</option>
-            <option value="noParticipants">参加者なしのみ</option>
-          </select>
-          <button class="ghost" onclick="openAllAccordions('practiceList')">すべて開く</button>
-          <button class="ghost" onclick="closeAllAccordions('practiceList')">すべて閉じる</button>
-        </div>
         <div id="practiceList" class="list"></div>
       </div>
     </div>
 
-    <div class="section" id="eventSection">
+    <div class="section">
       <div class="section-head">
         <div>
           <div class="section-title">公開中イベント / クリニック</div>
-          <div class="section-sub">送信対象選定にも使いやすいよう、一覧性を強化</div>
+          <div class="section-sub">最初は簡潔表示、クリックで詳細展開</div>
         </div>
       </div>
       <div class="panel event">
-        <div class="filter-bar">
-          <input id="eventSearch" class="wide" type="text" placeholder="開催日 / イベント名 / 会場 / 参加者名で検索" oninput="renderEvents()">
-          <select id="eventCategoryFilter" onchange="renderEvents()">
-            <option value="">参加区分: すべて</option>
-            <option value="クラブ">クラブあり</option>
-            <option value="スクール">スクールあり</option>
-            <option value="一般">一般あり</option>
-          </select>
-          <select id="eventOpenFilter" onchange="renderEvents()">
-            <option value="">表示: すべて</option>
-            <option value="withParticipants">参加者ありのみ</option>
-            <option value="noParticipants">参加者なしのみ</option>
-          </select>
-          <button class="ghost" onclick="openAllAccordions('eventList')">すべて開く</button>
-          <button class="ghost" onclick="closeAllAccordions('eventList')">すべて閉じる</button>
-        </div>
         <div id="eventList" class="list"></div>
       </div>
     </div>
@@ -777,11 +575,6 @@
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
-
-    let memberItemsRaw = [];
-    let trialItemsRaw = [];
-    let practiceItemsRaw = [];
-    let eventItemsRaw = [];
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -833,9 +626,9 @@
       return '<span class="pill pill-default">' + escapeHtml(status || '未設定') + '</span>';
     }
 
-    function participantText(list) {
-      if (!Array.isArray(list) || !list.length) return 'なし';
-      return list.join('、');
+    async function fetchJson(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      return await response.json();
     }
 
     function normalizeMemberItems(data) {
@@ -860,70 +653,6 @@
       return [];
     }
 
-    async function fetchJson(url) {
-      const response = await fetch(url, { cache: 'no-store' });
-      return await response.json();
-    }
-
-    function resetMemberFilter() {
-      document.getElementById('memberSearch').value = '';
-      renderMemberApplications();
-    }
-
-    function resetTrialFilter() {
-      document.getElementById('trialSearch').value = '';
-      renderTrialApplications();
-    }
-
-    function getSearchValue(id) {
-      const el = document.getElementById(id);
-      return el ? String(el.value || '').trim().toLowerCase() : '';
-    }
-
-    function includesText(source, keyword) {
-      return String(source || '').toLowerCase().includes(keyword);
-    }
-
-    function flattenParticipants(participants) {
-      const p = participants || {};
-      return []
-        .concat(Array.isArray(p['クラブ']) ? p['クラブ'] : [])
-        .concat(Array.isArray(p['スクール']) ? p['スクール'] : [])
-        .concat(Array.isArray(p['一般']) ? p['一般'] : []);
-    }
-
-    function hasCategoryParticipants(item, category) {
-      const participants = item && item.participants ? item.participants : {};
-      return Array.isArray(participants[category]) && participants[category].length > 0;
-    }
-
-    function hasAnyParticipants(item) {
-      return Number(item && item.participantCount != null ? item.participantCount : (item && item.currentCount) || 0) > 0
-        || flattenParticipants(item && item.participants).length > 0;
-    }
-
-    function toggleAccordion(id) {
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.classList.toggle('open');
-    }
-
-    function openAllAccordions(containerId) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      container.querySelectorAll('.accordion-card').forEach(function(card) {
-        card.classList.add('open');
-      });
-    }
-
-    function closeAllAccordions(containerId) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      container.querySelectorAll('.accordion-card').forEach(function(card) {
-        card.classList.remove('open');
-      });
-    }
-
     async function loadHub() {
       setStatus('管理ハブを読み込み中です...');
 
@@ -939,45 +668,48 @@
         eventPromise
       ]);
 
+      let memberItems = [];
+      let trialItems = [];
+      let practiceItems = [];
+      let eventItems = [];
+
       const errors = [];
 
       if (memberSettled.status === 'fulfilled') {
-        memberItemsRaw = normalizeMemberItems(memberSettled.value);
+        memberItems = normalizeMemberItems(memberSettled.value);
       } else {
-        memberItemsRaw = [];
         errors.push('会員申請');
       }
 
       if (trialSettled.status === 'fulfilled') {
-        trialItemsRaw = normalizeTrialItems(trialSettled.value);
+        trialItems = normalizeTrialItems(trialSettled.value).filter(function(item) {
+          return String(item.applicationStatus || '') !== '体験完了';
+        });
       } else {
-        trialItemsRaw = [];
         errors.push('無料体験申請');
       }
 
       if (practiceSettled.status === 'fulfilled') {
-        practiceItemsRaw = normalizePracticeItems(practiceSettled.value);
+        practiceItems = normalizePracticeItems(practiceSettled.value);
       } else {
-        practiceItemsRaw = [];
         errors.push('今後4週間の練習');
       }
 
       if (eventSettled.status === 'fulfilled') {
-        eventItemsRaw = normalizeEventItems(eventSettled.value);
+        eventItems = normalizeEventItems(eventSettled.value);
       } else {
-        eventItemsRaw = [];
         errors.push('公開中イベント');
       }
 
-      document.getElementById('memberCount').textContent = memberItemsRaw.length;
-      document.getElementById('trialCount').textContent = trialItemsRaw.length;
-      document.getElementById('practiceCount').textContent = practiceItemsRaw.length;
-      document.getElementById('eventCount').textContent = eventItemsRaw.length;
+      document.getElementById('memberCount').textContent = memberItems.length;
+      document.getElementById('trialCount').textContent = trialItems.length;
+      document.getElementById('practiceCount').textContent = practiceItems.length;
+      document.getElementById('eventCount').textContent = eventItems.length;
 
-      renderMemberApplications();
-      renderTrialApplications();
-      renderPractices();
-      renderEvents();
+      renderMemberApplications(memberItems);
+      renderTrialApplications(trialItems);
+      renderPractices(practiceItems);
+      renderEvents(eventItems);
 
       if (errors.length) {
         setStatus('一部読込に失敗しました: ' + errors.join(' / '));
@@ -986,30 +718,17 @@
       }
     }
 
-    function renderMemberApplications() {
+    function renderMemberApplications(items) {
       const list = document.getElementById('memberList');
-      const keyword = getSearchValue('memberSearch');
-
-      const items = memberItemsRaw.filter(function(item) {
-        if (!keyword) return true;
-        return [
-          item.childName,
-          item.parentName,
-          item.desiredCategory,
-          item.approvedCategory,
-          item.affiliation,
-          item.note
-        ].some(function(v) {
-          return includesText(v, keyword);
-        });
-      });
 
       if (!items.length) {
-        list.innerHTML = '<div class="empty">該当する会員申請はありません。</div>';
+        list.innerHTML = '<div class="empty">確認対象の会員申請はありません。</div>';
         return;
       }
 
-      list.innerHTML = items.slice(0, 12).map(function(item) {
+      const previewItems = items.slice(0, 6);
+
+      list.innerHTML = previewItems.map(function(item) {
         return `
           <div class="card member">
             <div class="card-head">
@@ -1020,13 +739,19 @@
               <div>${getStatusPill(item.applicationStatus || '')}</div>
             </div>
 
-            <div class="chips">
-              <div class="count-chip">希望区分: ${escapeHtml(item.desiredCategory || '未設定')}</div>
-              <div class="count-chip">承認区分: ${escapeHtml(item.approvedCategory || '未設定')}</div>
-              <div class="count-chip">体験: ${escapeHtml(item.trialStatus || '未設定')}</div>
-            </div>
-
-            <div class="info-grid" style="margin-top:12px;">
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">希望区分</span>
+                <div class="value">${escapeHtml(item.desiredCategory || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">承認区分</span>
+                <div class="value">${escapeHtml(item.approvedCategory || '未設定')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">無料体験利用状況</span>
+                <div class="value">${escapeHtml(item.trialStatus || '未設定')}</div>
+              </div>
               <div class="info-box">
                 <span class="label">申込日時</span>
                 <div class="value">${escapeHtml(formatDateTime(item.appliedAt) || '')}</div>
@@ -1035,7 +760,7 @@
                 <span class="label">所属</span>
                 <div class="value">${escapeHtml(item.affiliation || '未記載')}</div>
               </div>
-              <div class="info-box" style="grid-column: 1 / -1;">
+              <div class="info-box">
                 <span class="label">相談・備考</span>
                 <div class="value">${escapeHtml(item.note || '未記載')}</div>
               </div>
@@ -1045,29 +770,17 @@
       }).join('');
     }
 
-    function renderTrialApplications() {
+    function renderTrialApplications(items) {
       const list = document.getElementById('trialList');
-      const keyword = getSearchValue('trialSearch');
-
-      const items = trialItemsRaw.filter(function(item) {
-        if (!keyword) return true;
-        return [
-          item.childName,
-          item.parentName,
-          item.teamName,
-          item.requestedPracticeLabel,
-          item.applicationStatus
-        ].some(function(v) {
-          return includesText(v, keyword);
-        });
-      });
 
       if (!items.length) {
-        list.innerHTML = '<div class="empty">該当する無料体験申請はありません。</div>';
+        list.innerHTML = '<div class="empty">対応中の無料体験申請はありません。</div>';
         return;
       }
 
-      list.innerHTML = items.slice(0, 12).map(function(item) {
+      const previewItems = items.slice(0, 6);
+
+      list.innerHTML = previewItems.map(function(item) {
         return `
           <div class="card trial">
             <div class="card-head">
@@ -1078,15 +791,18 @@
               <div>${getStatusPill(item.applicationStatus || '')}</div>
             </div>
 
-            <div class="chips">
-              <div class="count-chip">所属チーム: ${escapeHtml(item.teamName || '未記載')}</div>
-              <div class="count-chip">希望日: ${escapeHtml(formatDateOnly(item.requestedPracticeDate) || '未設定')}</div>
-            </div>
-
-            <div class="info-grid" style="margin-top:12px;">
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">所属チーム</span>
+                <div class="value">${escapeHtml(item.teamName || '未記載')}</div>
+              </div>
               <div class="info-box">
                 <span class="label">申請日時</span>
                 <div class="value">${escapeHtml(formatDateTime(item.appliedAt) || '')}</div>
+              </div>
+              <div class="info-box">
+                <span class="label">希望練習日</span>
+                <div class="value">${escapeHtml(formatDateOnly(item.requestedPracticeDate) || '未設定')}</div>
               </div>
               <div class="info-box">
                 <span class="label">希望練習ラベル</span>
@@ -1098,55 +814,35 @@
       }).join('');
     }
 
-    function renderPractices() {
+    function participantText(list) {
+      if (!Array.isArray(list) || !list.length) return 'なし';
+      return list.join('、');
+    }
+
+    function toggleAccordion(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.classList.toggle('open');
+    }
+
+    function renderPractices(items) {
       const list = document.getElementById('practiceList');
-      const keyword = getSearchValue('practiceSearch');
-      const categoryFilter = document.getElementById('practiceCategoryFilter').value;
-      const openFilter = document.getElementById('practiceOpenFilter').value;
-
-      const items = practiceItemsRaw.filter(function(item) {
-        const participants = flattenParticipants(item.participants);
-        const textHit = !keyword || [
-          item.date,
-          item.title,
-          item.startTime,
-          item.endTime,
-          item.place,
-          item.note
-        ].concat(participants).some(function(v) {
-          return includesText(v, keyword);
-        });
-
-        const categoryHit = !categoryFilter || hasCategoryParticipants(item, categoryFilter);
-
-        const participantHit = !openFilter
-          || (openFilter === 'withParticipants' && hasAnyParticipants(item))
-          || (openFilter === 'noParticipants' && !hasAnyParticipants(item));
-
-        return textHit && categoryHit && participantHit;
-      });
 
       if (!items.length) {
-        list.innerHTML = '<div class="empty">該当する練習はありません。</div>';
+        list.innerHTML = '<div class="empty">今後4週間の練習はありません。</div>';
         return;
       }
 
       list.innerHTML = items.map(function(item, index) {
         const accordionId = 'practiceAccordion_' + index;
         const timeText = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}`;
-        const clubCount = Array.isArray(item.participants && item.participants['クラブ']) ? item.participants['クラブ'].length : 0;
-        const schoolCount = Array.isArray(item.participants && item.participants['スクール']) ? item.participants['スクール'].length : 0;
-        const generalCount = Array.isArray(item.participants && item.participants['一般']) ? item.participants['一般'].length : 0;
 
         return `
           <div class="accordion-card ${index === 0 ? 'open' : ''}" id="${accordionId}">
             <button type="button" class="accordion-summary practice" onclick="toggleAccordion('${accordionId}')">
               <div class="accordion-left">
                 <div class="accordion-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${timeText}｜${escapeHtml(item.title || '')}</div>
-                <div class="accordion-meta">
-                  <span class="count-chip">参加予定 ${Number(item.participantCount || 0)}名</span>
-                  <span class="count-chip">会場 ${escapeHtml(item.place || '未設定')}</span>
-                </div>
+                <div class="accordion-meta">参加予定 ${Number(item.participantCount || 0)}名</div>
               </div>
               <div class="accordion-arrow">⌄</div>
             </button>
@@ -1161,12 +857,6 @@
                   <span class="label">備考</span>
                   <div class="value">${escapeHtml(item.note || '未記載')}</div>
                 </div>
-              </div>
-
-              <div class="chips">
-                <div class="count-chip">クラブ ${clubCount}名</div>
-                <div class="count-chip">スクール ${schoolCount}名</div>
-                <div class="count-chip">一般 ${generalCount}名</div>
               </div>
 
               <div class="participants">
@@ -1189,38 +879,11 @@
       }).join('');
     }
 
-    function renderEvents() {
+    function renderEvents(items) {
       const list = document.getElementById('eventList');
-      const keyword = getSearchValue('eventSearch');
-      const categoryFilter = document.getElementById('eventCategoryFilter').value;
-      const openFilter = document.getElementById('eventOpenFilter').value;
-
-      const items = eventItemsRaw.filter(function(item) {
-        const participants = flattenParticipants(item.participants);
-        const textHit = !keyword || [
-          item.eventDate,
-          item.eventName,
-          item.startTime,
-          item.endTime,
-          item.place,
-          item.targetLabel,
-          item.note,
-          item.statusLabel
-        ].concat(participants).some(function(v) {
-          return includesText(v, keyword);
-        });
-
-        const categoryHit = !categoryFilter || hasCategoryParticipants(item, categoryFilter);
-
-        const participantHit = !openFilter
-          || (openFilter === 'withParticipants' && hasAnyParticipants(item))
-          || (openFilter === 'noParticipants' && !hasAnyParticipants(item));
-
-        return textHit && categoryHit && participantHit;
-      });
 
       if (!items.length) {
-        list.innerHTML = '<div class="empty">該当する公開中イベントはありません。</div>';
+        list.innerHTML = '<div class="empty">公開中イベントはありません。</div>';
         return;
       }
 
@@ -1228,20 +891,13 @@
         const accordionId = 'eventAccordion_' + index;
         const participants = item.participants || {};
         const timeText = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}`;
-        const clubCount = Array.isArray(participants['クラブ']) ? participants['クラブ'].length : 0;
-        const schoolCount = Array.isArray(participants['スクール']) ? participants['スクール'].length : 0;
-        const generalCount = Array.isArray(participants['一般']) ? participants['一般'].length : 0;
 
         return `
           <div class="accordion-card" id="${accordionId}">
             <button type="button" class="accordion-summary event" onclick="toggleAccordion('${accordionId}')">
               <div class="accordion-left">
                 <div class="accordion-title">${escapeHtml(formatDateOnly(item.eventDate) || '')}｜${timeText}｜${escapeHtml(item.eventName || 'イベント名未設定')}</div>
-                <div class="accordion-meta">
-                  <span class="count-chip">${escapeHtml(item.statusLabel || '受付状況未設定')}</span>
-                  <span class="count-chip">申込 ${Number(item.currentCount || 0)}名</span>
-                  <span class="count-chip">残 ${Number(item.remainingCount || 0)}枠</span>
-                </div>
+                <div class="accordion-meta">${escapeHtml(item.statusLabel || '受付状況未設定')}</div>
               </div>
               <div class="accordion-arrow">⌄</div>
             </button>
@@ -1264,16 +920,10 @@
                   <span class="label">料金</span>
                   <div class="value">クラブ ${Number(item.clubPrice || 0).toLocaleString()}円 / スクール ${Number(item.schoolPrice || 0).toLocaleString()}円 / 一般 ${Number(item.generalPrice || 0).toLocaleString()}円</div>
                 </div>
-                <div class="info-box" style="grid-column: 1 / -1;">
+                <div class="info-box">
                   <span class="label">備考</span>
                   <div class="value">${escapeHtml(item.note || '未記載')}</div>
                 </div>
-              </div>
-
-              <div class="chips">
-                <div class="count-chip">クラブ ${clubCount}名</div>
-                <div class="count-chip">スクール ${schoolCount}名</div>
-                <div class="count-chip">一般 ${generalCount}名</div>
               </div>
 
               <div class="participants">

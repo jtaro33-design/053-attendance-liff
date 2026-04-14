@@ -7,46 +7,66 @@
   <style>
     * { box-sizing: border-box; }
 
+    :root {
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --sub: #475569;
+      --muted: #64748b;
+      --line: #dbe3ee;
+      --panel: #ffffff;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --cyan-soft: #ecfeff;
+      --green-soft: #f0fdf4;
+      --orange-soft: #fff7ed;
+      --danger-soft: #fef2f2;
+      --danger-line: #fecaca;
+      --shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 17px;
     }
 
     .container {
-      max-width: 1180px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 20px 16px 40px;
+      padding: 24px 18px 52px;
     }
 
     .page-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 34px;
       font-weight: 800;
-      color: #0f172a;
+      color: var(--text);
       letter-spacing: 0.01em;
+      line-height: 1.25;
     }
 
     .sub {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #475569;
+      margin-top: 8px;
+      font-size: 16px;
+      color: var(--sub);
+      line-height: 1.6;
     }
 
     .top-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
     }
@@ -55,25 +75,33 @@
     button,
     a,
     input,
+    select,
     textarea,
-    select {
+    label {
       font: inherit;
     }
 
     .btn,
     button {
       border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 16px;
+      padding: 15px 20px;
+      font-size: 17px;
+      font-weight: 800;
       cursor: pointer;
       transition: 0.2s ease;
+      min-height: 56px;
+    }
+
+    .btn:disabled,
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .secondary {
       background: #e2e8f0;
-      color: #0f172a;
+      color: var(--text);
     }
 
     .secondary:hover {
@@ -81,7 +109,7 @@
     }
 
     .primary {
-      background: #2563eb;
+      background: var(--blue);
       color: #ffffff;
     }
 
@@ -112,12 +140,13 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 16px;
+      padding: 15px 20px;
+      font-size: 17px;
+      font-weight: 800;
       border: 1px solid transparent;
       transition: 0.2s ease;
+      min-height: 56px;
     }
 
     .hub-link.member {
@@ -141,31 +170,36 @@
     }
 
     .status {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
       background: #ffffff;
-      border: 1px solid #dbe3ee;
-      border-left: 5px solid #2563eb;
-      border-radius: 14px;
-      padding: 13px 15px;
-      font-size: 14px;
-      font-weight: 600;
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--blue);
+      border-radius: 18px;
+      padding: 16px 18px;
+      font-size: 16px;
+      font-weight: 700;
       color: #334155;
       white-space: pre-wrap;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      box-shadow: var(--shadow);
     }
 
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 22px;
+      gap: 14px;
+      margin-bottom: 26px;
+      align-items: stretch;
     }
 
     .summary-card {
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 20px 18px;
       border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 156px;
     }
 
     .summary-card.member {
@@ -185,145 +219,125 @@
     }
 
     .summary-label {
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 800;
-      color: #64748b;
-      margin-bottom: 10px;
+      color: var(--muted);
+      margin-bottom: 12px;
       letter-spacing: 0.02em;
-    }
-
-    .summary-value {
-      font-size: 32px;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1;
-    }
-
-    .summary-note {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #64748b;
       line-height: 1.5;
     }
 
+    .summary-value {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .summary-note {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     .section {
-      margin-top: 24px;
+      margin-top: 28px;
     }
 
     .section-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .section-title {
-      font-size: 20px;
+      font-size: 25px;
       font-weight: 800;
-      color: #0f172a;
+      color: var(--text);
       margin: 0;
       letter-spacing: 0.01em;
+      line-height: 1.4;
     }
 
     .section-sub {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 3px;
+      font-size: 15px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.6;
     }
 
     .section-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .panel {
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
       border: 1px solid #e2e8f0;
       background: #ffffff;
     }
 
-    .panel.member {
-      background: #f8fbff;
-    }
-
-    .panel.trial {
-      background: #f7feff;
-    }
-
-    .panel.practice {
-      background: #fbfefb;
-    }
-
-    .panel.event {
-      background: #fffdfa;
-    }
-
-    .panel.message {
-      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-    }
+    .panel.member { background: #f8fbff; }
+    .panel.trial { background: #f7feff; }
+    .panel.practice { background: #fbfefb; }
+    .panel.event { background: #fffdfa; }
+    .panel.message { background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%); }
 
     .list {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .card {
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: 18px;
+      padding: 16px;
       border: 1px solid #e2e8f0;
       background: #ffffff;
     }
 
-    .card.member {
-      border-left: 5px solid #60a5fa;
-    }
-
-    .card.trial {
-      border-left: 5px solid #22c55e;
-    }
-
-    .card.practice {
-      border-left: 5px solid #16a34a;
-    }
-
-    .card.event {
-      border-left: 5px solid #f59e0b;
-    }
+    .card.member { border-left: 6px solid #60a5fa; }
+    .card.trial { border-left: 6px solid #22c55e; }
+    .card.practice { border-left: 6px solid #16a34a; }
+    .card.event { border-left: 6px solid #f59e0b; }
 
     .card-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .card-title {
-      font-size: 17px;
+      font-size: 20px;
       font-weight: 800;
-      color: #0f172a;
-      line-height: 1.4;
+      color: var(--text);
+      line-height: 1.5;
     }
 
     .card-meta {
-      margin-top: 4px;
-      font-size: 13px;
-      color: #64748b;
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
     .pill {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 7px 13px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       white-space: nowrap;
+      line-height: 1.3;
     }
 
     .pill-default { background: #e2e8f0; color: #334155; }
@@ -332,88 +346,88 @@
     .pill-approved { background: #dcfce7; color: #15803d; }
     .pill-returned { background: #fee2e2; color: #b91c1c; }
     .pill-completed { background: #cffafe; color: #0f766e; }
-    .pill-dryrun { background: #ede9fe; color: #6d28d9; }
-    .pill-sent { background: #dcfce7; color: #15803d; }
-    .pill-error { background: #fee2e2; color: #b91c1c; }
 
     .info-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px 14px;
+      gap: 12px 16px;
     }
 
     .info-box {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px 12px;
-      min-height: 68px;
+      border-radius: 14px;
+      padding: 13px 14px;
+      min-height: 82px;
     }
 
     .label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
-      color: #64748b;
-      margin-bottom: 5px;
+      color: var(--muted);
+      margin-bottom: 6px;
       letter-spacing: 0.02em;
+      line-height: 1.4;
     }
 
     .value {
-      font-size: 14px;
-      font-weight: 600;
-      color: #0f172a;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
       white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.5;
+      line-height: 1.7;
     }
 
     .participants {
-      margin-top: 12px;
+      margin-top: 14px;
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .participant-row {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 14px;
+      padding: 12px 14px;
     }
 
     .participant-label {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
-      color: #64748b;
-      margin-bottom: 4px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      line-height: 1.4;
     }
 
     .participant-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: #0f172a;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
       word-break: break-word;
-      line-height: 1.6;
+      line-height: 1.8;
     }
 
     .empty {
       text-align: center;
       background: #ffffff;
       border: 1px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 32px 16px;
-      color: #64748b;
-      font-size: 14px;
+      border-radius: 18px;
+      padding: 36px 18px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
     }
 
     .two-col {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 18px;
     }
 
     .accordion-card {
-      border-radius: 14px;
+      border-radius: 18px;
       overflow: hidden;
       border: 1px solid #e2e8f0;
       background: #ffffff;
@@ -423,13 +437,14 @@
       width: 100%;
       border: none;
       background: transparent;
-      padding: 14px 16px;
+      padding: 18px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
       cursor: pointer;
       text-align: left;
+      min-height: 78px;
     }
 
     .accordion-summary.practice {
@@ -446,23 +461,24 @@
     }
 
     .accordion-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 800;
-      color: #0f172a;
-      line-height: 1.5;
+      color: var(--text);
+      line-height: 1.6;
     }
 
     .accordion-meta {
-      margin-top: 4px;
-      font-size: 13px;
-      color: #64748b;
+      margin-top: 5px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
     .accordion-arrow {
       flex-shrink: 0;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
-      color: #64748b;
+      color: var(--muted);
       transition: transform 0.2s ease;
     }
 
@@ -472,7 +488,7 @@
 
     .accordion-detail {
       display: none;
-      padding: 0 14px 14px;
+      padding: 0 16px 16px;
       background: #ffffff;
     }
 
@@ -480,220 +496,324 @@
       display: block;
     }
 
-    .message-grid {
+    .message-layout {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 16px;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 18px;
     }
 
-    .message-block {
+    .message-box,
+    .log-box {
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 14px;
+      border: 1px solid #dbe3ee;
+      border-radius: 18px;
+      padding: 18px;
     }
 
-    .message-block-title {
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
       font-size: 15px;
       font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 10px;
+      color: var(--text);
+      line-height: 1.5;
     }
 
-    .field {
-      margin-bottom: 12px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 800;
-      color: #475569;
-      margin-bottom: 6px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 10px 12px;
-      background: #ffffff;
-      color: #0f172a;
+    .field-help {
+      margin-top: 6px;
       font-size: 14px;
-    }
-
-    .field textarea {
-      min-height: 160px;
-      resize: vertical;
+      color: var(--muted);
       line-height: 1.6;
     }
 
-    .hint {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 4px;
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 15px 16px;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.6;
+      min-height: 56px;
     }
 
-    .mode-row {
+    .textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .target-mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mode-btn {
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text);
+      min-height: 66px;
+      border-radius: 18px;
+      padding: 14px 14px;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .mode-btn.active {
+      border-color: var(--blue);
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .inline-actions {
       display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .warning-box {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger-line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .warning-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #991b1b;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .warning-text {
+      font-size: 15px;
+      color: #7f1d1d;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .checks {
+      display: grid;
+      gap: 12px;
+    }
+
+    .check-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #fecaca;
+      cursor: pointer;
+      user-select: none;
+      min-height: 74px;
+    }
+
+    .check-card input[type="checkbox"] {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      margin: 3px 0 0;
+      accent-color: #dc2626;
+      cursor: pointer;
+      transform: scale(1.25);
+    }
+
+    .check-card-text {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 700;
+      color: #7f1d1d;
+      line-height: 1.7;
+    }
+
+    .preview-box {
+      margin-top: 18px;
+      border: 1px solid #dbe3ee;
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .preview-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .preview-meta {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .preview-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .preview-item {
+      border: 1px solid #dbe3ee;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 12px 14px;
+    }
+
+    .preview-item-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .preview-item-meta {
+      margin-top: 4px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .log-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 14px;
     }
 
-    .mode-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 999px;
-      background: #ffffff;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      color: #334155;
-    }
-
-    .mode-chip input {
-      width: auto;
-      margin: 0;
-    }
-
-    .message-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .warning-box {
-      background: #fff7ed;
-      border: 1px solid #fdba74;
-      border-radius: 14px;
-      padding: 12px 14px;
-      margin-top: 14px;
-    }
-
-    .warning-title {
-      font-size: 13px;
+    .log-title {
+      font-size: 20px;
       font-weight: 800;
-      color: #9a3412;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .log-list {
+      display: grid;
+      gap: 12px;
+      max-height: 720px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .log-item {
+      border: 1px solid #dbe3ee;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 14px;
+    }
+
+    .log-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-start;
       margin-bottom: 8px;
     }
 
-    .warning-checks {
-      display: grid;
-      gap: 8px;
+    .log-item-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.6;
     }
 
-    .warning-checks label {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+    .log-item-time {
       font-size: 13px;
-      color: #7c2d12;
-      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
-    .warning-checks input {
-      margin-top: 2px;
-      width: auto;
-    }
-
-    .preview-box,
-    .log-box {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    .preview-summary {
-      font-size: 13px;
-      color: #334155;
-      margin-bottom: 10px;
-      white-space: pre-wrap;
-    }
-
-    .recipient-list,
-    .message-log-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .recipient-card,
-    .message-log-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: #f8fafc;
-    }
-
-    .recipient-main,
-    .message-log-main {
+    .log-item-meta {
       font-size: 14px;
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .recipient-sub,
-    .message-log-sub {
-      margin-top: 4px;
-      font-size: 12px;
-      color: #64748b;
-      white-space: pre-wrap;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 8px;
       word-break: break-word;
     }
 
-    .message-log-message {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #334155;
+    .log-item-message {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.8;
       white-space: pre-wrap;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 10px;
+      word-break: break-word;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 12px;
     }
 
     .hidden {
       display: none !important;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1080px) {
       .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .two-col,
-      .message-grid {
+      .message-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 720px) {
-      .summary-grid,
-      .info-grid {
-        grid-template-columns: 1fr;
+      body {
+        font-size: 16px;
       }
 
       .container {
-        padding: 16px 12px 32px;
+        padding: 16px 12px 34px;
       }
 
       h1 {
-        font-size: 24px;
+        font-size: 28px;
       }
 
       .section-title {
-        font-size: 18px;
+        font-size: 22px;
+      }
+
+      .summary-grid,
+      .info-grid,
+      .target-mode-grid {
+        grid-template-columns: 1fr;
       }
 
       .summary-value {
-        font-size: 28px;
+        font-size: 36px;
+      }
+
+      .btn,
+      button,
+      .hub-link,
+      .input,
+      .select,
+      .textarea {
+        font-size: 16px;
       }
     }
   </style>
@@ -703,7 +823,7 @@
     <div class="page-head">
       <div>
         <h1>管理ハブ</h1>
-        <div class="sub">申請・無料体験・練習・イベントの状況をまとめて確認します</div>
+        <div class="sub">申請・無料体験・練習・イベント・個別連絡をまとめて確認します</div>
       </div>
       <div class="top-actions">
         <a href="./admin_member_approval.html" class="hub-link member">会員申請管理へ</a>
@@ -725,12 +845,12 @@
         <div class="summary-value" id="trialCount">-</div>
         <div class="summary-note">現場対応が必要な申請のみ表示</div>
       </div>
-      <div class="summary-card practice">
+      <div class="summary-card.practice">
         <div class="summary-label">今後4週間の練習</div>
         <div class="summary-value" id="practiceCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
       </div>
-      <div class="summary-card.event">
+      <div class="summary-card event">
         <div class="summary-label">公開中イベント</div>
         <div class="summary-value" id="eventCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
@@ -772,106 +892,6 @@
     <div class="section">
       <div class="section-head">
         <div>
-          <div class="section-title">個別メッセージ送信</div>
-          <div class="section-sub">個人指定 / 練習ごと / イベントごとで対象を選び、プレビュー → dryRun → 実行の順で安全に送ります</div>
-        </div>
-      </div>
-      <div class="panel message">
-        <div class="message-grid">
-          <div class="message-block">
-            <div class="message-block-title">送信設定</div>
-
-            <div class="mode-row">
-              <label class="mode-chip">
-                <input type="radio" name="sendMode" value="direct" checked onchange="handleSendModeChange()">
-                個人指定
-              </label>
-              <label class="mode-chip">
-                <input type="radio" name="sendMode" value="practice" onchange="handleSendModeChange()">
-                練習ごと
-              </label>
-              <label class="mode-chip">
-                <input type="radio" name="sendMode" value="event" onchange="handleSendModeChange()">
-                イベントごと
-              </label>
-            </div>
-
-            <div id="directFields">
-              <div class="field">
-                <label for="directLineUserId">LINE userID</label>
-                <input id="directLineUserId" type="text" placeholder="Uから始まるLINE userID">
-              </div>
-              <div class="info-grid">
-                <div class="field">
-                  <label for="directChildName">子ども氏名</label>
-                  <input id="directChildName" type="text" placeholder="任意">
-                </div>
-                <div class="field">
-                  <label for="directCategory">区分</label>
-                  <input id="directCategory" type="text" placeholder="任意">
-                </div>
-              </div>
-            </div>
-
-            <div id="practiceFields" class="hidden">
-              <div class="field">
-                <label for="practiceTargetSelect">対象練習</label>
-                <select id="practiceTargetSelect"></select>
-                <div class="hint">今後4週間の通常練習から選択します</div>
-              </div>
-            </div>
-
-            <div id="eventFields" class="hidden">
-              <div class="field">
-                <label for="eventTargetSelect">対象イベント / クリニック</label>
-                <select id="eventTargetSelect"></select>
-                <div class="hint">公開中イベント / クリニックから選択します</div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="messageText">本文</label>
-              <textarea id="messageText" placeholder="ここに送信本文を入力"></textarea>
-              <div class="hint">実送信前に必ずプレビューとdryRunで確認してください</div>
-            </div>
-
-            <div class="message-actions">
-              <button class="secondary" type="button" onclick="previewMessageRecipients()">宛先プレビュー</button>
-              <button class="primary" type="button" onclick="executeMessageSend(true)">dryRun実行</button>
-              <button class="danger" type="button" onclick="executeMessageSend(false)">実送信</button>
-              <button class="secondary" type="button" onclick="loadDirectMessageLogs()">ログ更新</button>
-            </div>
-
-            <div class="warning-box">
-              <div class="warning-title">実送信前の3回警告</div>
-              <div class="warning-checks">
-                <label><input type="checkbox" id="warnCheck1"> 送信対象が「管理者のみ / DB登録者のみ」であり、公式LINE user への一斉送信ではないことを確認しました</label>
-                <label><input type="checkbox" id="warnCheck2"> 宛先プレビューを確認し、対象人数と対象者が想定どおりであることを確認しました</label>
-                <label><input type="checkbox" id="warnCheck3"> 本文・宛先・送信モードを再確認し、誤送信のリスクがないと判断しました</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="message-block">
-            <div class="message-block-title">プレビュー / ログ</div>
-
-            <div class="preview-box" style="margin-bottom: 12px;">
-              <div class="preview-summary" id="messagePreviewSummary">まだ宛先プレビューを実行していません。</div>
-              <div id="messageRecipientList" class="recipient-list"></div>
-            </div>
-
-            <div class="log-box">
-              <div class="preview-summary">直近の送信ログ</div>
-              <div id="messageLogList" class="message-log-list"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
           <div class="section-title">今後4週間の通常練習</div>
           <div class="section-sub">最初は簡潔表示、クリックで詳細展開</div>
         </div>
@@ -892,16 +912,120 @@
         <div id="eventList" class="list"></div>
       </div>
     </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">個別メッセージ送信</div>
+          <div class="section-sub">個人指定 / 練習ごと / イベントごとで対象選択 → プレビュー → dryRun → 実送信</div>
+        </div>
+      </div>
+
+      <div class="panel message">
+        <div class="message-layout">
+          <div class="message-box">
+            <div class="field-group">
+              <label class="field-label">送信対象の選び方</label>
+              <div class="target-mode-grid">
+                <button type="button" id="modeDirectBtn" class="mode-btn active" onclick="setMessageMode('direct')">個人指定</button>
+                <button type="button" id="modePracticeBtn" class="mode-btn" onclick="setMessageMode('practice')">練習ごと</button>
+                <button type="button" id="modeEventBtn" class="mode-btn" onclick="setMessageMode('event')">イベントごと</button>
+              </div>
+            </div>
+
+            <div id="directFields">
+              <div class="field-group">
+                <label class="field-label" for="directLineUserId">LINE userID</label>
+                <input id="directLineUserId" class="input" type="text" value="U4416f00e7611d461a48fce7bcaad76f5">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="directChildName">子ども氏名</label>
+                <input id="directChildName" class="input" type="text" value="中西　絃一朗">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="directCategory">区分</label>
+                <input id="directCategory" class="input" type="text" value="管理確認">
+              </div>
+            </div>
+
+            <div id="practiceFields" class="hidden">
+              <div class="field-group">
+                <label class="field-label" for="practiceSelect">対象練習</label>
+                <select id="practiceSelect" class="select"></select>
+                <div class="field-help">管理ハブに表示されている今後4週間の通常練習を読み込みます。</div>
+              </div>
+            </div>
+
+            <div id="eventFields" class="hidden">
+              <div class="field-group">
+                <label class="field-label" for="eventSelect">対象イベント</label>
+                <select id="eventSelect" class="select"></select>
+                <div class="field-help">管理ハブに表示されている公開中イベント / クリニックを読み込みます。</div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="messageBody">送信本文</label>
+              <textarea id="messageBody" class="textarea" placeholder="ここに本文を入力してください。"></textarea>
+              <div class="field-help">まずはプレビューで対象を確認し、その後に dryRun で最終確認してから実送信してください。</div>
+            </div>
+
+            <div class="inline-actions">
+              <button type="button" class="secondary" onclick="previewRecipients()">宛先プレビュー</button>
+              <button type="button" class="primary" onclick="sendMessage(true)">dryRun送信</button>
+              <button type="button" class="danger" onclick="sendMessage(false)">実送信</button>
+            </div>
+
+            <div class="warning-box">
+              <div class="warning-title">実送信前の3チェック</div>
+              <div class="warning-text">
+                誤送信防止のため、実送信時は3つすべて確認してください。  
+                チェック未完了では実送信できません。
+              </div>
+              <div class="checks">
+                <label class="check-card">
+                  <input type="checkbox" id="sendCheck1">
+                  <div class="check-card-text">送信対象が正しいことを確認しました（個人 / 練習 / イベントの選択ミスなし）</div>
+                </label>
+                <label class="check-card">
+                  <input type="checkbox" id="sendCheck2">
+                  <div class="check-card-text">本文に誤字・誤案内・誤日程がないことを確認しました</div>
+                </label>
+                <label class="check-card">
+                  <input type="checkbox" id="sendCheck3">
+                  <div class="check-card-text">これは公式LINE userへの一斉送信ではなく、対象者のみへの個別送信であることを確認しました</div>
+                </label>
+              </div>
+            </div>
+
+            <div id="previewBox" class="preview-box hidden">
+              <div class="preview-title">宛先プレビュー</div>
+              <div id="previewMeta" class="preview-meta"></div>
+              <div id="previewList" class="preview-list"></div>
+            </div>
+          </div>
+
+          <div class="log-box">
+            <div class="log-head">
+              <div class="log-title">送信ログ</div>
+              <button type="button" class="secondary" onclick="loadMessageLogs()">ログ更新</button>
+            </div>
+            <div id="messageLogList" class="log-list">
+              <div class="empty">送信ログを読み込みます。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
-    const HUB_STATE = {
-      practiceItems: [],
-      eventItems: [],
-      lastPreview: null
-    };
+    let currentMessageMode = 'direct';
+    let cachedPracticeItems = [];
+    let cachedEventItems = [];
+    let lastPreviewRecipients = [];
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -953,25 +1077,8 @@
       return '<span class="pill pill-default">' + escapeHtml(status || '未設定') + '</span>';
     }
 
-    async function fetchJson(url) {
-      const response = await fetch(url, { cache: 'no-store' });
-      return await response.json();
-    }
-
-    async function postForm(params) {
-      const body = new URLSearchParams();
-      Object.keys(params).forEach(function(key) {
-        body.append(key, params[key] == null ? '' : String(params[key]));
-      });
-
-      const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: body.toString()
-      });
-
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options || { cache: 'no-store' });
       return await response.json();
     }
 
@@ -997,368 +1104,15 @@
       return [];
     }
 
-    function getSelectedSendMode() {
-      const checked = document.querySelector('input[name="sendMode"]:checked');
-      return checked ? checked.value : 'direct';
+    function participantText(list) {
+      if (!Array.isArray(list) || !list.length) return 'なし';
+      return list.join('、');
     }
 
-    function handleSendModeChange() {
-      const mode = getSelectedSendMode();
-
-      document.getElementById('directFields').classList.toggle('hidden', mode !== 'direct');
-      document.getElementById('practiceFields').classList.toggle('hidden', mode !== 'practice');
-      document.getElementById('eventFields').classList.toggle('hidden', mode !== 'event');
-
-      HUB_STATE.lastPreview = null;
-      resetWarningChecks();
-      renderMessagePreview(null);
-    }
-
-    function resetWarningChecks() {
-      document.getElementById('warnCheck1').checked = false;
-      document.getElementById('warnCheck2').checked = false;
-      document.getElementById('warnCheck3').checked = false;
-    }
-
-    function populateMessageTargetOptions() {
-      const practiceSelect = document.getElementById('practiceTargetSelect');
-      const eventSelect = document.getElementById('eventTargetSelect');
-
-      practiceSelect.innerHTML = HUB_STATE.practiceItems.length
-        ? HUB_STATE.practiceItems.map(function(item) {
-            const label = `${formatDateOnly(item.date) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.title || ''}`;
-            return `<option value="${escapeHtml(item.id || '')}">${escapeHtml(label)}</option>`;
-          }).join('')
-        : '<option value="">対象練習なし</option>';
-
-      eventSelect.innerHTML = HUB_STATE.eventItems.length
-        ? HUB_STATE.eventItems.map(function(item) {
-            const label = `${formatDateOnly(item.eventDate) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.eventName || ''}`;
-            return `<option value="${escapeHtml(item.pageId || '')}">${escapeHtml(label)}</option>`;
-          }).join('')
-        : '<option value="">対象イベントなし</option>';
-    }
-
-    function buildPreviewQueryParams() {
-      const mode = getSelectedSendMode();
-      const params = {
-        mode: 'directMessagePreview',
-        messageMode: mode
-      };
-
-      if (mode === 'direct') {
-        params.lineUserId = document.getElementById('directLineUserId').value.trim();
-        params.childName = document.getElementById('directChildName').value.trim();
-        params.category = document.getElementById('directCategory').value.trim();
-      } else if (mode === 'practice') {
-        params.practiceId = document.getElementById('practiceTargetSelect').value;
-      } else if (mode === 'event') {
-        params.eventPageId = document.getElementById('eventTargetSelect').value;
-      }
-
-      return params;
-    }
-
-    function buildSendPostParams(dryRun) {
-      const mode = getSelectedSendMode();
-      const params = {
-        action: 'executeDirectMessageSend',
-        sendMode: mode,
-        message: document.getElementById('messageText').value,
-        dryRun: dryRun ? 'true' : 'false'
-      };
-
-      if (mode === 'direct') {
-        params.lineUserId = document.getElementById('directLineUserId').value.trim();
-        params.childName = document.getElementById('directChildName').value.trim();
-        params.category = document.getElementById('directCategory').value.trim();
-      } else if (mode === 'practice') {
-        params.practiceId = document.getElementById('practiceTargetSelect').value;
-      } else if (mode === 'event') {
-        params.eventPageId = document.getElementById('eventTargetSelect').value;
-      }
-
-      return params;
-    }
-
-    function renderMessagePreview(previewData) {
-      const summaryEl = document.getElementById('messagePreviewSummary');
-      const listEl = document.getElementById('messageRecipientList');
-
-      if (!previewData) {
-        summaryEl.textContent = 'まだ宛先プレビューを実行していません。';
-        listEl.innerHTML = '';
-        return;
-      }
-
-      if (!previewData.ok) {
-        summaryEl.textContent = 'プレビュー取得に失敗しました: ' + (previewData.message || 'unknown error');
-        listEl.innerHTML = '';
-        return;
-      }
-
-      const recipients = Array.isArray(previewData.recipients) ? previewData.recipients : [];
-      summaryEl.textContent = `送信モード: ${previewData.mode || ''}\n対象件数: ${recipients.length}件`;
-
-      if (!recipients.length) {
-        listEl.innerHTML = '<div class="empty">送信対象がありません。</div>';
-        return;
-      }
-
-      listEl.innerHTML = recipients.map(function(rec) {
-        return `
-          <div class="recipient-card">
-            <div class="recipient-main">${escapeHtml(rec.childName || '氏名未設定')}</div>
-            <div class="recipient-sub">
-LINE userID: ${escapeHtml(rec.lineUserId || '')}
-区分: ${escapeHtml(rec.category || '')}
-送信元: ${escapeHtml(rec.sourceName || '')}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderMessageLogs(data) {
-      const listEl = document.getElementById('messageLogList');
-
-      if (!data || !data.ok) {
-        listEl.innerHTML = '<div class="empty">ログ取得に失敗しました。</div>';
-        return;
-      }
-
-      const items = Array.isArray(data.items) ? data.items : [];
-      if (!items.length) {
-        listEl.innerHTML = '<div class="empty">まだ送信ログはありません。</div>';
-        return;
-      }
-
-      listEl.innerHTML = items.map(function(item) {
-        let pill = '<span class="pill pill-default">unknown</span>';
-        if (item.resultText === 'dryRun') pill = '<span class="pill pill-dryrun">dryRun</span>';
-        if (item.resultText === 'sent') pill = '<span class="pill pill-sent">sent</span>';
-        if (String(item.resultText || '').indexOf('error:') === 0) pill = '<span class="pill pill-error">error</span>';
-
-        return `
-          <div class="message-log-card">
-            <div class="message-log-main">${escapeHtml(item.sentAt || '')} ${pill}</div>
-            <div class="message-log-sub">
-モード: ${escapeHtml(item.mode || '')}
-対象名: ${escapeHtml(item.targetName || '')}
-子ども氏名: ${escapeHtml(item.childName || '')}
-区分: ${escapeHtml(item.category || '')}
-            </div>
-            <div class="message-log-message">${escapeHtml(item.message || '')}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function previewMessageRecipients() {
-      try {
-        setStatus('宛先プレビューを取得しています...');
-        resetWarningChecks();
-
-        const params = buildPreviewQueryParams();
-        const query = new URLSearchParams(params).toString();
-        const result = await fetchJson(`${WEB_APP_URL}?${query}&t=${Date.now()}`);
-
-        HUB_STATE.lastPreview = result;
-        renderMessagePreview(result);
-
-        if (!result.ok) {
-          setStatus('宛先プレビュー取得に失敗しました。');
-          return;
-        }
-
-        setStatus('宛先プレビューを更新しました。');
-      } catch (error) {
-        console.error(error);
-        setStatus('宛先プレビュー取得でエラーが発生しました。');
-      }
-    }
-
-    function validateMessageBeforeSend() {
-      const mode = getSelectedSendMode();
-      const message = document.getElementById('messageText').value.trim();
-
-      if (!message) {
-        alert('本文を入力してください。');
-        return false;
-      }
-
-      if (mode === 'direct') {
-        if (!document.getElementById('directLineUserId').value.trim()) {
-          alert('個人指定送信では LINE userID が必要です。');
-          return false;
-        }
-      }
-
-      if (mode === 'practice') {
-        if (!document.getElementById('practiceTargetSelect').value) {
-          alert('対象練習を選択してください。');
-          return false;
-        }
-      }
-
-      if (mode === 'event') {
-        if (!document.getElementById('eventTargetSelect').value) {
-          alert('対象イベントを選択してください。');
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    function validateActualSendWarnings() {
-      if (!HUB_STATE.lastPreview || !HUB_STATE.lastPreview.ok) {
-        alert('実送信前に必ず宛先プレビューを行ってください。');
-        return false;
-      }
-
-      if (!Array.isArray(HUB_STATE.lastPreview.recipients) || HUB_STATE.lastPreview.recipients.length === 0) {
-        alert('送信対象が0件です。実送信できません。');
-        return false;
-      }
-
-      if (!document.getElementById('warnCheck1').checked ||
-          !document.getElementById('warnCheck2').checked ||
-          !document.getElementById('warnCheck3').checked) {
-        alert('実送信前の3項目確認をすべてチェックしてください。');
-        return false;
-      }
-
-      if (!window.confirm('警告1：これは実送信です。本当に送信しますか？')) return false;
-      if (!window.confirm('警告2：送信対象人数と送信本文を再確認しましたか？')) return false;
-      if (!window.confirm('警告3：誤送信しても問題ない状態で、最終実行してよいですか？')) return false;
-
-      return true;
-    }
-
-    async function executeMessageSend(dryRun) {
-      try {
-        if (!validateMessageBeforeSend()) return;
-
-        if (!dryRun) {
-          if (!validateActualSendWarnings()) return;
-        }
-
-        setStatus(dryRun ? 'dryRunを実行しています...' : '実送信を実行しています...');
-
-        const params = buildSendPostParams(dryRun);
-        const result = await postForm(params);
-
-        if (!result.ok) {
-          setStatus((dryRun ? 'dryRun' : '実送信') + 'に失敗しました: ' + (result.message || 'unknown error'));
-          alert((dryRun ? 'dryRun' : '実送信') + 'に失敗しました。\n' + (result.message || 'unknown error'));
-          return;
-        }
-
-        const successCount = Number(result.successCount || 0);
-        const errorCount = Number(result.errorCount || 0);
-        const totalCount = Number(result.totalCount || 0);
-
-        setStatus((dryRun ? 'dryRun' : '送信') + `完了: ${successCount}/${totalCount}件成功`);
-
-        if (!dryRun) {
-          resetWarningChecks();
-        }
-
-        await loadDirectMessageLogs();
-
-        alert(
-          (dryRun ? 'dryRun完了' : '送信完了') +
-          `\n成功: ${successCount}件` +
-          `\n失敗: ${errorCount}件`
-        );
-      } catch (error) {
-        console.error(error);
-        setStatus((dryRun ? 'dryRun' : '実送信') + 'でエラーが発生しました。');
-        alert((dryRun ? 'dryRun' : '実送信') + 'でエラーが発生しました。');
-      }
-    }
-
-    async function loadDirectMessageLogs() {
-      try {
-        const result = await fetchJson(`${WEB_APP_URL}?mode=directMessageLogs&limit=20&t=${Date.now()}`);
-        renderMessageLogs(result);
-      } catch (error) {
-        console.error(error);
-        renderMessageLogs({ ok: false, items: [] });
-      }
-    }
-
-    async function loadHub() {
-      setStatus('管理ハブを読み込み中です...');
-
-      const memberPromise = fetchJson(`${WEB_APP_URL}?mode=pendingMemberApplications&t=${Date.now()}`);
-      const trialPromise = fetchJson(`${WEB_APP_URL}?mode=pendingTrialApplications&t=${Date.now()}`);
-      const practicePromise = fetchJson(`${WEB_APP_URL}?mode=adminPractices4weeks&t=${Date.now()}`);
-      const eventPromise = fetchJson(`${WEB_APP_URL}?mode=adminEventsWithParticipants&t=${Date.now()}`);
-
-      const [memberSettled, trialSettled, practiceSettled, eventSettled] = await Promise.allSettled([
-        memberPromise,
-        trialPromise,
-        practicePromise,
-        eventPromise
-      ]);
-
-      let memberItems = [];
-      let trialItems = [];
-      let practiceItems = [];
-      let eventItems = [];
-
-      const errors = [];
-
-      if (memberSettled.status === 'fulfilled') {
-        memberItems = normalizeMemberItems(memberSettled.value);
-      } else {
-        errors.push('会員申請');
-      }
-
-      if (trialSettled.status === 'fulfilled') {
-        trialItems = normalizeTrialItems(trialSettled.value).filter(function(item) {
-          return String(item.applicationStatus || '') !== '体験完了';
-        });
-      } else {
-        errors.push('無料体験申請');
-      }
-
-      if (practiceSettled.status === 'fulfilled') {
-        practiceItems = normalizePracticeItems(practiceSettled.value);
-      } else {
-        errors.push('今後4週間の練習');
-      }
-
-      if (eventSettled.status === 'fulfilled') {
-        eventItems = normalizeEventItems(eventSettled.value);
-      } else {
-        errors.push('公開中イベント');
-      }
-
-      HUB_STATE.practiceItems = practiceItems;
-      HUB_STATE.eventItems = eventItems;
-      HUB_STATE.lastPreview = null;
-
-      document.getElementById('memberCount').textContent = memberItems.length;
-      document.getElementById('trialCount').textContent = trialItems.length;
-      document.getElementById('practiceCount').textContent = practiceItems.length;
-      document.getElementById('eventCount').textContent = eventItems.length;
-
-      renderMemberApplications(memberItems);
-      renderTrialApplications(trialItems);
-      renderPractices(practiceItems);
-      renderEvents(eventItems);
-      populateMessageTargetOptions();
-      renderMessagePreview(null);
-      await loadDirectMessageLogs();
-
-      if (errors.length) {
-        setStatus('一部読込に失敗しました: ' + errors.join(' / '));
-      } else {
-        setStatus('管理ハブを更新しました。');
-      }
+    function toggleAccordion(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.classList.toggle('open');
     }
 
     function renderMemberApplications(items) {
@@ -1455,17 +1209,6 @@ LINE userID: ${escapeHtml(rec.lineUserId || '')}
           </div>
         `;
       }).join('');
-    }
-
-    function participantText(list) {
-      if (!Array.isArray(list) || !list.length) return 'なし';
-      return list.join('、');
-    }
-
-    function toggleAccordion(id) {
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.classList.toggle('open');
     }
 
     function renderPractices(items) {
@@ -1589,8 +1332,283 @@ LINE userID: ${escapeHtml(rec.lineUserId || '')}
       }).join('');
     }
 
+    function setMessageMode(mode) {
+      currentMessageMode = mode;
+
+      document.getElementById('modeDirectBtn').classList.toggle('active', mode === 'direct');
+      document.getElementById('modePracticeBtn').classList.toggle('active', mode === 'practice');
+      document.getElementById('modeEventBtn').classList.toggle('active', mode === 'event');
+
+      document.getElementById('directFields').classList.toggle('hidden', mode !== 'direct');
+      document.getElementById('practiceFields').classList.toggle('hidden', mode !== 'practice');
+      document.getElementById('eventFields').classList.toggle('hidden', mode !== 'event');
+    }
+
+    function populatePracticeSelect(items) {
+      const select = document.getElementById('practiceSelect');
+      const options = ['<option value="">対象練習を選択してください</option>'].concat(
+        items.map(function(item) {
+          const label = `${formatDateOnly(item.date) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.title || ''}`;
+          return `<option value="${escapeHtml(item.id || '')}">${escapeHtml(label)}</option>`;
+        })
+      );
+      select.innerHTML = options.join('');
+    }
+
+    function populateEventSelect(items) {
+      const select = document.getElementById('eventSelect');
+      const options = ['<option value="">対象イベントを選択してください</option>'].concat(
+        items.map(function(item) {
+          const label = `${formatDateOnly(item.eventDate) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.eventName || ''}`;
+          return `<option value="${escapeHtml(item.pageId || '')}">${escapeHtml(label)}</option>`;
+        })
+      );
+      select.innerHTML = options.join('');
+    }
+
+    function getMessagePayload(dryRun) {
+      const payload = {
+        mode: currentMessageMode,
+        message: document.getElementById('messageBody').value || '',
+        dryRun: !!dryRun
+      };
+
+      if (currentMessageMode === 'direct') {
+        payload.lineUserId = document.getElementById('directLineUserId').value || '';
+        payload.childName = document.getElementById('directChildName').value || '';
+        payload.category = document.getElementById('directCategory').value || '';
+      } else if (currentMessageMode === 'practice') {
+        payload.practiceId = document.getElementById('practiceSelect').value || '';
+      } else if (currentMessageMode === 'event') {
+        payload.eventPageId = document.getElementById('eventSelect').value || '';
+      }
+
+      return payload;
+    }
+
+    function resetChecks() {
+      document.getElementById('sendCheck1').checked = false;
+      document.getElementById('sendCheck2').checked = false;
+      document.getElementById('sendCheck3').checked = false;
+    }
+
+    function validateSendChecks() {
+      return (
+        document.getElementById('sendCheck1').checked &&
+        document.getElementById('sendCheck2').checked &&
+        document.getElementById('sendCheck3').checked
+      );
+    }
+
+    async function previewRecipients() {
+      try {
+        const payload = getMessagePayload(true);
+        const url = `${WEB_APP_URL}?mode=previewDirectMessageRecipients&t=${Date.now()}`;
+
+        const result = await fetchJson(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const recipients = Array.isArray(result.recipients) ? result.recipients : [];
+        lastPreviewRecipients = recipients;
+
+        const box = document.getElementById('previewBox');
+        const meta = document.getElementById('previewMeta');
+        const list = document.getElementById('previewList');
+
+        box.classList.remove('hidden');
+
+        if (!result.ok) {
+          meta.textContent = result.message || '宛先プレビュー取得に失敗しました。';
+          list.innerHTML = '';
+          return;
+        }
+
+        meta.textContent = `送信モード: ${payload.mode} / 対象件数: ${recipients.length}件`;
+
+        if (!recipients.length) {
+          list.innerHTML = '<div class="empty">対象者が見つかりませんでした。</div>';
+          return;
+        }
+
+        list.innerHTML = recipients.map(function(rec) {
+          return `
+            <div class="preview-item">
+              <div class="preview-item-name">${escapeHtml(rec.childName || '氏名なし')}</div>
+              <div class="preview-item-meta">
+                区分: ${escapeHtml(rec.category || '未設定')}<br>
+                LINE userID: ${escapeHtml(rec.lineUserId || '')}<br>
+                対象: ${escapeHtml(rec.sourceName || rec.sourceType || '')}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        setStatus('宛先プレビューを更新しました。');
+      } catch (error) {
+        setStatus('宛先プレビュー取得に失敗しました: ' + error.message);
+      }
+    }
+
+    async function sendMessage(dryRun) {
+      try {
+        const payload = getMessagePayload(dryRun);
+
+        if (!payload.message || !String(payload.message).trim()) {
+          alert('送信本文を入力してください。');
+          return;
+        }
+
+        if (!dryRun && !validateSendChecks()) {
+          alert('実送信前の3チェックをすべて確認してください。');
+          return;
+        }
+
+        const url = `${WEB_APP_URL}?mode=executeDirectMessageSend&t=${Date.now()}`;
+        const result = await fetchJson(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!result.ok) {
+          alert(result.message || '送信に失敗しました。');
+          setStatus('送信に失敗しました。');
+          return;
+        }
+
+        if (dryRun) {
+          setStatus(`dryRun送信を実行しました。成功 ${Number(result.successCount || 0)}件`);
+          alert(`dryRun完了\n成功 ${Number(result.successCount || 0)}件 / エラー ${Number(result.errorCount || 0)}件`);
+        } else {
+          setStatus(`実送信を実行しました。成功 ${Number(result.successCount || 0)}件`);
+          alert(`実送信完了\n成功 ${Number(result.successCount || 0)}件 / エラー ${Number(result.errorCount || 0)}件`);
+          resetChecks();
+        }
+
+        await loadMessageLogs();
+      } catch (error) {
+        alert('送信処理に失敗しました: ' + error.message);
+        setStatus('送信処理に失敗しました。');
+      }
+    }
+
+    function renderMessageLogs(items) {
+      const list = document.getElementById('messageLogList');
+
+      if (!items.length) {
+        list.innerHTML = '<div class="empty">送信ログはまだありません。</div>';
+        return;
+      }
+
+      list.innerHTML = items.map(function(item) {
+        const dryRunBadge = item.dryRun ? '<span class="pill pill-checking">dryRun</span>' : '<span class="pill pill-approved">sent</span>';
+        return `
+          <div class="log-item">
+            <div class="log-item-top">
+              <div>
+                <div class="log-item-title">${escapeHtml(item.childName || '氏名なし')} / ${escapeHtml(item.targetName || '')}</div>
+                <div class="log-item-time">${escapeHtml(item.sentAt || '')}</div>
+              </div>
+              <div>${dryRunBadge}</div>
+            </div>
+            <div class="log-item-meta">
+              mode: ${escapeHtml(item.mode || '')}<br>
+              区分: ${escapeHtml(item.category || '')}<br>
+              LINE userID: ${escapeHtml(item.lineUserId || '')}<br>
+              結果: ${escapeHtml(item.resultText || '')}
+            </div>
+            <div class="log-item-message">${escapeHtml(item.message || '')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadMessageLogs() {
+      try {
+        const result = await fetchJson(`${WEB_APP_URL}?mode=directMessageLogs&t=${Date.now()}`);
+        const items = result && Array.isArray(result.items) ? result.items : [];
+        renderMessageLogs(items);
+      } catch (error) {
+        document.getElementById('messageLogList').innerHTML = '<div class="empty">送信ログの取得に失敗しました。</div>';
+      }
+    }
+
+    async function loadHub() {
+      setStatus('管理ハブを読み込み中です...');
+
+      const memberPromise = fetchJson(`${WEB_APP_URL}?mode=pendingMemberApplications&t=${Date.now()}`);
+      const trialPromise = fetchJson(`${WEB_APP_URL}?mode=pendingTrialApplications&t=${Date.now()}`);
+      const practicePromise = fetchJson(`${WEB_APP_URL}?mode=adminPractices4weeks&t=${Date.now()}`);
+      const eventPromise = fetchJson(`${WEB_APP_URL}?mode=adminEventsWithParticipants&t=${Date.now()}`);
+
+      const [memberSettled, trialSettled, practiceSettled, eventSettled] = await Promise.allSettled([
+        memberPromise,
+        trialPromise,
+        practicePromise,
+        eventPromise
+      ]);
+
+      let memberItems = [];
+      let trialItems = [];
+      let practiceItems = [];
+      let eventItems = [];
+      const errors = [];
+
+      if (memberSettled.status === 'fulfilled') {
+        memberItems = normalizeMemberItems(memberSettled.value);
+      } else {
+        errors.push('会員申請');
+      }
+
+      if (trialSettled.status === 'fulfilled') {
+        trialItems = normalizeTrialItems(trialSettled.value).filter(function(item) {
+          return String(item.applicationStatus || '') !== '体験完了';
+        });
+      } else {
+        errors.push('無料体験申請');
+      }
+
+      if (practiceSettled.status === 'fulfilled') {
+        practiceItems = normalizePracticeItems(practiceSettled.value);
+      } else {
+        errors.push('今後4週間の練習');
+      }
+
+      if (eventSettled.status === 'fulfilled') {
+        eventItems = normalizeEventItems(eventSettled.value);
+      } else {
+        errors.push('公開中イベント');
+      }
+
+      cachedPracticeItems = practiceItems;
+      cachedEventItems = eventItems;
+
+      populatePracticeSelect(cachedPracticeItems);
+      populateEventSelect(cachedEventItems);
+
+      document.getElementById('memberCount').textContent = memberItems.length;
+      document.getElementById('trialCount').textContent = trialItems.length;
+      document.getElementById('practiceCount').textContent = practiceItems.length;
+      document.getElementById('eventCount').textContent = eventItems.length;
+
+      renderMemberApplications(memberItems);
+      renderTrialApplications(trialItems);
+      renderPractices(practiceItems);
+      renderEvents(eventItems);
+      await loadMessageLogs();
+
+      if (errors.length) {
+        setStatus('一部読込に失敗しました: ' + errors.join(' / '));
+      } else {
+        setStatus('管理ハブを更新しました。');
+      }
+    }
+
     window.addEventListener('load', function() {
-      handleSendModeChange();
+      setMessageMode('direct');
       loadHub();
     });
   </script>

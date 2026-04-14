@@ -2,880 +2,654 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>053academy 管理ハブ</title>
   <style>
-    * { box-sizing: border-box; }
+    :root{
+      --bg:#f4f7f5;
+      --card:#ffffff;
+      --text:#183028;
+      --sub:#567066;
+      --line:#d7e2dc;
+      --accent:#1f6f54;
+      --accent-2:#2c8f6b;
+      --accent-soft:#e7f3ee;
+      --warn:#b7791f;
+      --warn-soft:#fff7e6;
+      --danger:#b42318;
+      --danger-soft:#fdecec;
+      --ok:#0f766e;
+      --ok-soft:#e7f8f6;
+      --shadow:0 8px 24px rgba(22,38,31,.08);
+      --radius:20px;
+      --radius-sm:14px;
+      --font-xl:24px;
+      --font-lg:20px;
+      --font-md:17px;
+      --font-sm:15px;
+      --tap:56px;
+    }
 
-    :root {
-      --bg: #f7f8fa;
-      --card: #ffffff;
-      --line: #d9e0e7;
-      --text: #1f2937;
-      --sub: #667085;
-      --blue: #2563eb;
-      --blue-soft: #eff6ff;
-      --green: #16a34a;
-      --green-soft: #f0fdf4;
-      --orange: #d97706;
-      --orange-soft: #fff7ed;
-      --teal: #0f766e;
-      --teal-soft: #ecfeff;
-      --red: #dc2626;
-      --red-soft: #fef2f2;
-      --shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-      --radius: 18px;
+    * { box-sizing:border-box; }
+    html, body {
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Segoe UI",sans-serif;
+      font-size:var(--font-md);
+      line-height:1.6;
     }
 
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 18px;
-      line-height: 1.75;
+      padding:20px 16px 40px;
+      max-width:980px;
+      margin:0 auto;
     }
 
-    .wrap {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 22px 14px 42px;
+    h1, h2, h3 {
+      margin:0;
+      line-height:1.35;
     }
 
-    .page-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 34px;
-      line-height: 1.3;
-      font-weight: 800;
-      letter-spacing: 0.01em;
-    }
-
-    .head-sub {
-      margin-top: 8px;
-      color: var(--sub);
-      font-size: 16px;
-      line-height: 1.7;
-    }
-
-    .head-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn,
-    .link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 58px;
-      padding: 16px 20px;
-      border: none;
-      border-radius: 16px;
-      font-size: 17px;
-      font-weight: 800;
-      cursor: pointer;
-      text-decoration: none;
-      transition: 0.18s ease;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    .page-header{
+      margin-bottom:18px;
     }
 
-    .btn:hover,
-    .link-btn:hover {
-      transform: translateY(-1px);
+    .page-title{
+      font-size:32px;
+      font-weight:800;
+      letter-spacing:.02em;
+      margin-bottom:8px;
     }
 
-    .btn-main {
-      background: var(--blue);
-      color: #fff;
+    .page-sub{
+      font-size:17px;
+      color:var(--sub);
     }
 
-    .btn-sub {
-      background: #e5e7eb;
-      color: #111827;
+    .section{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:18px;
     }
 
-    .btn-copy {
-      background: var(--teal);
-      color: #fff;
+    .section-title{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:14px;
     }
 
-    .link-member {
-      background: var(--blue-soft);
-      color: var(--blue);
-      border: 1px solid #bfdbfe;
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
     }
 
-    .link-trial {
-      background: var(--teal-soft);
-      color: var(--teal);
-      border: 1px solid #99f6e4;
+    .summary-card{
+      background:linear-gradient(180deg,#ffffff 0%, #f9fcfa 100%);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px 16px;
+      min-height:110px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
     }
 
-    .status-box {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-left: 6px solid var(--blue);
-      border-radius: 16px;
-      padding: 14px 16px;
-      margin-bottom: 18px;
-      box-shadow: var(--shadow);
-      white-space: pre-wrap;
-      font-size: 16px;
-      font-weight: 700;
+    .summary-label{
+      font-size:15px;
+      color:var(--sub);
+      font-weight:700;
     }
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 26px;
-      align-items: stretch;
+    .summary-value{
+      font-size:34px;
+      font-weight:800;
+      letter-spacing:.02em;
     }
 
-    .summary-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 18px;
-      min-height: 160px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    .summary-sub{
+      font-size:14px;
+      color:var(--sub);
     }
 
-    .summary-card.member { background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); }
-    .summary-card.trial { background: linear-gradient(180deg, #ecfeff 0%, #ffffff 100%); }
-    .summary-card.practice { background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); }
-    .summary-card.event { background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%); }
-
-    .summary-label {
-      font-size: 15px;
-      color: var(--sub);
-      font-weight: 800;
-      line-height: 1.5;
-    }
-
-    .summary-value {
-      font-size: 42px;
-      font-weight: 800;
-      line-height: 1.05;
-      margin: 10px 0;
-    }
-
-    .summary-note {
-      font-size: 14px;
-      color: var(--sub);
-      line-height: 1.6;
-    }
-
-    .section {
-      margin-top: 26px;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+    .toolbar{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:14px;
     }
 
-    .section-title {
-      margin: 0;
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1.35;
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      min-height:var(--tap);
+      padding:14px 18px;
+      font-size:17px;
+      font-weight:800;
+      line-height:1.2;
+      transition:.18s ease;
     }
 
-    .section-sub {
-      margin-top: 6px;
-      color: var(--sub);
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .panel {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .message-grid {
-      display: grid;
-      grid-template-columns: 1.18fr 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .box {
-      border: 1px solid #e4e7ec;
-      border-radius: 18px;
-      padding: 18px;
-      background: #fff;
-    }
+    button:hover{ transform:translateY(-1px); }
+    button:active{ transform:translateY(0); }
 
-    .box-title {
-      margin: 0 0 8px;
-      font-size: 22px;
-      font-weight: 800;
-      line-height: 1.4;
+    .btn-primary{
+      background:var(--accent);
+      color:#fff;
     }
 
-    .box-sub {
-      color: var(--sub);
-      font-size: 15px;
-      margin-bottom: 14px;
-      line-height: 1.75;
+    .btn-secondary{
+      background:#eef4f1;
+      color:var(--text);
+      border:1px solid var(--line);
     }
 
-    .field {
-      margin-bottom: 16px;
+    .btn-danger{
+      background:var(--danger);
+      color:#fff;
     }
 
-    .field label,
-    .field .field-label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.6;
+    .btn-soft{
+      background:var(--accent-soft);
+      color:var(--accent);
+      border:1px solid #cfe6dc;
     }
 
-    input[type="text"],
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #cfd8e3;
-      border-radius: 16px;
-      background: #fff;
-      padding: 15px 16px;
-      font-size: 18px;
-      line-height: 1.65;
-      color: var(--text);
-      min-height: 58px;
+    .field-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
     }
 
-    textarea {
-      min-height: 240px;
-      resize: vertical;
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
     }
 
-    .field-note {
-      margin-top: 6px;
-      color: var(--sub);
-      font-size: 14px;
-      line-height: 1.65;
+    .label{
+      font-size:16px;
+      font-weight:800;
     }
 
-    .mode-list {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 18px;
+    .hint{
+      font-size:14px;
+      color:var(--sub);
     }
 
-    .mode-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 16px;
-      border: 2px solid #dbe4ee;
-      border-radius: 18px;
-      background: #fff;
-      cursor: pointer;
-      min-height: 78px;
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      font-size:18px;
+      padding:14px 16px;
+      min-height:var(--tap);
+      outline:none;
     }
 
-    .mode-item input[type="radio"] {
-      width: 28px;
-      height: 28px;
-      margin-top: 4px;
-      flex-shrink: 0;
+    textarea{
+      min-height:180px;
+      resize:vertical;
+      line-height:1.7;
     }
 
-    .mode-main {
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1.5;
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--accent-2);
+      box-shadow:0 0 0 4px rgba(31,111,84,.12);
     }
 
-    .mode-sub {
-      font-size: 14px;
-      color: var(--sub);
-      margin-top: 2px;
-      line-height: 1.7;
+    .mode-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
     }
 
-    .target-panel {
-      display: none;
+    .mode-card{
+      border:2px solid var(--line);
+      border-radius:18px;
+      padding:14px 12px;
+      background:#fff;
+      cursor:pointer;
+      user-select:none;
+      text-align:center;
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:16px;
     }
 
-    .target-panel.active {
-      display: block;
+    .mode-card.active{
+      border-color:var(--accent);
+      background:var(--accent-soft);
+      color:var(--accent);
     }
 
-    .check-panel {
-      margin-top: 18px;
-      background: var(--orange-soft);
-      border: 2px solid #fdba74;
-      border-radius: 18px;
-      padding: 16px;
+    .preview-box, .result-box{
+      border-radius:18px;
+      padding:16px;
+      border:1px solid var(--line);
+      background:#fbfdfc;
     }
 
-    .check-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #9a3412;
-      margin-bottom: 12px;
-      line-height: 1.5;
+    .preview-box.error, .result-box.error{
+      background:var(--danger-soft);
+      border-color:#f3c8c4;
+      color:var(--danger);
     }
 
-    .check-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      background: rgba(255,255,255,0.75);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 10px;
-      min-height: 76px;
-      cursor: pointer;
+    .preview-box.success, .result-box.success{
+      background:var(--ok-soft);
+      border-color:#c2ebe7;
+      color:#0e615c;
     }
 
-    .check-row:last-child {
-      margin-bottom: 0;
+    .preview-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:12px;
     }
 
-    .check-row input[type="checkbox"] {
-      width: 32px;
-      height: 32px;
-      margin-top: 3px;
-      flex-shrink: 0;
+    .recipient-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
     }
 
-    .check-text {
-      font-size: 17px;
-      font-weight: 700;
-      color: #7c2d12;
-      line-height: 1.75;
+    .recipient-main{
+      font-size:17px;
+      font-weight:800;
+      margin-bottom:4px;
     }
 
-    .action-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+    .recipient-sub{
+      font-size:14px;
+      color:var(--sub);
+      word-break:break-all;
     }
 
-    .notice-panel {
-      background: var(--red-soft);
-      border: 2px solid #fecaca;
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 18px;
+    .checks{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:14px;
     }
 
-    .notice-title {
-      color: #991b1b;
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      line-height: 1.5;
+    .check-card{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      padding:14px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
     }
 
-    .notice-body {
-      color: #7f1d1d;
-      font-size: 16px;
-      line-height: 1.8;
+    .check-card input[type="checkbox"]{
+      width:28px;
+      height:28px;
+      min-height:auto;
+      margin-top:2px;
+      accent-color:var(--accent);
+      flex:0 0 auto;
     }
 
-    .preview-list,
-    .log-list,
-    .list {
-      display: grid;
-      gap: 12px;
+    .check-text{
+      font-size:17px;
+      font-weight:700;
+      line-height:1.5;
     }
 
-    .recipient-card,
-    .log-card,
-    .mini-card,
-    .detail-card {
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      border-radius: 16px;
-      padding: 14px 16px;
+    .danger-note{
+      background:var(--warn-soft);
+      color:#8a5a11;
+      border:1px solid #f0d9a7;
+      border-radius:16px;
+      padding:14px 16px;
+      font-weight:700;
+      margin-top:14px;
     }
 
-    .recipient-title,
-    .log-title,
-    .mini-title {
-      font-size: 18px;
-      font-weight: 800;
-      line-height: 1.5;
+    .accordion-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
 
-    .recipient-meta,
-    .log-meta,
-    .mini-meta {
-      color: var(--sub);
-      font-size: 14px;
-      margin-top: 4px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .accordion{
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      background:#fff;
     }
 
-    .empty {
-      border: 2px dashed #cbd5e1;
-      border-radius: 18px;
-      background: #fff;
-      color: var(--sub);
-      text-align: center;
-      padding: 34px 16px;
-      font-size: 16px;
-      line-height: 1.8;
+    .accordion-summary{
+      width:100%;
+      background:#fff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      text-align:left;
+      padding:16px;
+      border:none;
+      min-height:72px;
     }
 
-    .two-col {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+    .accordion-summary-left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
     }
 
-    .accordion {
-      border: 1px solid #e5e7eb;
-      border-radius: 18px;
-      overflow: hidden;
-      background: #fff;
+    .accordion-title{
+      font-size:18px;
+      font-weight:800;
     }
 
-    .accordion-toggle {
-      width: 100%;
-      border: none;
-      background: transparent;
-      text-align: left;
-      padding: 16px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      min-height: 74px;
-      cursor: pointer;
+    .accordion-meta{
+      font-size:15px;
+      color:var(--sub);
     }
 
-    .accordion-toggle.practice {
-      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    .accordion-count{
+      font-size:15px;
+      font-weight:800;
+      color:var(--accent);
+      white-space:nowrap;
     }
 
-    .accordion-toggle.event {
-      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+    .accordion-body{
+      display:none;
+      padding:0 16px 16px;
+      border-top:1px solid var(--line);
+      background:#fcfefd;
     }
 
-    .accordion-title {
-      font-size: 19px;
-      font-weight: 800;
-      line-height: 1.55;
+    .accordion.open .accordion-body{
+      display:block;
     }
 
-    .accordion-meta {
-      margin-top: 4px;
-      font-size: 15px;
-      color: var(--sub);
-      line-height: 1.7;
+    .badge-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:12px 0;
     }
 
-    .arrow {
-      font-size: 24px;
-      color: var(--sub);
-      font-weight: 800;
-      transition: transform 0.18s ease;
-      flex-shrink: 0;
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:14px;
+      font-weight:800;
+      background:#eef4f1;
+      color:var(--text);
+      border:1px solid var(--line);
     }
 
-    .accordion.open .arrow {
-      transform: rotate(180deg);
-    }
+    .badge.club{ background:#ecfdf3; color:#166534; border-color:#b7e2c3; }
+    .badge.school{ background:#eff6ff; color:#1d4ed8; border-color:#bfd5ff; }
+    .badge.general{ background:#fff7ed; color:#9a3412; border-color:#f6d3b2; }
 
-    .accordion-body {
-      display: none;
-      padding: 0 16px 16px;
+    .participant-group{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
     }
 
-    .accordion.open .accordion-body {
-      display: block;
+    .participant-group-title{
+      font-weight:800;
+      margin-bottom:6px;
     }
 
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:14px;
+      word-break:break-all;
     }
 
-    .info-item {
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      background: #fff;
-      padding: 12px 14px;
-      min-height: 84px;
+    .empty{
+      color:var(--sub);
+      font-size:16px;
+      padding:10px 0;
     }
 
-    .info-label {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--sub);
-      margin-bottom: 6px;
-      line-height: 1.45;
+    .logs{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
 
-    .info-value {
-      font-size: 17px;
-      font-weight: 600;
-      line-height: 1.75;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .log-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
     }
 
-    .participant-group {
-      margin-top: 12px;
-      display: grid;
-      gap: 10px;
+    .log-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
     }
 
-    .participant-box {
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: #fff;
+    .log-title{
+      font-weight:800;
+      font-size:16px;
     }
 
-    .participant-label {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--sub);
-      margin-bottom: 6px;
-      line-height: 1.45;
+    .log-time{
+      font-size:14px;
+      color:var(--sub);
     }
 
-    .participant-value {
-      font-size: 17px;
-      font-weight: 600;
-      line-height: 1.8;
-      word-break: break-word;
+    .log-body{
+      font-size:15px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      background:#f9fbfa;
+      border-radius:12px;
+      padding:12px;
+      border:1px solid #edf2ef;
+      margin-top:8px;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-      white-space: nowrap;
-      line-height: 1.2;
+    .hidden{
+      display:none !important;
     }
-
-    .pill-default { background: #e5e7eb; color: #374151; }
-    .pill-open { background: #dbeafe; color: #1d4ed8; }
-    .pill-checking { background: #fef3c7; color: #b45309; }
-    .pill-approved { background: #dcfce7; color: #15803d; }
-    .pill-returned { background: #fee2e2; color: #b91c1c; }
-    .pill-completed { background: #ccfbf1; color: #0f766e; }
 
-    .copy-result {
-      margin-top: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--teal);
-      line-height: 1.6;
+    .loading{
+      color:var(--sub);
+      font-weight:700;
     }
 
-    @media (max-width: 1100px) {
-      .summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    @media (max-width:720px){
+      .summary-grid{
+        grid-template-columns:1fr 1fr;
       }
-      .message-grid,
-      .two-col {
-        grid-template-columns: 1fr;
+      .mode-grid{
+        grid-template-columns:1fr;
       }
-    }
-
-    @media (max-width: 760px) {
-      body {
-        font-size: 17px;
-      }
-      .summary-grid,
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
-      .wrap {
-        padding: 16px 10px 32px;
-      }
-      h1 {
-        font-size: 30px;
-      }
-      .section-title {
-        font-size: 24px;
-      }
-      .summary-value {
-        font-size: 38px;
-      }
-      .btn,
-      .link-btn {
-        width: 100%;
-      }
-      .head-actions,
-      .action-row {
-        width: 100%;
+      .page-title{
+        font-size:28px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="page-head">
-      <div>
-        <h1>管理ハブ</h1>
-        <div class="head-sub">会員申請・無料体験・練習・イベント・個別連絡用プレビューをまとめて確認します</div>
-      </div>
-      <div class="head-actions">
-        <a href="./admin_member_approval.html" class="link-btn link-member">会員申請管理へ</a>
-        <a href="./admin_trial_approval.html" class="link-btn link-trial">無料体験承認管理へ</a>
-        <button class="btn btn-sub" onclick="loadHub()">一覧を更新</button>
-      </div>
-    </div>
+  <header class="page-header">
+    <div class="page-title">053academy 管理ハブ</div>
+    <div class="page-sub">GAS変更なし / HTMLのみ再接続版</div>
+  </header>
 
-    <div id="statusBox" class="status-box">読み込み中です。</div>
-
+  <section class="section">
+    <div class="section-title">概要</div>
     <div class="summary-grid">
-      <div class="summary-card member">
-        <div class="summary-label">会員申請</div>
-        <div id="memberCount" class="summary-value">-</div>
-        <div class="summary-note">受付 / 確認中 / 未反映承認</div>
+      <div class="summary-card">
+        <div class="summary-label">会員申込 対応件数</div>
+        <div class="summary-value" id="summaryMember">-</div>
+        <div class="summary-sub">受付・確認中・未反映承認</div>
       </div>
-      <div class="summary-card trial">
-        <div class="summary-label">無料体験申請</div>
-        <div id="trialCount" class="summary-value">-</div>
-        <div class="summary-note">体験完了は除外して表示</div>
+      <div class="summary-card">
+        <div class="summary-label">無料体験 対応件数</div>
+        <div class="summary-value" id="summaryTrial">-</div>
+        <div class="summary-sub">ハブ表示対象件数</div>
       </div>
-      <div class="summary-card practice">
-        <div class="summary-label">今後4週間の練習</div>
-        <div id="practiceCount" class="summary-value">-</div>
-        <div class="summary-note">参加者込み</div>
+      <div class="summary-card">
+        <div class="summary-label">今後4週間 練習件数</div>
+        <div class="summary-value" id="summaryPractice">-</div>
+        <div class="summary-sub">管理者向け一覧</div>
       </div>
-      <div class="summary-card event">
-        <div class="summary-label">公開中イベント</div>
-        <div id="eventCount" class="summary-value">-</div>
-        <div class="summary-note">参加者込み</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">個別連絡プレビュー</h2>
-          <div class="section-sub">GASを変更せず、今あるデータだけで「誰に送るか」を確認します。本文はコピーして利用してください。</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="message-grid">
-          <div class="box">
-            <h3 class="box-title">対象選択と本文作成</h3>
-            <div class="box-sub">宛先プレビューはローカル表示です。現在のGASでは管理ハブからの実送信endpointがないため、この画面は安全確認と本文作成用に絞っています。</div>
-
-            <div class="field">
-              <div class="field-label">送信対象</div>
-              <div class="mode-list">
-                <label class="mode-item">
-                  <input type="radio" name="targetMode" value="direct" checked onchange="switchTargetMode()">
-                  <div>
-                    <div class="mode-main">個人指定</div>
-                    <div class="mode-sub">LINE userID を直接入力して対象確認</div>
-                  </div>
-                </label>
-
-                <label class="mode-item">
-                  <input type="radio" name="targetMode" value="practice" onchange="switchTargetMode()">
-                  <div>
-                    <div class="mode-main">練習ごと</div>
-                    <div class="mode-sub">今後4週間の練習参加者をプレビュー</div>
-                  </div>
-                </label>
-
-                <label class="mode-item">
-                  <input type="radio" name="targetMode" value="event" onchange="switchTargetMode()">
-                  <div>
-                    <div class="mode-main">イベントごと</div>
-                    <div class="mode-sub">公開中イベントの申込者をプレビュー</div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <div id="panelDirect" class="target-panel active">
-              <div class="field">
-                <label for="directLineUserId">LINE userID</label>
-                <input id="directLineUserId" type="text" placeholder="例: Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-              </div>
-              <div class="field">
-                <label for="directChildName">子ども氏名（任意）</label>
-                <input id="directChildName" type="text" placeholder="例: 中西　絃一朗">
-              </div>
-              <div class="field">
-                <label for="directCategory">区分（任意）</label>
-                <input id="directCategory" type="text" placeholder="例: クラブ / スクール / 一般 / 管理確認">
-              </div>
-            </div>
-
-            <div id="panelPractice" class="target-panel">
-              <div class="field">
-                <label for="practiceSelect">対象練習</label>
-                <select id="practiceSelect"></select>
-                <div class="field-note">今後4週間の練習一覧から選択します。</div>
-              </div>
-            </div>
-
-            <div id="panelEvent" class="target-panel">
-              <div class="field">
-                <label for="eventSelect">対象イベント / クリニック</label>
-                <select id="eventSelect"></select>
-                <div class="field-note">公開中イベント一覧から選択します。</div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="messageBody">送信本文</label>
-              <textarea id="messageBody" placeholder="ここに本文を入力してください。"></textarea>
-              <div class="field-note">改行はそのまま保持されます。送信ではなくコピー用途です。</div>
-            </div>
-
-            <div class="check-panel">
-              <div class="check-title">確認チェック</div>
-
-              <label class="check-row">
-                <input type="checkbox" id="check1">
-                <div class="check-text">対象者が正しいことを確認しました。</div>
-              </label>
-
-              <label class="check-row">
-                <input type="checkbox" id="check2">
-                <div class="check-text">本文に誤記や誤案内がないことを確認しました。</div>
-              </label>
-
-              <label class="check-row">
-                <input type="checkbox" id="check3">
-                <div class="check-text">この画面は現状「実送信」ではなく「対象確認と本文作成用」であることを理解しています。</div>
-              </label>
-            </div>
-
-            <div class="action-row">
-              <button class="btn btn-sub" onclick="buildRecipientPreview()">宛先プレビュー</button>
-              <button class="btn btn-copy" onclick="copyMessageBody()">本文をコピー</button>
-            </div>
-
-            <div id="copyResult" class="copy-result"></div>
-
-            <div class="notice-panel">
-              <div class="notice-title">重要</div>
-              <div class="notice-body">
-                現在貼っていただいたGAS全文では、管理ハブから個別メッセージを実送信するための
-                Webアプリ用 mode / action が存在しません。<br>
-                そのためこの画面では、GAS変更なしで安全に使える範囲として、
-                <strong>対象者確認と本文作成</strong> に限定しています。
-              </div>
-            </div>
-          </div>
-
-          <div class="box">
-            <h3 class="box-title">宛先プレビュー</h3>
-            <div class="box-sub">選択した対象から、画面上で宛先一覧を組み立てて表示します。</div>
-            <div id="previewList" class="preview-list">
-              <div class="empty">まだプレビューを作成していません。</div>
-            </div>
-          </div>
-        </div>
+      <div class="summary-card">
+        <div class="summary-label">今後イベント件数</div>
+        <div class="summary-value" id="summaryEvent">-</div>
+        <div class="summary-sub">参加者付き一覧</div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="section">
-        <div class="section-head">
-          <div>
-            <h2 class="section-title">会員申請</h2>
-            <div class="section-sub">管理対象の会員申請一覧</div>
-          </div>
-        </div>
-        <div class="panel">
-          <div id="memberList" class="list"></div>
-        </div>
-      </div>
+    <div class="toolbar">
+      <button class="btn-primary" id="reloadAllBtn">全体再読込</button>
+      <button class="btn-secondary" id="healthBtn">接続確認</button>
+    </div>
+    <div id="healthResult" class="result-box hidden" style="margin-top:14px;"></div>
+  </section>
 
-      <div class="section">
-        <div class="section-head">
-          <div>
-            <h2 class="section-title">無料体験申請</h2>
-            <div class="section-sub">対応中の無料体験申請一覧</div>
-          </div>
-        </div>
-        <div class="panel">
-          <div id="trialList" class="list"></div>
-        </div>
+  <section class="section">
+    <div class="section-title">個別メッセージ送信</div>
+
+    <div class="field">
+      <div class="label">送信モード</div>
+      <div class="mode-grid">
+        <div class="mode-card active" data-mode="direct" id="modeDirect">個人指定</div>
+        <div class="mode-card" data-mode="practice" id="modePractice">練習ごと</div>
+        <div class="mode-card" data-mode="event" id="modeEvent">イベントごと</div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">今後4週間の練習</h2>
-          <div class="section-sub">初期表示は簡潔、タップで詳細展開</div>
-        </div>
+    <div class="field-grid" style="margin-top:14px;">
+      <div class="field" id="fieldLineUserId">
+        <div class="label">LINE userID</div>
+        <input type="text" id="lineUserId" placeholder="U4416..." />
       </div>
-      <div class="panel">
-        <div id="practiceList" class="list"></div>
+
+      <div class="field" id="fieldChildName">
+        <div class="label">子ども氏名</div>
+        <input type="text" id="childName" placeholder="中西　絃一朗" />
+      </div>
+
+      <div class="field" id="fieldCategory">
+        <div class="label">区分</div>
+        <input type="text" id="category" placeholder="管理確認 / クラブ / スクール / 一般" />
+      </div>
+
+      <div class="field hidden" id="fieldPracticeId">
+        <div class="label">練習ID</div>
+        <input type="text" id="practiceId" placeholder="32..." />
+        <div class="hint">管理者向け練習一覧のカード内IDを使用</div>
+      </div>
+
+      <div class="field hidden" id="fieldEventPageId">
+        <div class="label">イベントID</div>
+        <input type="text" id="eventPageId" placeholder="32..." />
+        <div class="hint">イベント一覧のカード内IDを使用</div>
+      </div>
+
+      <div class="field">
+        <div class="label">送信本文</div>
+        <textarea id="messageText" placeholder="【053academy 個別連絡】&#10;&#10;本文を入力してください。"></textarea>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">公開中イベント / クリニック</h2>
-          <div class="section-sub">初期表示は簡潔、タップで詳細展開</div>
-        </div>
-      </div>
-      <div class="panel">
-        <div id="eventList" class="list"></div>
-      </div>
+    <div class="toolbar">
+      <button class="btn-soft" id="previewBtn">宛先プレビュー</button>
+      <button class="btn-secondary" id="dryRunBtn">dryRun送信</button>
+      <button class="btn-danger" id="sendBtn">本番送信</button>
     </div>
-  </div>
+
+    <div class="danger-note">
+      本番送信ボタンは既存GASの <span class="mono">executeDirectMessageSend</span> を直接使用します。  
+      先に必ず「宛先プレビュー」→「dryRun送信」で確認してください。
+    </div>
+
+    <div class="checks">
+      <label class="check-card">
+        <input type="checkbox" id="check1" />
+        <div class="check-text">送信先が意図した対象であることを確認しました</div>
+      </label>
+      <label class="check-card">
+        <input type="checkbox" id="check2" />
+        <div class="check-text">本文の誤字・誤送信内容・送信モードを確認しました</div>
+      </label>
+      <label class="check-card">
+        <input type="checkbox" id="check3" />
+        <div class="check-text">これは実送信であり、公式LINE user へ届く可能性があることを理解しました</div>
+      </label>
+    </div>
+
+    <div id="previewResult" class="preview-box" style="margin-top:16px;">
+      ここに宛先プレビュー結果が表示されます
+    </div>
+
+    <div id="sendResult" class="result-box" style="margin-top:14px;">
+      ここに送信結果が表示されます
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">今後4週間の練習</div>
+    <div id="practiceList" class="accordion-list">
+      <div class="loading">読込中...</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">今後のイベント / クリニック</div>
+    <div id="eventList" class="accordion-list">
+      <div class="loading">読込中...</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">最近の個別メッセージ送信ログ</div>
+    <div class="toolbar" style="margin-bottom:12px;">
+      <button class="btn-secondary" id="reloadLogsBtn">ログ再読込</button>
+    </div>
+    <div id="directLogList" class="logs">
+      <div class="loading">読込中...</div>
+    </div>
+  </section>
 
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
 
-    let memberApplications = [];
-    let trialApplications = [];
-    let practiceItems = [];
-    let eventItems = [];
+    const state = {
+      mode: 'direct',
+      previewRecipients: []
+    };
 
-    function setStatus(message) {
-      document.getElementById('statusBox').textContent = message;
-    }
+    const $ = (id) => document.getElementById(id);
 
     function escapeHtml(value) {
-      return String(value == null ? '' : value)
+      return String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -883,490 +657,460 @@
         .replace(/'/g, '&#39;');
     }
 
-    function formatDateOnly(value) {
-      if (!value) return '';
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return value;
-      return new Intl.DateTimeFormat('ja-JP', {
-        timeZone: 'Asia/Tokyo',
-        month: 'numeric',
-        day: 'numeric',
-        weekday: 'short'
-      }).format(d);
+    function formatDateJa(dateStr) {
+      if (!dateStr) return '';
+      const raw = String(dateStr).slice(0, 10);
+      const d = new Date(raw + 'T00:00:00');
+      if (Number.isNaN(d.getTime())) return raw;
+      const week = ['日', '月', '火', '水', '木', '金', '土'];
+      return `${d.getMonth() + 1}/${d.getDate()}（${week[d.getDay()]}）`;
     }
 
-    function formatDateTime(value) {
-      if (!value) return '';
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return value;
-      return new Intl.DateTimeFormat('ja-JP', {
-        timeZone: 'Asia/Tokyo',
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-      }).format(d);
-    }
-
-    function getStatusPill(status) {
-      if (status === '受付') return '<span class="pill pill-open">受付</span>';
-      if (status === '確認中') return '<span class="pill pill-checking">確認中</span>';
-      if (status === '承認') return '<span class="pill pill-approved">承認</span>';
-      if (status === '差戻し') return '<span class="pill pill-returned">差戻し</span>';
-      if (status === '体験完了') return '<span class="pill pill-completed">体験完了</span>';
-      return '<span class="pill pill-default">' + escapeHtml(status || '未設定') + '</span>';
-    }
-
-    async function fetchJson(mode) {
-      const response = await fetch(`${GAS_WEB_APP_URL}?mode=${mode}&t=${Date.now()}`, {
-        method: 'GET',
-        cache: 'no-store'
+    async function apiGet(params = {}) {
+      const url = new URL(GAS_WEB_APP_URL);
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, v);
       });
-      return await response.json();
-    }
-
-    function normalizeMemberData(data) {
-      if (Array.isArray(data)) return data;
-      if (data && Array.isArray(data.items)) return data.items;
-      return [];
-    }
-
-    function normalizeTrialData(data) {
-      if (data && Array.isArray(data.items)) return data.items;
-      return [];
-    }
-
-    function normalizePracticeData(data) {
-      if (data && Array.isArray(data.items)) return data.items;
-      return [];
-    }
-
-    function normalizeEventData(data) {
-      if (Array.isArray(data)) return data;
-      if (data && Array.isArray(data.items)) return data.items;
-      return [];
-    }
-
-    function switchTargetMode() {
-      const mode = document.querySelector('input[name="targetMode"]:checked')?.value || 'direct';
-
-      document.getElementById('panelDirect').classList.toggle('active', mode === 'direct');
-      document.getElementById('panelPractice').classList.toggle('active', mode === 'practice');
-      document.getElementById('panelEvent').classList.toggle('active', mode === 'event');
-    }
-
-    function populateSelectors() {
-      const practiceSelect = document.getElementById('practiceSelect');
-      const eventSelect = document.getElementById('eventSelect');
-
-      if (practiceItems.length) {
-        practiceSelect.innerHTML =
-          '<option value="">練習を選択してください</option>' +
-          practiceItems.map(item => {
-            const label = `${formatDateOnly(item.date)}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.title || ''}`;
-            return `<option value="${escapeHtml(item.id || '')}">${escapeHtml(label)}</option>`;
-          }).join('');
-      } else {
-        practiceSelect.innerHTML = '<option value="">対象練習がありません</option>';
-      }
-
-      if (eventItems.length) {
-        eventSelect.innerHTML =
-          '<option value="">イベント / クリニックを選択してください</option>' +
-          eventItems.map(item => {
-            const label = `${formatDateOnly(item.eventDate)}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.eventName || ''}`;
-            return `<option value="${escapeHtml(item.pageId || '')}">${escapeHtml(label)}</option>`;
-          }).join('');
-      } else {
-        eventSelect.innerHTML = '<option value="">対象イベントがありません</option>';
+      const res = await fetch(url.toString(), { method: 'GET' });
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('JSON解析失敗: ' + text);
       }
     }
 
-    function renderMemberApplications(items) {
-      const list = document.getElementById('memberList');
+    async function apiPost(params = {}) {
+      const body = new URLSearchParams();
+      Object.entries(params).forEach(([k, v]) => {
+        body.append(k, v == null ? '' : String(v));
+      });
 
-      if (!items.length) {
-        list.innerHTML = '<div class="empty">確認対象の会員申請はありません。</div>';
+      const res = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: body.toString()
+      });
+
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('JSON解析失敗: ' + text);
+      }
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+
+      ['direct', 'practice', 'event'].forEach((m) => {
+        const el = document.querySelector(`.mode-card[data-mode="${m}"]`);
+        if (el) el.classList.toggle('active', m === mode);
+      });
+
+      $('fieldLineUserId').classList.toggle('hidden', mode !== 'direct');
+      $('fieldChildName').classList.toggle('hidden', mode !== 'direct');
+      $('fieldCategory').classList.toggle('hidden', mode !== 'direct');
+      $('fieldPracticeId').classList.toggle('hidden', mode !== 'practice');
+      $('fieldEventPageId').classList.toggle('hidden', mode !== 'event');
+    }
+
+    function getMessageFormValues() {
+      return {
+        mode: state.mode,
+        lineUserId: $('lineUserId').value.trim(),
+        childName: $('childName').value.trim(),
+        category: $('category').value.trim(),
+        practiceId: $('practiceId').value.trim(),
+        eventPageId: $('eventPageId').value.trim(),
+        message: $('messageText').value.trim()
+      };
+    }
+
+    function validateBeforePreview(values) {
+      if (!values.message) {
+        throw new Error('送信本文を入力してください');
+      }
+      if (values.mode === 'direct' && !values.lineUserId) {
+        throw new Error('個人指定では LINE userID が必要です');
+      }
+      if (values.mode === 'practice' && !values.practiceId) {
+        throw new Error('練習ごとでは 練習ID が必要です');
+      }
+      if (values.mode === 'event' && !values.eventPageId) {
+        throw new Error('イベントごとでは イベントID が必要です');
+      }
+    }
+
+    function renderPreview(data) {
+      const box = $('previewResult');
+
+      if (!data || !data.ok) {
+        box.className = 'preview-box error';
+        box.innerHTML = `
+          <div><strong>宛先プレビュー取得に失敗しました</strong></div>
+          <div style="margin-top:8px;">${escapeHtml(data?.message || '不明なエラー')}</div>
+        `;
+        state.previewRecipients = [];
         return;
       }
 
-      list.innerHTML = items.slice(0, 6).map(item => `
-        <div class="mini-card">
-          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <div>
-              <div class="mini-title">${escapeHtml(item.childName || '氏名なし')}</div>
-              <div class="mini-meta">${escapeHtml(item.grade || '')} / 保護者: ${escapeHtml(item.parentName || '')}</div>
+      const recipients = Array.isArray(data.recipients) ? data.recipients : [];
+      state.previewRecipients = recipients;
+
+      const html = recipients.length
+        ? recipients.map((rec) => `
+            <div class="recipient-card">
+              <div class="recipient-main">${escapeHtml(rec.childName || '名称未設定')}</div>
+              <div class="recipient-sub">区分: ${escapeHtml(rec.category || '')}</div>
+              <div class="recipient-sub">LINE userID: ${escapeHtml(rec.lineUserId || '')}</div>
+              <div class="recipient-sub">取得元: ${escapeHtml(rec.sourceType || '')} / ${escapeHtml(rec.sourceName || '')}</div>
             </div>
-            <div>${getStatusPill(item.applicationStatus || '')}</div>
+          `).join('')
+        : `<div class="empty">対象が0件でした</div>`;
+
+      box.className = 'preview-box success';
+      box.innerHTML = `
+        <div><strong>宛先プレビュー取得成功</strong></div>
+        <div style="margin-top:6px;">モード: ${escapeHtml(data.mode || '')} / 件数: ${recipients.length}件</div>
+        <div class="preview-list">${html}</div>
+      `;
+    }
+
+    function renderSendResult(data, isDryRun = false) {
+      const box = $('sendResult');
+
+      if (!data || !data.ok) {
+        box.className = 'result-box error';
+        box.innerHTML = `
+          <div><strong>${isDryRun ? 'dryRun' : '送信'}に失敗しました</strong></div>
+          <div style="margin-top:8px;">${escapeHtml(data?.message || '不明なエラー')}</div>
+        `;
+        return;
+      }
+
+      const results = Array.isArray(data.results) ? data.results : [];
+      const lines = results.map((item) => {
+        if (item.ok) {
+          return `・${item.childName || '名称未設定'} / ${item.lineUserId || ''} / ${data.dryRun ? 'dryRun' : 'sent'}`;
+        }
+        return `・ERROR / ${item.childName || ''} / ${item.lineUserId || ''} / ${item.error || ''}`;
+      }).join('\n');
+
+      box.className = 'result-box success';
+      box.innerHTML = `
+        <div><strong>${data.dryRun ? 'dryRun完了' : '送信完了'}</strong></div>
+        <div style="margin-top:8px;">
+          総件数: ${data.totalCount || 0}件 / 成功: ${data.successCount || 0}件 / エラー: ${data.errorCount || 0}件
+        </div>
+        <div class="log-body" style="margin-top:12px;">${escapeHtml(lines || '結果なし')}</div>
+      `;
+    }
+
+    async function handlePreview() {
+      try {
+        const values = getMessageFormValues();
+        validateBeforePreview(values);
+
+        $('previewResult').className = 'preview-box';
+        $('previewResult').textContent = '宛先プレビュー取得中...';
+
+        const data = await apiGet({
+          mode: 'directMessagePreview',
+          messageMode: values.mode,
+          lineUserId: values.lineUserId,
+          childName: values.childName,
+          category: values.category,
+          practiceId: values.practiceId,
+          eventPageId: values.eventPageId
+        });
+
+        renderPreview(data);
+      } catch (error) {
+        renderPreview({ ok: false, message: error.message });
+      }
+    }
+
+    function requireSendChecks() {
+      if (!$('check1').checked) throw new Error('確認チェック1が未チェックです');
+      if (!$('check2').checked) throw new Error('確認チェック2が未チェックです');
+      if (!$('check3').checked) throw new Error('確認チェック3が未チェックです');
+    }
+
+    async function handleDryRun() {
+      try {
+        const values = getMessageFormValues();
+        validateBeforePreview(values);
+
+        $('sendResult').className = 'result-box';
+        $('sendResult').textContent = 'dryRun送信中...';
+
+        const data = await apiPost({
+          action: 'executeDirectMessageSend',
+          sendMode: values.mode,
+          lineUserId: values.lineUserId,
+          childName: values.childName,
+          category: values.category,
+          practiceId: values.practiceId,
+          eventPageId: values.eventPageId,
+          message: values.message,
+          dryRun: 'true'
+        });
+
+        renderSendResult(data, true);
+        await loadDirectLogs();
+      } catch (error) {
+        renderSendResult({ ok: false, message: error.message }, true);
+      }
+    }
+
+    async function handleSend() {
+      try {
+        const values = getMessageFormValues();
+        validateBeforePreview(values);
+        requireSendChecks();
+
+        $('sendResult').className = 'result-box';
+        $('sendResult').textContent = '本番送信中...';
+
+        const data = await apiPost({
+          action: 'executeDirectMessageSend',
+          sendMode: values.mode,
+          lineUserId: values.lineUserId,
+          childName: values.childName,
+          category: values.category,
+          practiceId: values.practiceId,
+          eventPageId: values.eventPageId,
+          message: values.message,
+          dryRun: 'false'
+        });
+
+        renderSendResult(data, false);
+        await loadDirectLogs();
+      } catch (error) {
+        renderSendResult({ ok: false, message: error.message }, false);
+      }
+    }
+
+    function renderPracticeList(items) {
+      const el = $('practiceList');
+
+      if (!Array.isArray(items) || items.length === 0) {
+        el.innerHTML = '<div class="empty">表示できる練習がありません</div>';
+        return;
+      }
+
+      el.innerHTML = items.map((item, index) => {
+        const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
+        const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
+        const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
+
+        const timeText = `${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}`;
+
+        return `
+          <div class="accordion" id="practiceAcc${index}">
+            <button type="button" class="accordion-summary" onclick="toggleAccordion('practiceAcc${index}')">
+              <div class="accordion-summary-left">
+                <div class="accordion-title">${escapeHtml(formatDateJa(item.date))}｜${escapeHtml(item.title || '通常練習')}</div>
+                <div class="accordion-meta">${escapeHtml(timeText)}｜${escapeHtml(item.place || '')}</div>
+              </div>
+              <div class="accordion-count">${Number(item.participantCount || 0)}名</div>
+            </button>
+            <div class="accordion-body">
+              <div class="badge-row">
+                <span class="badge">練習ID: ${escapeHtml(item.id || '')}</span>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">クラブ</div>
+                <div>${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">スクール</div>
+                <div>${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">一般</div>
+                <div>${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">備考</div>
+                <div>${item.note ? escapeHtml(item.note) : 'なし'}</div>
+              </div>
+            </div>
           </div>
-          <div class="mini-meta" style="margin-top:10px;">
-            希望区分: ${escapeHtml(item.desiredCategory || '未設定')}<br>
-            承認区分: ${escapeHtml(item.approvedCategory || '未設定')}<br>
-            申込日時: ${escapeHtml(formatDateTime(item.appliedAt) || '')}<br>
-            所属: ${escapeHtml(item.affiliation || '未記載')}<br>
-            備考: ${escapeHtml(item.note || '未記載')}
+        `;
+      }).join('');
+    }
+
+    function renderEventList(items) {
+      const el = $('eventList');
+
+      if (!Array.isArray(items) || items.length === 0) {
+        el.innerHTML = '<div class="empty">表示できるイベントがありません</div>';
+        return;
+      }
+
+      el.innerHTML = items.map((item, index) => {
+        const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
+        const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
+        const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
+        const timeText = `${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}`;
+
+        return `
+          <div class="accordion" id="eventAcc${index}">
+            <button type="button" class="accordion-summary" onclick="toggleAccordion('eventAcc${index}')">
+              <div class="accordion-summary-left">
+                <div class="accordion-title">${escapeHtml(formatDateJa(item.eventDate))}｜${escapeHtml(item.eventName || 'イベント')}</div>
+                <div class="accordion-meta">${escapeHtml(timeText)}｜${escapeHtml(item.place || '')}</div>
+              </div>
+              <div class="accordion-count">${club.length + school.length + general.length}名</div>
+            </button>
+            <div class="accordion-body">
+              <div class="badge-row">
+                <span class="badge">イベントID: ${escapeHtml(item.pageId || '')}</span>
+                ${item.statusLabel ? `<span class="badge">${escapeHtml(item.statusLabel)}</span>` : ''}
+                ${item.targetLabel ? `<span class="badge">${escapeHtml(item.targetLabel)}</span>` : ''}
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">クラブ</div>
+                <div>${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">スクール</div>
+                <div>${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">一般</div>
+                <div>${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">料金</div>
+                <div>
+                  クラブ: ${escapeHtml(String(item.clubPrice ?? 0))}円 / 
+                  スクール: ${escapeHtml(String(item.schoolPrice ?? 0))}円 / 
+                  一般: ${escapeHtml(String(item.generalPrice ?? 0))}円
+                </div>
+              </div>
+
+              <div class="participant-group">
+                <div class="participant-group-title">備考</div>
+                <div>${item.note ? escapeHtml(item.note) : 'なし'}</div>
+              </div>
+            </div>
           </div>
+        `;
+      }).join('');
+    }
+
+    function renderDirectLogs(items) {
+      const el = $('directLogList');
+
+      if (!Array.isArray(items) || items.length === 0) {
+        el.innerHTML = '<div class="empty">送信ログはまだありません</div>';
+        return;
+      }
+
+      el.innerHTML = items.map((item) => `
+        <div class="log-card">
+          <div class="log-head">
+            <div class="log-title">${escapeHtml(item.childName || '名称未設定')} / ${escapeHtml(item.mode || '')}</div>
+            <div class="log-time">${escapeHtml(item.sentAt || '')}</div>
+          </div>
+          <div>区分: ${escapeHtml(item.category || '')}</div>
+          <div>対象: ${escapeHtml(item.targetName || '')}</div>
+          <div class="mono">${escapeHtml(item.lineUserId || '')}</div>
+          <div style="margin-top:6px;">結果: ${escapeHtml(item.resultText || '')} ${item.dryRun ? '(dryRun)' : ''}</div>
+          <div class="log-body">${escapeHtml(item.message || '')}</div>
         </div>
       `).join('');
     }
 
-    function renderTrialApplications(items) {
-      const list = document.getElementById('trialList');
+    async function loadSummary() {
+      const [member, trial, practice, event] = await Promise.all([
+        apiGet({ mode: 'pendingMemberApplications' }),
+        apiGet({ mode: 'pendingTrialApplications' }),
+        apiGet({ mode: 'adminPractices4weeks' }),
+        apiGet({ mode: 'adminEventsWithParticipants' })
+      ]);
 
-      if (!items.length) {
-        list.innerHTML = '<div class="empty">対応中の無料体験申請はありません。</div>';
-        return;
-      }
+      $('summaryMember').textContent = Array.isArray(member?.items) ? member.items.length : '-';
+      $('summaryTrial').textContent = Array.isArray(trial?.items) ? trial.items.length : '-';
+      $('summaryPractice').textContent = Array.isArray(practice?.items) ? practice.items.length : '-';
+      $('summaryEvent').textContent = Array.isArray(event?.items) ? event.items.length : '-';
 
-      list.innerHTML = items.slice(0, 6).map(item => `
-        <div class="mini-card">
-          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <div>
-              <div class="mini-title">${escapeHtml(item.childName || '氏名なし')}</div>
-              <div class="mini-meta">${escapeHtml(item.grade || '')} / 保護者: ${escapeHtml(item.parentName || '')}</div>
-            </div>
-            <div>${getStatusPill(item.applicationStatus || '')}</div>
-          </div>
-          <div class="mini-meta" style="margin-top:10px;">
-            所属チーム: ${escapeHtml(item.teamName || '未記載')}<br>
-            希望練習日: ${escapeHtml(formatDateOnly(item.requestedPracticeDate) || '未設定')}<br>
-            希望練習ラベル: ${escapeHtml(item.requestedPracticeLabel || '未設定')}<br>
-            申請日時: ${escapeHtml(formatDateTime(item.appliedAt) || '')}
-          </div>
-        </div>
-      `).join('');
+      renderPracticeList(practice?.items || []);
+      renderEventList(event?.items || []);
     }
 
-    function participantText(value) {
-      if (!Array.isArray(value) || !value.length) return 'なし';
-      return value.join('、');
+    async function loadDirectLogs() {
+      const data = await apiGet({ mode: 'directMessageLogs', limit: 20 });
+      renderDirectLogs(data?.items || []);
+    }
+
+    async function runHealthCheck() {
+      const box = $('healthResult');
+      box.className = 'result-box';
+      box.classList.remove('hidden');
+      box.textContent = '接続確認中...';
+
+      try {
+        const data = await apiGet({ mode: 'test' });
+        if (!data?.ok) throw new Error(data?.message || 'test mode failed');
+
+        box.className = 'result-box success';
+        box.innerHTML = `
+          <div><strong>接続OK</strong></div>
+          <div style="margin-top:8px;">mode=test が正常に返りました</div>
+          <div class="log-body">${escapeHtml(JSON.stringify(data, null, 2))}</div>
+        `;
+      } catch (error) {
+        box.className = 'result-box error';
+        box.innerHTML = `
+          <div><strong>接続NG</strong></div>
+          <div style="margin-top:8px;">${escapeHtml(error.message)}</div>
+        `;
+      }
+    }
+
+    async function reloadAll() {
+      try {
+        await loadSummary();
+        await loadDirectLogs();
+      } catch (error) {
+        alert('全体読込に失敗しました: ' + error.message);
+      }
     }
 
     function toggleAccordion(id) {
-      const el = document.getElementById(id);
+      const el = $(id);
       if (el) el.classList.toggle('open');
     }
 
-    function renderPractices(items) {
-      const list = document.getElementById('practiceList');
+    window.toggleAccordion = toggleAccordion;
 
-      if (!items.length) {
-        list.innerHTML = '<div class="empty">今後4週間の練習はありません。</div>';
-        return;
-      }
+    document.querySelectorAll('.mode-card').forEach((el) => {
+      el.addEventListener('click', () => setMode(el.dataset.mode));
+    });
 
-      list.innerHTML = items.map((item, index) => {
-        const id = `practice_${index}`;
-        const timeText = `${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}`;
-        return `
-          <div class="accordion ${index === 0 ? 'open' : ''}" id="${id}">
-            <button class="accordion-toggle practice" type="button" onclick="toggleAccordion('${id}')">
-              <div>
-                <div class="accordion-title">${escapeHtml(formatDateOnly(item.date) || '')}｜${escapeHtml(timeText)}｜${escapeHtml(item.title || '')}</div>
-                <div class="accordion-meta">参加予定 ${Number(item.participantCount || 0)}名</div>
-              </div>
-              <div class="arrow">⌄</div>
-            </button>
-            <div class="accordion-body">
-              <div class="info-grid">
-                <div class="info-item">
-                  <div class="info-label">会場</div>
-                  <div class="info-value">${escapeHtml(item.place || '未設定')}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">備考</div>
-                  <div class="info-value">${escapeHtml(item.note || '未記載')}</div>
-                </div>
-              </div>
-              <div class="participant-group">
-                <div class="participant-box">
-                  <div class="participant-label">クラブ</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['クラブ']))}</div>
-                </div>
-                <div class="participant-box">
-                  <div class="participant-label">スクール</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['スクール']))}</div>
-                </div>
-                <div class="participant-box">
-                  <div class="participant-label">一般</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['一般']))}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+    $('previewBtn').addEventListener('click', handlePreview);
+    $('dryRunBtn').addEventListener('click', handleDryRun);
+    $('sendBtn').addEventListener('click', handleSend);
+    $('reloadAllBtn').addEventListener('click', reloadAll);
+    $('reloadLogsBtn').addEventListener('click', loadDirectLogs);
+    $('healthBtn').addEventListener('click', runHealthCheck);
 
-    function renderEvents(items) {
-      const list = document.getElementById('eventList');
-
-      if (!items.length) {
-        list.innerHTML = '<div class="empty">公開中イベントはありません。</div>';
-        return;
-      }
-
-      list.innerHTML = items.map((item, index) => {
-        const id = `event_${index}`;
-        const timeText = `${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}`;
-        return `
-          <div class="accordion" id="${id}">
-            <button class="accordion-toggle event" type="button" onclick="toggleAccordion('${id}')">
-              <div>
-                <div class="accordion-title">${escapeHtml(formatDateOnly(item.eventDate) || '')}｜${escapeHtml(timeText)}｜${escapeHtml(item.eventName || '')}</div>
-                <div class="accordion-meta">${escapeHtml(item.statusLabel || '受付状況未設定')}</div>
-              </div>
-              <div class="arrow">⌄</div>
-            </button>
-            <div class="accordion-body">
-              <div class="info-grid">
-                <div class="info-item">
-                  <div class="info-label">会場</div>
-                  <div class="info-value">${escapeHtml(item.place || '未設定')}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">対象</div>
-                  <div class="info-value">${escapeHtml(item.targetLabel || '未設定')}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">申込 / 残数</div>
-                  <div class="info-value">${Number(item.currentCount || 0)}名 / ${Number(item.remainingCount || 0)}枠</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">料金</div>
-                  <div class="info-value">クラブ ${Number(item.clubPrice || 0).toLocaleString()}円 / スクール ${Number(item.schoolPrice || 0).toLocaleString()}円 / 一般 ${Number(item.generalPrice || 0).toLocaleString()}円</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">備考</div>
-                  <div class="info-value">${escapeHtml(item.note || '未記載')}</div>
-                </div>
-              </div>
-              <div class="participant-group">
-                <div class="participant-box">
-                  <div class="participant-label">クラブ</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['クラブ']))}</div>
-                </div>
-                <div class="participant-box">
-                  <div class="participant-label">スクール</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['スクール']))}</div>
-                </div>
-                <div class="participant-box">
-                  <div class="participant-label">一般</div>
-                  <div class="participant-value">${escapeHtml(participantText(item.participants?.['一般']))}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function getTargetMode() {
-      return document.querySelector('input[name="targetMode"]:checked')?.value || 'direct';
-    }
-
-    function buildDirectRecipientsLocal() {
-      const lineUserId = String(document.getElementById('directLineUserId').value || '').trim();
-      const childName = String(document.getElementById('directChildName').value || '').trim();
-      const category = String(document.getElementById('directCategory').value || '').trim();
-
-      if (!lineUserId) {
-        throw new Error('LINE userID を入力してください');
-      }
-
-      return [{
-        lineUserId,
-        childName: childName || '未設定',
-        category: category || '未設定',
-        sourceType: 'direct',
-        sourceName: '個人指定'
-      }];
-    }
-
-    function buildPracticeRecipientsLocal() {
-      const practiceId = String(document.getElementById('practiceSelect').value || '').trim();
-      if (!practiceId) {
-        throw new Error('対象練習を選択してください');
-      }
-
-      const item = practiceItems.find(x => String(x.id || '') === practiceId);
-      if (!item) {
-        throw new Error('対象練習が見つかりません');
-      }
-
-      const recipients = [];
-      const participants = item.participants || {};
-
-      ['クラブ', 'スクール', '一般'].forEach(category => {
-        const list = Array.isArray(participants[category]) ? participants[category] : [];
-        list.forEach(name => {
-          recipients.push({
-            lineUserId: '',
-            childName: name,
-            category,
-            sourceType: 'practice',
-            sourceName: `${item.title || '通常練習'}｜${formatDateOnly(item.date) || ''}`
-          });
-        });
-      });
-
-      return recipients;
-    }
-
-    function buildEventRecipientsLocal() {
-      const eventPageId = String(document.getElementById('eventSelect').value || '').trim();
-      if (!eventPageId) {
-        throw new Error('対象イベントを選択してください');
-      }
-
-      const item = eventItems.find(x => String(x.pageId || '') === eventPageId);
-      if (!item) {
-        throw new Error('対象イベントが見つかりません');
-      }
-
-      const recipients = [];
-      const participants = item.participants || {};
-
-      ['クラブ', 'スクール', '一般'].forEach(category => {
-        const list = Array.isArray(participants[category]) ? participants[category] : [];
-        list.forEach(name => {
-          recipients.push({
-            lineUserId: '',
-            childName: name,
-            category,
-            sourceType: 'event',
-            sourceName: item.eventName || 'イベント / クリニック'
-          });
-        });
-      });
-
-      return recipients;
-    }
-
-    function buildRecipientPreview() {
-      try {
-        setStatus('宛先プレビューを作成中です...');
-
-        const mode = getTargetMode();
-        let recipients = [];
-
-        if (mode === 'direct') recipients = buildDirectRecipientsLocal();
-        if (mode === 'practice') recipients = buildPracticeRecipientsLocal();
-        if (mode === 'event') recipients = buildEventRecipientsLocal();
-
-        renderRecipientPreview(recipients);
-        setStatus(`宛先プレビューを表示しました。対象 ${recipients.length}件`);
-      } catch (error) {
-        setStatus('宛先プレビュー作成に失敗しました');
-        alert(error.message);
-      }
-    }
-
-    function renderRecipientPreview(recipients) {
-      const list = document.getElementById('previewList');
-
-      if (!recipients.length) {
-        list.innerHTML = '<div class="empty">対象者が0件です。</div>';
-        return;
-      }
-
-      list.innerHTML = recipients.map((rec, index) => `
-        <div class="recipient-card">
-          <div class="recipient-title">対象 ${index + 1}｜${escapeHtml(rec.childName || '未設定')}</div>
-          <div class="recipient-meta">
-区分: ${escapeHtml(rec.category || '未設定')}
-取得元: ${escapeHtml(rec.sourceName || rec.sourceType || '')}
-LINE userID: ${escapeHtml(rec.lineUserId || '（GAS未変更のためここでは未取得表示可）')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function copyMessageBody() {
-      try {
-        const c1 = document.getElementById('check1').checked;
-        const c2 = document.getElementById('check2').checked;
-        const c3 = document.getElementById('check3').checked;
-
-        if (!(c1 && c2 && c3)) {
-          throw new Error('確認チェック3項目をすべてONにしてください');
-        }
-
-        const message = String(document.getElementById('messageBody').value || '').trim();
-        if (!message) {
-          throw new Error('本文を入力してください');
-        }
-
-        await navigator.clipboard.writeText(message);
-        document.getElementById('copyResult').textContent = '本文をコピーしました。';
-        setStatus('本文をコピーしました。');
-      } catch (error) {
-        document.getElementById('copyResult').textContent = '';
-        alert(error.message);
-      }
-    }
-
-    async function loadHub() {
-      setStatus('管理ハブを読み込み中です...');
-
-      const [memberRes, trialRes, practiceRes, eventRes] = await Promise.allSettled([
-        fetchJson('pendingMemberApplications'),
-        fetchJson('pendingTrialApplications'),
-        fetchJson('adminPractices4weeks'),
-        fetchJson('adminEventsWithParticipants')
-      ]);
-
-      const errors = [];
-
-      if (memberRes.status === 'fulfilled') {
-        memberApplications = normalizeMemberData(memberRes.value);
-      } else {
-        memberApplications = [];
-        errors.push('会員申請');
-      }
-
-      if (trialRes.status === 'fulfilled') {
-        trialApplications = normalizeTrialData(trialRes.value).filter(item => String(item.applicationStatus || '') !== '体験完了');
-      } else {
-        trialApplications = [];
-        errors.push('無料体験申請');
-      }
-
-      if (practiceRes.status === 'fulfilled') {
-        practiceItems = normalizePracticeData(practiceRes.value);
-      } else {
-        practiceItems = [];
-        errors.push('今後4週間の練習');
-      }
-
-      if (eventRes.status === 'fulfilled') {
-        eventItems = normalizeEventData(eventRes.value);
-      } else {
-        eventItems = [];
-        errors.push('公開中イベント');
-      }
-
-      document.getElementById('memberCount').textContent = memberApplications.length;
-      document.getElementById('trialCount').textContent = trialApplications.length;
-      document.getElementById('practiceCount').textContent = practiceItems.length;
-      document.getElementById('eventCount').textContent = eventItems.length;
-
-      renderMemberApplications(memberApplications);
-      renderTrialApplications(trialApplications);
-      renderPractices(practiceItems);
-      renderEvents(eventItems);
-      populateSelectors();
-      switchTargetMode();
-
-      if (errors.length) {
-        setStatus('一部の読み込みに失敗しました: ' + errors.join(' / '));
-      } else {
-        setStatus('管理ハブを更新しました。');
-      }
-    }
-
-    window.addEventListener('load', loadHub);
+    setMode('direct');
+    reloadAll();
   </script>
 </body>
 </html>

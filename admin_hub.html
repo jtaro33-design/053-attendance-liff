@@ -53,7 +53,10 @@
 
     .btn,
     button,
-    a {
+    a,
+    input,
+    select,
+    textarea {
       font: inherit;
     }
 
@@ -75,6 +78,34 @@
 
     .secondary:hover {
       background: #cbd5e1;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .primary:hover {
+      background: #1d4ed8;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: #ffffff;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+
+    .muted-btn {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #dbe3ee;
+    }
+
+    .muted-btn:hover {
+      background: #e2e8f0;
     }
 
     .hub-link {
@@ -231,6 +262,11 @@
 
     .panel.event {
       background: #fffdfa;
+    }
+
+    .panel.message {
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border: 1px solid #dbe3ee;
     }
 
     .list {
@@ -443,12 +479,160 @@
       display: block;
     }
 
+    .message-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+
+    .message-form,
+    .message-preview {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .field-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .segment-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .segment-btn.active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    .field-textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .field-help {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .warning-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .warning-box {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+      border: 1px solid #fecaca;
+      background: #fff1f2;
+      color: #991b1b;
+    }
+
+    .preview-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .preview-row {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+
+    .preview-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .preview-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .preview-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .message-log {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
     @media (max-width: 960px) {
       .summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .message-layout {
         grid-template-columns: 1fr;
       }
     }
@@ -504,15 +688,110 @@
         <div class="summary-value" id="trialCount">-</div>
         <div class="summary-note">現場対応が必要な申請のみ表示</div>
       </div>
-      <div class="summary-card practice">
+      <div class="summary-card.practice">
         <div class="summary-label">今後4週間の練習</div>
         <div class="summary-value" id="practiceCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
       </div>
-      <div class="summary-card.event">
+      <div class="summary-card event">
         <div class="summary-label">公開中イベント</div>
         <div class="summary-value" id="eventCount">-</div>
         <div class="summary-note">参加者込みで確認</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">個別メッセージ送信</div>
+          <div class="section-sub">ブロック1: UIのみ追加 / 送信対象は 個人指定・練習ごと・イベントごと</div>
+        </div>
+      </div>
+      <div class="panel message">
+        <div class="message-layout">
+          <div class="message-form">
+            <div class="field-box">
+              <div class="field-title">送信対象の選択</div>
+              <div class="segmented">
+                <button type="button" class="segment-btn active" data-target-type="individual" onclick="selectMessageTargetType('individual')">個人指定</button>
+                <button type="button" class="segment-btn" data-target-type="practice" onclick="selectMessageTargetType('practice')">練習ごと</button>
+                <button type="button" class="segment-btn" data-target-type="event" onclick="selectMessageTargetType('event')">イベントごと</button>
+              </div>
+            </div>
+
+            <div id="messageTargetIndividual" class="field-box">
+              <div class="field-title">個人指定</div>
+              <input id="messageTargetName" class="field-input" type="text" placeholder="表示名（例: 山田太郎）">
+              <div style="height:8px;"></div>
+              <input id="messageTargetUserId" class="field-input" type="text" placeholder="LINE userID を入力">
+              <div class="field-help">ブロック1では手入力です。次ブロックで候補一覧や検索と接続します。</div>
+            </div>
+
+            <div id="messageTargetPractice" class="field-box hidden">
+              <div class="field-title">練習ごと送信</div>
+              <select id="messagePracticeSelect" class="field-select" onchange="updateMessagePreview()">
+                <option value="">練習を選択してください</option>
+              </select>
+              <div class="field-help">今後4週間の通常練習一覧から選択します。次ブロックで対象者抽出と接続します。</div>
+            </div>
+
+            <div id="messageTargetEvent" class="field-box hidden">
+              <div class="field-title">イベントごと送信</div>
+              <select id="messageEventSelect" class="field-select" onchange="updateMessagePreview()">
+                <option value="">イベントを選択してください</option>
+              </select>
+              <div class="field-help">公開中イベント一覧から選択します。次ブロックで対象者抽出と接続します。</div>
+            </div>
+
+            <div class="field-box">
+              <div class="field-title">メッセージ本文</div>
+              <textarea id="messageBody" class="field-textarea" placeholder="ここに送信本文を入力してください" oninput="updateMessagePreview()"></textarea>
+              <div class="field-help">ブロック1では本文入力と確認枠のみ用意しています。</div>
+            </div>
+
+            <div class="field-box">
+              <div class="field-title">操作</div>
+              <div class="message-actions">
+                <button type="button" class="muted-btn" onclick="previewDryRun()">dryRun確認</button>
+                <button type="button" class="primary" onclick="previewSend()">実送信</button>
+                <button type="button" class="secondary" onclick="previewLog()">送信ログ確認</button>
+                <button type="button" class="secondary" onclick="resetMessagePanel()">入力をクリア</button>
+              </div>
+              <div class="message-log" id="messageActionStatus">まだ送信処理には接続していません。今回はUI確認のみです。</div>
+            </div>
+          </div>
+
+          <div class="message-preview">
+            <div class="field-box">
+              <div class="field-title">誤送信防止の確認</div>
+              <div class="warning-stack">
+                <div class="warning-box">警告1: この機能は今後、公式LINE user へ実送信される可能性があります。</div>
+                <div class="warning-box">警告2: 対象抽出ミスがあると、意図しない相手への誤送信につながります。</div>
+                <div class="warning-box">警告3: 本番接続前・実送信前は必ず3回警告運用で進めます。</div>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <div class="preview-row">
+                <div class="preview-label">送信対象種別</div>
+                <div class="preview-value" id="previewTargetType">個人指定</div>
+              </div>
+              <div class="preview-row">
+                <div class="preview-label">対象概要</div>
+                <div class="preview-value" id="previewTargetSummary">未選択</div>
+              </div>
+              <div class="preview-row">
+                <div class="preview-label">本文プレビュー</div>
+                <div class="preview-value" id="previewMessageBody">本文未入力</div>
+              </div>
+            </div>
+
+            <div class="field-box">
+              <div class="field-title">次ブロックで接続するもの</div>
+              <div class="value">・個人候補一覧取得<br>・練習ごとの対象抽出<br>・イベントごとの対象抽出<br>・dryRun実行<br>・実送信実行<br>・送信ログ取得</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -575,6 +854,14 @@
 
   <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyg0g1BMLA8HIVB13iyN4IbEcG7rOKG8m5NzUNl7a9U_ovSGno5c7pd1Vd7Woqo8brf/exec';
+
+    const hubState = {
+      memberItems: [],
+      trialItems: [],
+      practiceItems: [],
+      eventItems: [],
+      messageTargetType: 'individual'
+    };
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
@@ -701,6 +988,11 @@
         errors.push('公開中イベント');
       }
 
+      hubState.memberItems = memberItems;
+      hubState.trialItems = trialItems;
+      hubState.practiceItems = practiceItems;
+      hubState.eventItems = eventItems;
+
       document.getElementById('memberCount').textContent = memberItems.length;
       document.getElementById('trialCount').textContent = trialItems.length;
       document.getElementById('practiceCount').textContent = practiceItems.length;
@@ -710,6 +1002,8 @@
       renderTrialApplications(trialItems);
       renderPractices(practiceItems);
       renderEvents(eventItems);
+      renderMessageTargetOptions();
+      updateMessagePreview();
 
       if (errors.length) {
         setStatus('一部読込に失敗しました: ' + errors.join(' / '));
@@ -945,6 +1239,121 @@
         `;
       }).join('');
     }
+
+    function selectMessageTargetType(type) {
+      hubState.messageTargetType = type;
+
+      document.querySelectorAll('.segment-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.targetType === type);
+      });
+
+      document.getElementById('messageTargetIndividual').classList.toggle('hidden', type !== 'individual');
+      document.getElementById('messageTargetPractice').classList.toggle('hidden', type !== 'practice');
+      document.getElementById('messageTargetEvent').classList.toggle('hidden', type !== 'event');
+
+      updateMessagePreview();
+    }
+
+    function renderMessageTargetOptions() {
+      const practiceSelect = document.getElementById('messagePracticeSelect');
+      const eventSelect = document.getElementById('messageEventSelect');
+
+      const practiceOptions = ['<option value="">練習を選択してください</option>'].concat(
+        hubState.practiceItems.map(function(item, index) {
+          const label = `${formatDateOnly(item.date) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.title || ''}`;
+          return `<option value="${index}">${escapeHtml(label)}</option>`;
+        })
+      );
+
+      const eventOptions = ['<option value="">イベントを選択してください</option>'].concat(
+        hubState.eventItems.map(function(item, index) {
+          const label = `${formatDateOnly(item.eventDate) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.eventName || ''}`;
+          return `<option value="${index}">${escapeHtml(label)}</option>`;
+        })
+      );
+
+      practiceSelect.innerHTML = practiceOptions.join('');
+      eventSelect.innerHTML = eventOptions.join('');
+    }
+
+    function getMessageTargetTypeLabel() {
+      if (hubState.messageTargetType === 'practice') return '練習ごと';
+      if (hubState.messageTargetType === 'event') return 'イベントごと';
+      return '個人指定';
+    }
+
+    function getMessageTargetSummary() {
+      if (hubState.messageTargetType === 'individual') {
+        const name = document.getElementById('messageTargetName').value.trim();
+        const userId = document.getElementById('messageTargetUserId').value.trim();
+        if (!name && !userId) return '未選択';
+        return `表示名: ${name || '未入力'}\nLINE userID: ${userId || '未入力'}`;
+      }
+
+      if (hubState.messageTargetType === 'practice') {
+        const value = document.getElementById('messagePracticeSelect').value;
+        if (value === '') return '未選択';
+        const item = hubState.practiceItems[Number(value)];
+        if (!item) return '未選択';
+        return `${formatDateOnly(item.date) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.title || ''}`;
+      }
+
+      if (hubState.messageTargetType === 'event') {
+        const value = document.getElementById('messageEventSelect').value;
+        if (value === '') return '未選択';
+        const item = hubState.eventItems[Number(value)];
+        if (!item) return '未選択';
+        return `${formatDateOnly(item.eventDate) || ''}｜${item.startTime || ''}${item.startTime && item.endTime ? '〜' : ''}${item.endTime || ''}｜${item.eventName || ''}`;
+      }
+
+      return '未選択';
+    }
+
+    function updateMessagePreview() {
+      document.getElementById('previewTargetType').textContent = getMessageTargetTypeLabel();
+      document.getElementById('previewTargetSummary').textContent = getMessageTargetSummary();
+
+      const body = document.getElementById('messageBody').value.trim();
+      document.getElementById('previewMessageBody').textContent = body || '本文未入力';
+    }
+
+    function previewDryRun() {
+      updateMessagePreview();
+      document.getElementById('messageActionStatus').textContent = 'dryRun確認は次ブロックでGAS接続します。今回はUIだけ追加済みです。';
+    }
+
+    function previewSend() {
+      updateMessagePreview();
+      document.getElementById('messageActionStatus').textContent = '実送信はまだ未接続です。ブロック1では誤送信防止のため送信しません。';
+    }
+
+    function previewLog() {
+      document.getElementById('messageActionStatus').textContent = '送信ログ確認は次ブロックでGAS接続します。今回はログ枠のみ追加しています。';
+    }
+
+    function resetMessagePanel() {
+      document.getElementById('messageTargetName').value = '';
+      document.getElementById('messageTargetUserId').value = '';
+      document.getElementById('messagePracticeSelect').value = '';
+      document.getElementById('messageEventSelect').value = '';
+      document.getElementById('messageBody').value = '';
+      selectMessageTargetType('individual');
+      document.getElementById('messageActionStatus').textContent = '入力をクリアしました。';
+      updateMessagePreview();
+    }
+
+    document.addEventListener('input', function(event) {
+      if (
+        event.target &&
+        (
+          event.target.id === 'messageTargetName' ||
+          event.target.id === 'messageTargetUserId' ||
+          event.target.id === 'messageBody'
+        )
+      ) {
+        updateMessagePreview();
+      }
+    });
 
     window.addEventListener('load', loadHub);
   </script>

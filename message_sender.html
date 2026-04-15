@@ -14,10 +14,11 @@
       --green:#214d3a;
       --green-2:#2f6b51;
       --green-3:#e7f1eb;
-      --green-4:#f1f7f3;
+      --green-4:#f0f7f3;
       --yellow:#fff6d8;
       --red:#c0392b;
       --blue:#edf4fb;
+      --blue-line:#c7daee;
       --shadow:0 10px 24px rgba(0,0,0,.08);
       --radius:18px;
     }
@@ -83,7 +84,7 @@
     }
 
     .section-title{
-      margin:0 0 14px;
+      margin:0 0 12px;
       font-size:24px;
       line-height:1.35;
       color:var(--green);
@@ -92,25 +93,35 @@
     .sub{
       color:var(--muted);
       font-size:16px;
-      margin:-6px 0 14px;
+      margin:-2px 0 14px;
     }
 
     .mode-switch{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
+      grid-template-columns:1.3fr 1fr 1fr;
       gap:10px;
     }
 
     .mode-btn{
       border:none;
-      border-radius:16px;
-      padding:16px 12px;
+      border-radius:18px;
+      padding:16px 14px;
       font-size:18px;
-      font-weight:800;
+      font-weight:900;
       background:#edf2ed;
       color:var(--green);
       cursor:pointer;
       transition:.18s;
+      text-align:left;
+    }
+
+    .mode-btn small{
+      display:block;
+      margin-top:4px;
+      font-size:14px;
+      font-weight:700;
+      color:inherit;
+      opacity:.8;
     }
 
     .mode-btn.active{
@@ -146,7 +157,7 @@
 
     label{
       display:block;
-      font-weight:800;
+      font-weight:900;
       margin:0 0 8px;
       font-size:17px;
     }
@@ -180,7 +191,7 @@
       border-radius:16px;
       padding:16px 20px;
       font-size:18px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
       transition:.18s;
     }
@@ -203,6 +214,16 @@
     .action:disabled{
       opacity:.55;
       cursor:not-allowed;
+    }
+
+    .helper-band{
+      background:var(--green-4);
+      border:1px solid #dbe9df;
+      border-radius:16px;
+      padding:14px 16px;
+      margin-bottom:16px;
+      font-weight:800;
+      color:var(--green);
     }
 
     .picker-list{
@@ -252,24 +273,31 @@
       margin-top:6px;
     }
 
-    .selected-box{
+    .selection-banner{
       display:none;
-      margin-top:14px;
-      background:var(--green-4);
-      border:1px solid #d5e5d7;
+      background:var(--blue);
+      border:1px solid var(--blue-line);
       border-radius:16px;
       padding:14px 16px;
+      margin:0 0 14px;
     }
 
-    .selected-box.show{
+    .selection-banner.show{
       display:block;
     }
 
-    .selected-title{
-      font-size:18px;
+    .selection-banner .label{
+      font-size:14px;
       font-weight:900;
-      color:var(--green);
+      color:#244d73;
       margin-bottom:4px;
+    }
+
+    .selection-banner .value{
+      font-size:20px;
+      font-weight:900;
+      color:#163955;
+      line-height:1.4;
     }
 
     .preview-box{
@@ -280,9 +308,15 @@
     }
 
     .preview-summary{
-      font-size:20px;
+      font-size:22px;
       font-weight:900;
       color:var(--green);
+      margin-bottom:8px;
+    }
+
+    .preview-meta{
+      font-size:16px;
+      color:var(--muted);
       margin-bottom:10px;
     }
 
@@ -320,16 +354,16 @@
     }
 
     .check-item input[type="checkbox"]{
-      width:28px;
-      height:28px;
+      width:30px;
+      height:30px;
       margin-top:2px;
-      flex:0 0 28px;
+      flex:0 0 30px;
       accent-color:var(--green);
     }
 
     .check-item span{
       font-size:18px;
-      font-weight:800;
+      font-weight:900;
       line-height:1.5;
     }
 
@@ -337,9 +371,8 @@
       margin-top:12px;
       border-radius:16px;
       padding:14px 16px;
-      font-weight:800;
+      font-weight:900;
       display:none;
-      white-space:pre-wrap;
     }
 
     .status.show{display:block}
@@ -354,7 +387,7 @@
       color:#8a2f26;
     }
     .status.info{
-      background:var(--blue);
+      background:#edf4fb;
       border:1px solid #c7daee;
       color:#244d73;
     }
@@ -387,20 +420,16 @@
 
     .empty{
       color:var(--muted);
-      font-weight:700;
+      font-weight:800;
       padding:8px 2px;
     }
 
     .sticky-actions{
       position:sticky;
       bottom:12px;
-      background:rgba(244,247,244,.92);
+      background:rgba(244,247,244,.88);
       backdrop-filter:blur(8px);
       padding-top:8px;
-    }
-
-    .hidden{
-      display:none !important;
     }
   </style>
 </head>
@@ -408,26 +437,36 @@
   <div class="container">
     <section class="hero">
       <h1>053academy メッセージ送信</h1>
-      <p>管理ハブとは分離した、送信専用画面です。<br>「選ぶ → 宛先確認 → 3チェック → 送信」に絞っています。</p>
+      <p>送信専用画面です。<br>主役は個別送信、必要時のみ練習単位・イベント単位で送ります。</p>
     </section>
 
     <div class="notice">
-      この画面は送信専用です。<br>
-      管理ハブの役割とは分け、ここでは「送る前の確認」と「誤送信防止」を最優先にしています。
+      この画面は「送る前の確認」と「誤送信防止」を最優先にしています。<br>
+      承認や管理操作は別画面で行い、ここでは送信に集中します。
     </div>
 
     <section class="card">
       <h2 class="section-title">送信モード</h2>
-      <p class="sub">個人指定 / 練習一覧 / イベント一覧 から選択してください。</p>
+      <p class="sub">普段は個別送信を使い、必要時だけ練習・イベント単位を使う想定です。</p>
       <div class="mode-switch">
-        <button class="mode-btn active" type="button" data-mode="direct">個人指定</button>
-        <button class="mode-btn" type="button" data-mode="practice">練習から選ぶ</button>
-        <button class="mode-btn" type="button" data-mode="event">イベントから選ぶ</button>
+        <button class="mode-btn active" type="button" data-mode="direct">
+          個人指定
+          <small>主運用はこちら</small>
+        </button>
+        <button class="mode-btn" type="button" data-mode="practice">
+          練習から選ぶ
+          <small>緊急連絡や対象連絡用</small>
+        </button>
+        <button class="mode-btn" type="button" data-mode="event">
+          イベントから選ぶ
+          <small>単発参加者への連絡用</small>
+        </button>
       </div>
     </section>
 
     <section id="panel-direct" class="card panel active">
       <h2 class="section-title">個人指定送信</h2>
+      <div class="helper-band">個別の質問回答、個別案内、単独確認などに使います。</div>
       <div class="grid-2">
         <div>
           <label for="directLineUserId">LINE userID</label>
@@ -449,7 +488,11 @@
 
     <section id="panel-practice" class="card panel">
       <h2 class="section-title">練習一覧から選ぶ</h2>
-      <p class="sub">ID手入力は使いません。今後4週間の練習一覧から選択します。</p>
+      <div class="helper-band">会場トラブル・急な変更・対象練習参加者への連絡時に使います。</div>
+      <div id="practiceSelectionBanner" class="selection-banner">
+        <div class="label">選択中の練習</div>
+        <div id="practiceSelectionValue" class="value">未選択</div>
+      </div>
       <div class="btn-row">
         <button class="action secondary" type="button" id="reloadPracticeBtn">練習一覧を読み込む</button>
       </div>
@@ -457,26 +500,22 @@
         <label for="practiceSearch">練習検索</label>
         <input id="practiceSearch" type="text" placeholder="日付・タイトル・会場で検索" />
       </div>
-      <div id="selectedPracticeBox" class="selected-box">
-        <div class="selected-title">選択中の練習</div>
-        <div id="selectedPracticeText" class="muted"></div>
-      </div>
       <div id="practiceList" class="picker-list"></div>
     </section>
 
     <section id="panel-event" class="card panel">
       <h2 class="section-title">イベント一覧から選ぶ</h2>
-      <p class="sub">ID手入力は使いません。イベント一覧から選択します。</p>
+      <div class="helper-band">単発参加者への連絡、イベント参加者への案内、確認連絡に使います。</div>
+      <div id="eventSelectionBanner" class="selection-banner">
+        <div class="label">選択中のイベント</div>
+        <div id="eventSelectionValue" class="value">未選択</div>
+      </div>
       <div class="btn-row">
         <button class="action secondary" type="button" id="reloadEventBtn">イベント一覧を読み込む</button>
       </div>
       <div class="search-box">
         <label for="eventSearch">イベント検索</label>
         <input id="eventSearch" type="text" placeholder="日付・イベント名・会場で検索" />
-      </div>
-      <div id="selectedEventBox" class="selected-box">
-        <div class="selected-title">選択中のイベント</div>
-        <div id="selectedEventText" class="muted"></div>
       </div>
       <div id="eventList" class="picker-list"></div>
     </section>
@@ -499,10 +538,10 @@
 
     <section class="card">
       <h2 class="section-title">宛先プレビュー</h2>
-      <p class="sub">送信前に必ず対象人数と対象者を確認してください。</p>
+      <p class="sub">送信前に対象件数と対象者を必ず確認してください。</p>
       <div class="preview-box">
         <div id="previewSummary" class="preview-summary">まだ取得していません</div>
-        <div id="previewMeta" class="muted">モードに応じて宛先プレビューを実行してください。</div>
+        <div id="previewMeta" class="preview-meta">モードに応じて宛先プレビューを実行してください。</div>
         <div id="recipientList" class="recipient-list"></div>
       </div>
     </section>
@@ -562,10 +601,10 @@
       eventList: document.getElementById('eventList'),
       practiceSearch: document.getElementById('practiceSearch'),
       eventSearch: document.getElementById('eventSearch'),
-      selectedPracticeBox: document.getElementById('selectedPracticeBox'),
-      selectedPracticeText: document.getElementById('selectedPracticeText'),
-      selectedEventBox: document.getElementById('selectedEventBox'),
-      selectedEventText: document.getElementById('selectedEventText'),
+      practiceSelectionBanner: document.getElementById('practiceSelectionBanner'),
+      practiceSelectionValue: document.getElementById('practiceSelectionValue'),
+      eventSelectionBanner: document.getElementById('eventSelectionBanner'),
+      eventSelectionValue: document.getElementById('eventSelectionValue'),
       messageBody: document.getElementById('messageBody'),
       previewBtn: document.getElementById('previewBtn'),
       sendBtn: document.getElementById('sendBtn'),
@@ -584,7 +623,7 @@
 
     function showStatus(message, type = 'info') {
       els.pageStatus.className = `status show ${type}`;
-      els.pageStatus.textContent = message || '';
+      els.pageStatus.textContent = message;
     }
 
     function clearStatus() {
@@ -601,6 +640,21 @@
         .replace(/'/g, '&#39;');
     }
 
+    function switchMode(mode) {
+      state.mode = mode;
+
+      els.modeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+
+      Object.keys(els.panels).forEach(key => {
+        els.panels[key].classList.toggle('active', key === mode);
+      });
+
+      resetChecksOnly();
+      clearStatus();
+    }
+
     function resetChecksOnly() {
       els.check1.checked = false;
       els.check2.checked = false;
@@ -613,71 +667,21 @@
       resetChecksOnly();
     }
 
-    function switchMode(mode) {
-      state.mode = mode;
-
-      els.modeBtns.forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.mode === mode);
-      });
-
-      Object.keys(els.panels).forEach((key) => {
-        els.panels[key].classList.toggle('active', key === mode);
-      });
-
-      clearStatus();
-      resetPreviewOnly();
-    }
-
-    function buildNoCacheUrl(url) {
-      const separator = url.includes('?') ? '&' : '?';
-      return `${url}${separator}_ts=${Date.now()}`;
-    }
-
-    async function fetchJson(url, options = {}) {
-      const finalOptions = Object.assign({}, options);
-
-      if (!finalOptions.headers) {
-        finalOptions.headers = {};
-      }
-
-      finalOptions.cache = 'no-store';
-
-      const res = await fetch(buildNoCacheUrl(url), finalOptions);
-      const text = await res.text();
-
-      let json = null;
-      try {
-        json = JSON.parse(text);
-      } catch (error) {
-        throw new Error('JSON解析に失敗しました');
-      }
-
-      if (!res.ok) {
-        throw new Error((json && json.message) || `HTTPエラー ${res.status}`);
-      }
-
-      return json;
-    }
-
-    function normalizeArray(value) {
-      return Array.isArray(value) ? value : [];
-    }
-
-    function updateSelectedBoxes() {
-      if (state.selectedPracticeId && state.selectedPracticeName) {
-        els.selectedPracticeBox.classList.add('show');
-        els.selectedPracticeText.textContent = state.selectedPracticeName;
+    function renderSelectionBanners() {
+      if (state.selectedPracticeId) {
+        els.practiceSelectionBanner.classList.add('show');
+        els.practiceSelectionValue.textContent = state.selectedPracticeName || '選択済み';
       } else {
-        els.selectedPracticeBox.classList.remove('show');
-        els.selectedPracticeText.textContent = '';
+        els.practiceSelectionBanner.classList.remove('show');
+        els.practiceSelectionValue.textContent = '未選択';
       }
 
-      if (state.selectedEventId && state.selectedEventName) {
-        els.selectedEventBox.classList.add('show');
-        els.selectedEventText.textContent = state.selectedEventName;
+      if (state.selectedEventId) {
+        els.eventSelectionBanner.classList.add('show');
+        els.eventSelectionValue.textContent = state.selectedEventName || '選択済み';
       } else {
-        els.selectedEventBox.classList.remove('show');
-        els.selectedEventText.textContent = '';
+        els.eventSelectionBanner.classList.remove('show');
+        els.eventSelectionValue.textContent = '未選択';
       }
     }
 
@@ -704,8 +708,10 @@
     }
 
     function validateBeforePreview() {
-      if (state.mode === 'direct' && !els.directLineUserId.value.trim()) {
-        throw new Error('個人指定モードでは LINE userID が必要です。');
+      if (state.mode === 'direct') {
+        if (!els.directLineUserId.value.trim()) {
+          throw new Error('個人指定モードでは LINE userID が必要です。');
+        }
       }
 
       if (state.mode === 'practice' && !state.selectedPracticeId) {
@@ -728,8 +734,7 @@
         throw new Error('先に宛先プレビューを取得してください。');
       }
 
-      const recipients = normalizeArray(state.lastPreview.recipients);
-      if (recipients.length === 0) {
+      if (!state.lastPreview.recipients || state.lastPreview.recipients.length === 0) {
         throw new Error('送信対象が0件です。');
       }
 
@@ -738,45 +743,52 @@
       }
     }
 
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      const text = await res.text();
+
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        throw new Error('JSON解析に失敗しました: ' + text);
+      }
+      return json;
+    }
+
     async function loadPracticeList() {
       clearStatus();
       showStatus('練習一覧を読み込んでいます…', 'info');
 
       const json = await fetchJson(`${GAS_WEB_APP_URL}?mode=adminPractices4weeks`);
-
       if (!json.ok) {
         throw new Error(json.message || '練習一覧取得に失敗しました。');
       }
 
-      state.practiceItems = normalizeArray(json.items);
+      state.practiceItems = Array.isArray(json.items) ? json.items : [];
       renderPracticeList();
       showStatus(`練習一覧を読み込みました（${state.practiceItems.length}件）`, 'ok');
     }
 
     function renderPracticeList() {
       const keyword = els.practiceSearch.value.trim().toLowerCase();
-      const items = state.practiceItems.filter((item) => {
-        const text = [
-          item.date || '',
-          item.title || '',
-          item.place || '',
-          item.note || ''
-        ].join(' ').toLowerCase();
 
+      const items = state.practiceItems.filter(item => {
+        const text = [
+          item.date, item.title, item.place, item.note
+        ].join(' ').toLowerCase();
         return !keyword || text.includes(keyword);
       });
 
       if (!items.length) {
         els.practiceList.innerHTML = '<div class="empty">表示できる練習がありません。</div>';
+        renderSelectionBanners();
         return;
       }
 
-      els.practiceList.innerHTML = items.map((item) => {
-        const selected = state.selectedPracticeId === String(item.id || '');
+      els.practiceList.innerHTML = items.map(item => {
+        const selected = state.selectedPracticeId === (item.id || '');
         const timeText = `${item.startTime || ''}${(item.startTime && item.endTime) ? '〜' : ''}${item.endTime || ''}`;
-        const clubCount = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'].length : 0;
-        const schoolCount = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'].length : 0;
-        const generalCount = Array.isArray(item.participants?.['一般']) ? item.participants['一般'].length : 0;
 
         return `
           <div class="pick-card ${selected ? 'selected' : ''}" data-practice-id="${escapeHtml(item.id || '')}">
@@ -787,27 +799,28 @@
             <div class="pick-meta">${escapeHtml(timeText)}｜${escapeHtml(item.place || '')}</div>
             ${item.note ? `<div class="pick-meta" style="margin-top:6px;">備考：${escapeHtml(item.note)}</div>` : ''}
             <div style="margin-top:8px;">
-              <span class="pill">クラブ ${clubCount}</span>
-              <span class="pill">スクール ${schoolCount}</span>
-              <span class="pill">一般 ${generalCount}</span>
+              <span class="pill">クラブ ${Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'].length : 0}</span>
+              <span class="pill">スクール ${Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'].length : 0}</span>
+              <span class="pill">一般 ${Array.isArray(item.participants?.['一般']) ? item.participants['一般'].length : 0}</span>
             </div>
           </div>
         `;
       }).join('');
 
-      [...els.practiceList.querySelectorAll('.pick-card')].forEach((card) => {
+      [...els.practiceList.querySelectorAll('.pick-card')].forEach(card => {
         card.addEventListener('click', () => {
           state.selectedPracticeId = card.dataset.practiceId || '';
-          const found = state.practiceItems.find((x) => String(x.id || '') === state.selectedPracticeId);
+          const found = state.practiceItems.find(x => String(x.id || '') === state.selectedPracticeId);
           state.selectedPracticeName = found
-            ? `${found.date || ''}｜${found.title || '通常練習'}｜${found.startTime || ''}${(found.startTime && found.endTime) ? '〜' : ''}${found.endTime || ''}｜${found.place || ''}`
+            ? `${found.date || ''}｜${found.title || '通常練習'}｜${found.place || ''}`
             : '';
-          updateSelectedBoxes();
           renderPracticeList();
+          renderSelectionBanners();
           resetPreviewOnly();
-          clearStatus();
         });
       });
+
+      renderSelectionBanners();
     }
 
     async function loadEventList() {
@@ -815,41 +828,34 @@
       showStatus('イベント一覧を読み込んでいます…', 'info');
 
       const json = await fetchJson(`${GAS_WEB_APP_URL}?mode=adminEventsWithParticipants`);
-
       if (!json.ok) {
         throw new Error(json.message || 'イベント一覧取得に失敗しました。');
       }
 
-      state.eventItems = normalizeArray(json.items);
+      state.eventItems = Array.isArray(json.items) ? json.items : [];
       renderEventList();
       showStatus(`イベント一覧を読み込みました（${state.eventItems.length}件）`, 'ok');
     }
 
     function renderEventList() {
       const keyword = els.eventSearch.value.trim().toLowerCase();
-      const items = state.eventItems.filter((item) => {
-        const text = [
-          item.eventDate || '',
-          item.eventName || '',
-          item.place || '',
-          item.note || '',
-          item.statusLabel || ''
-        ].join(' ').toLowerCase();
 
+      const items = state.eventItems.filter(item => {
+        const text = [
+          item.eventDate, item.eventName, item.place, item.note, item.statusLabel
+        ].join(' ').toLowerCase();
         return !keyword || text.includes(keyword);
       });
 
       if (!items.length) {
         els.eventList.innerHTML = '<div class="empty">表示できるイベントがありません。</div>';
+        renderSelectionBanners();
         return;
       }
 
-      els.eventList.innerHTML = items.map((item) => {
-        const selected = state.selectedEventId === String(item.pageId || '');
+      els.eventList.innerHTML = items.map(item => {
+        const selected = state.selectedEventId === (item.pageId || '');
         const timeText = `${item.startTime || ''}${(item.startTime && item.endTime) ? '〜' : ''}${item.endTime || ''}`;
-        const clubCount = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'].length : 0;
-        const schoolCount = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'].length : 0;
-        const generalCount = Array.isArray(item.participants?.['一般']) ? item.participants['一般'].length : 0;
 
         return `
           <div class="pick-card ${selected ? 'selected' : ''}" data-event-id="${escapeHtml(item.pageId || '')}">
@@ -860,27 +866,28 @@
             <div class="pick-meta">${escapeHtml(timeText)}｜${escapeHtml(item.place || '')}</div>
             ${item.targetLabel ? `<div class="pick-meta" style="margin-top:6px;">対象：${escapeHtml(item.targetLabel)}</div>` : ''}
             <div style="margin-top:8px;">
-              <span class="pill">クラブ ${clubCount}</span>
-              <span class="pill">スクール ${schoolCount}</span>
-              <span class="pill">一般 ${generalCount}</span>
+              <span class="pill">クラブ ${Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'].length : 0}</span>
+              <span class="pill">スクール ${Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'].length : 0}</span>
+              <span class="pill">一般 ${Array.isArray(item.participants?.['一般']) ? item.participants['一般'].length : 0}</span>
             </div>
           </div>
         `;
       }).join('');
 
-      [...els.eventList.querySelectorAll('.pick-card')].forEach((card) => {
+      [...els.eventList.querySelectorAll('.pick-card')].forEach(card => {
         card.addEventListener('click', () => {
           state.selectedEventId = card.dataset.eventId || '';
-          const found = state.eventItems.find((x) => String(x.pageId || '') === state.selectedEventId);
+          const found = state.eventItems.find(x => String(x.pageId || '') === state.selectedEventId);
           state.selectedEventName = found
-            ? `${found.eventDate || ''}｜${found.eventName || 'イベント'}｜${found.startTime || ''}${(found.startTime && found.endTime) ? '〜' : ''}${found.endTime || ''}｜${found.place || ''}`
+            ? `${found.eventDate || ''}｜${found.eventName || 'イベント'}｜${found.place || ''}`
             : '';
-          updateSelectedBoxes();
           renderEventList();
+          renderSelectionBanners();
           resetPreviewOnly();
-          clearStatus();
         });
       });
+
+      renderSelectionBanners();
     }
 
     async function previewRecipients() {
@@ -900,7 +907,7 @@
         state.lastPreview = json;
         renderPreview(json);
         resetChecksOnly();
-        showStatus(`宛先プレビューを取得しました（${Number(json.count || 0)}件）`, 'ok');
+        showStatus(`宛先プレビューを取得しました（${json.count || 0}件）`, 'ok');
       } catch (error) {
         state.lastPreview = null;
         renderPreview(null);
@@ -916,22 +923,34 @@
         return;
       }
 
-      const recipients = normalizeArray(data.recipients);
+      const recipients = Array.isArray(data.recipients) ? data.recipients : [];
       const modeLabel =
         data.mode === 'direct' ? '個人指定' :
         data.mode === 'practice' ? '練習単位' :
-        data.mode === 'event' ? 'イベント単位' :
-        (data.mode || '');
+        data.mode === 'event' ? 'イベント単位' : data.mode;
+
+      let targetLabel = '';
+      if (data.mode === 'practice') {
+        targetLabel = state.selectedPracticeName || '';
+      }
+      if (data.mode === 'event') {
+        targetLabel = state.selectedEventName || '';
+      }
+      if (data.mode === 'direct') {
+        targetLabel = els.directChildName.value.trim() || els.directLineUserId.value.trim();
+      }
 
       els.previewSummary.textContent = `${modeLabel}｜${recipients.length}件`;
-      els.previewMeta.textContent = 'この一覧が実際の送信対象です。必ず確認してください。';
+      els.previewMeta.textContent = targetLabel
+        ? `対象：${targetLabel}`
+        : 'この一覧が実際の送信対象です。必ず確認してください。';
 
       if (!recipients.length) {
         els.recipientList.innerHTML = '<div class="empty">対象者はいません。</div>';
         return;
       }
 
-      els.recipientList.innerHTML = recipients.map((rec) => `
+      els.recipientList.innerHTML = recipients.map(rec => `
         <div class="recipient-item">
           <div><strong>${escapeHtml(rec.childName || '氏名未設定')}</strong>　<span class="muted">(${escapeHtml(rec.category || '')})</span></div>
           <div class="small muted">LINE userID：${escapeHtml(rec.lineUserId || '')}</div>
@@ -969,9 +988,8 @@
         clearStatus();
         validateBeforeSend();
 
-        const targetCount = normalizeArray(state.lastPreview?.recipients).length;
+        const targetCount = Array.isArray(state.lastPreview?.recipients) ? state.lastPreview.recipients.length : 0;
         const ok = window.confirm(`本番送信します。\n対象件数：${targetCount}件\nよろしいですか？`);
-
         if (!ok) {
           showStatus('送信をキャンセルしました。', 'info');
           return;
@@ -979,7 +997,6 @@
 
         showStatus('本番送信しています…', 'info');
         els.sendBtn.disabled = true;
-        els.previewBtn.disabled = true;
 
         const params = buildSendParams();
         const json = await fetchJson(GAS_WEB_APP_URL, {
@@ -1004,26 +1021,23 @@
         showStatus(error.message, 'error');
       } finally {
         els.sendBtn.disabled = false;
-        els.previewBtn.disabled = false;
       }
     }
 
     async function loadLogs() {
       try {
         const json = await fetchJson(`${GAS_WEB_APP_URL}?mode=directMessageLogs&limit=20`);
-
         if (!json.ok) {
           throw new Error(json.message || '送信ログ取得に失敗しました');
         }
 
-        const items = normalizeArray(json.items);
-
+        const items = Array.isArray(json.items) ? json.items : [];
         if (!items.length) {
           els.logs.innerHTML = '<div class="empty">送信ログはまだありません。</div>';
           return;
         }
 
-        els.logs.innerHTML = items.map((item) => `
+        els.logs.innerHTML = items.map(item => `
           <div class="log-item">
             <div><strong>${escapeHtml(item.sentAt || '')}</strong>｜${escapeHtml(item.mode || '')}｜${escapeHtml(item.resultText || '')}</div>
             <div class="muted small">対象：${escapeHtml(item.targetName || '')}</div>
@@ -1037,7 +1051,7 @@
     }
 
     function bindEvents() {
-      els.modeBtns.forEach((btn) => {
+      els.modeBtns.forEach(btn => {
         btn.addEventListener('click', () => switchMode(btn.dataset.mode));
       });
 
@@ -1058,8 +1072,7 @@
 
     async function init() {
       bindEvents();
-      updateSelectedBoxes();
-      renderPreview(null);
+      renderSelectionBanners();
       await loadLogs();
     }
 

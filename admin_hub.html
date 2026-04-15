@@ -199,15 +199,15 @@
       background:var(--blue-soft);
     }
 
-    .muted{
-      color:var(--sub);
-      font-size:16px;
-    }
-
     .grid-2{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:18px;
+    }
+
+    .muted{
+      color:var(--sub);
+      font-size:16px;
     }
 
     .list{
@@ -215,18 +215,69 @@
       gap:12px;
     }
 
-    .item{
+    .accordion-item{
       border:1px solid var(--line);
       border-radius:16px;
-      padding:14px;
       background:#fff;
+      overflow:hidden;
     }
 
-    .item-title{
-      font-size:20px;
+    .accordion-item summary{
+      list-style:none;
+      cursor:pointer;
+      padding:14px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
       font-weight:800;
-      margin-bottom:4px;
-      line-height:1.5;
+      font-size:18px;
+      user-select:none;
+    }
+
+    .accordion-item summary::-webkit-details-marker{
+      display:none;
+    }
+
+    .accordion-main{
+      min-width:0;
+      flex:1;
+    }
+
+    .accordion-title{
+      font-size:19px;
+      font-weight:800;
+      line-height:1.45;
+      margin:0 0 2px;
+    }
+
+    .accordion-sub{
+      font-size:15px;
+      color:var(--sub);
+      line-height:1.45;
+    }
+
+    .accordion-icon{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      background:#eef4fb;
+      color:var(--blue);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      font-weight:900;
+      flex:0 0 32px;
+    }
+
+    .accordion-item[open] .accordion-icon{
+      background:var(--blue-soft);
+    }
+
+    .accordion-content{
+      border-top:1px solid #eef2f7;
+      padding:14px 16px 16px;
     }
 
     .item-sub{
@@ -259,6 +310,43 @@
     .badge.blue{ background:var(--blue-soft); color:var(--blue); }
     .badge.red{ background:var(--red-soft); color:var(--red); }
     .badge.orange{ background:var(--orange-soft); color:var(--orange); }
+
+    .participant-group{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #eef2f7;
+    }
+
+    .participant-title{
+      font-size:16px;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .small{
+      font-size:15px;
+      color:var(--sub);
+    }
+
+    .empty-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:16px;
+      color:var(--sub);
+      font-weight:700;
+    }
+
+    .section-note{
+      background:#f8fbff;
+      border:1px solid #dbe7fb;
+      color:#37517a;
+      border-radius:16px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:14px;
+    }
 
     .field{
       display:flex;
@@ -311,11 +399,6 @@
       font-size:18px;
       font-weight:800;
       cursor:pointer;
-    }
-
-    .btn-primary{
-      background:var(--blue);
-      color:#fff;
     }
 
     .btn-soft{
@@ -395,34 +478,6 @@
     .status-box.ok{ color:var(--green); font-weight:800; }
     .status-box.error{ color:var(--red); font-weight:800; }
     .status-box.warn{ color:var(--orange); font-weight:800; }
-
-    .participant-group{
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px solid #eef2f7;
-    }
-
-    .participant-title{
-      font-size:16px;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-
-    .small{
-      font-size:15px;
-      color:var(--sub);
-    }
-
-    .section-note{
-      background:#f8fbff;
-      border:1px solid #dbe7fb;
-      color:#37517a;
-      border-radius:16px;
-      padding:14px 16px;
-      font-size:15px;
-      font-weight:700;
-      margin-bottom:14px;
-    }
 
     @media (max-width: 900px){
       .summary-grid,
@@ -684,20 +739,37 @@
       }
     }
 
+    function makeAccordionItem(title, sub, contentHtml, open = false) {
+      return `
+        <details class="accordion-item" ${open ? 'open' : ''}>
+          <summary>
+            <div class="accordion-main">
+              <div class="accordion-title">${title}</div>
+              <div class="accordion-sub">${sub}</div>
+            </div>
+            <div class="accordion-icon">＋</div>
+          </summary>
+          <div class="accordion-content">
+            ${contentHtml}
+          </div>
+        </details>
+      `;
+    }
+
     function renderMemberApplications(items) {
       const el = document.getElementById('memberApplications');
       document.getElementById('summaryMemberCount').textContent = Array.isArray(items) ? items.length : 0;
 
       if (!items || !items.length) {
-        el.innerHTML = '<div class="item"><div class="item-sub">表示対象はありません。</div></div>';
+        el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map(item => `
-        <div class="item">
-          <div class="item-title">${escapeHtml(item.childName || '氏名未設定')}</div>
+      el.innerHTML = items.map((item, index) => {
+        const title = escapeHtml(item.childName || '氏名未設定');
+        const sub = `学年：${escapeHtml(item.grade || '未設定')} / 希望区分：${escapeHtml(item.desiredCategory || '未設定')} / 状態：${escapeHtml(item.applicationStatus || '未設定')}`;
+        const content = `
           <div class="item-sub">
-学年：${escapeHtml(item.grade || '')}
 保護者：${escapeHtml(item.parentName || '')}
 希望区分：${escapeHtml(item.desiredCategory || '')}
 承認区分：${escapeHtml(item.approvedCategory || '')}
@@ -706,26 +778,26 @@
 所属：${escapeHtml(item.affiliation || '')}
 備考：${escapeHtml(item.note || '')}
           </div>
-        </div>
-      `).join('');
+        `;
+        return makeAccordionItem(title, sub, content, index === 0);
+      }).join('');
     }
 
     function renderTrialApplications(items) {
       const el = document.getElementById('trialApplications');
-
       const filtered = (items || []).filter(item => item.applicationStatus !== '体験完了');
       document.getElementById('summaryTrialCount').textContent = filtered.length;
 
       if (!filtered.length) {
-        el.innerHTML = '<div class="item"><div class="item-sub">表示対象はありません。</div></div>';
+        el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = filtered.map(item => `
-        <div class="item">
-          <div class="item-title">${escapeHtml(item.childName || '氏名未設定')}</div>
+      el.innerHTML = filtered.map((item, index) => {
+        const title = escapeHtml(item.childName || '氏名未設定');
+        const sub = `学年：${escapeHtml(item.grade || '未設定')} / 希望日：${escapeHtml(item.requestedPracticeDate || '未設定')} / 状態：${escapeHtml(item.applicationStatus || '未設定')}`;
+        const content = `
           <div class="item-sub">
-学年：${escapeHtml(item.grade || '')}
 保護者：${escapeHtml(item.parentName || '')}
 所属チーム：${escapeHtml(item.teamName || '')}
 希望練習日：${escapeHtml(item.requestedPracticeDate || '')}
@@ -733,8 +805,9 @@
 申請ステータス：${escapeHtml(item.applicationStatus || '')}
 管理者メモ：${escapeHtml(item.adminMemo || '')}
           </div>
-        </div>
-      `).join('');
+        `;
+        return makeAccordionItem(title, sub, content, index === 0);
+      }).join('');
     }
 
     function renderPractices(items) {
@@ -742,44 +815,47 @@
       document.getElementById('summaryPracticeCount').textContent = Array.isArray(items) ? items.length : 0;
 
       if (!items || !items.length) {
-        el.innerHTML = '<div class="item"><div class="item-sub">表示対象はありません。</div></div>';
+        el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map(item => {
+      el.innerHTML = items.map((item, index) => {
         const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
         const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
         const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
 
-        return `
-          <div class="item">
-            <div class="item-title">${escapeHtml(item.date || '')}｜${escapeHtml(item.title || '')}</div>
-            <div class="item-sub">${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}</div>
-            <div class="badge-row">
-              <span class="badge blue">参加予定人数 ${Number(item.participantCount || 0)}名</span>
-            </div>
+        const title = `${escapeHtml(item.date || '')}｜${escapeHtml(item.title || '')}`;
+        const sub = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}｜参加 ${Number(item.participantCount || 0)}名`;
 
-            <div class="participant-group">
-              <div class="participant-title">クラブ</div>
-              <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
-            </div>
+        const content = `
+          <div class="badge-row">
+            <span class="badge blue">参加予定人数 ${Number(item.participantCount || 0)}名</span>
+            <span class="badge green">クラブ ${club.length}名</span>
+            <span class="badge orange">スクール ${school.length}名</span>
+            <span class="badge red">一般 ${general.length}名</span>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">スクール</div>
-              <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">クラブ</div>
+            <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">一般</div>
-              <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">スクール</div>
+            <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">備考</div>
-              <div class="small">${escapeHtml(item.note || '') || 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">一般</div>
+            <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
+          </div>
+
+          <div class="participant-group">
+            <div class="participant-title">備考</div>
+            <div class="small">${escapeHtml(item.note || '') || 'なし'}</div>
           </div>
         `;
+        return makeAccordionItem(title, sub, content, index === 0);
       }).join('');
     }
 
@@ -788,48 +864,46 @@
       document.getElementById('summaryEventCount').textContent = Array.isArray(items) ? items.length : 0;
 
       if (!items || !items.length) {
-        el.innerHTML = '<div class="item"><div class="item-sub">表示対象はありません。</div></div>';
+        el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map(item => {
+      el.innerHTML = items.map((item, index) => {
         const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
         const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
         const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
 
-        return `
-          <div class="item">
-            <div class="item-title">${escapeHtml(item.eventName || 'イベント')}</div>
-            <div class="item-sub">
-開催日：${escapeHtml(item.eventDate || '')}
-時間：${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}
-場所：${escapeHtml(item.place || '')}
+        const title = escapeHtml(item.eventName || 'イベント');
+        const sub = `${escapeHtml(item.eventDate || '')}｜${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}`;
+
+        const content = `
+          <div class="item-sub">
 対象：${escapeHtml(item.targetLabel || '')}
 募集状況：${escapeHtml(item.statusLabel || '')}
-            </div>
+          </div>
 
-            <div class="badge-row">
-              <span class="badge blue">定員 ${Number(item.capacity || 0)}名</span>
-              <span class="badge green">申込 ${Number(item.currentCount || 0)}名</span>
-              <span class="badge orange">残数 ${Number(item.remainingCount || 0)}名</span>
-            </div>
+          <div class="badge-row">
+            <span class="badge blue">定員 ${Number(item.capacity || 0)}名</span>
+            <span class="badge green">申込 ${Number(item.currentCount || 0)}名</span>
+            <span class="badge orange">残数 ${Number(item.remainingCount || 0)}名</span>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">クラブ</div>
-              <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">クラブ</div>
+            <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">スクール</div>
-              <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">スクール</div>
+            <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+          </div>
 
-            <div class="participant-group">
-              <div class="participant-title">一般</div>
-              <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
-            </div>
+          <div class="participant-group">
+            <div class="participant-title">一般</div>
+            <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
           </div>
         `;
+        return makeAccordionItem(title, sub, content, index === 0);
       }).join('');
     }
 
@@ -918,16 +992,17 @@
           return;
         }
 
-        box.innerHTML = recipients.map(rec => `
-          <div class="item">
-            <div class="item-title">${escapeHtml(rec.childName || '氏名未設定')} / ${escapeHtml(rec.category || '区分未設定')}</div>
+        box.innerHTML = recipients.map((rec, index) => {
+          const title = `${escapeHtml(rec.childName || '氏名未設定')} / ${escapeHtml(rec.category || '区分未設定')}`;
+          const sub = `LINE userID：${escapeHtml(rec.lineUserId || '')}`;
+          const content = `
             <div class="item-sub">
-LINE userID：${escapeHtml(rec.lineUserId || '')}
 sourceType：${escapeHtml(rec.sourceType || '')}
 sourceName：${escapeHtml(rec.sourceName || '')}
             </div>
-          </div>
-        `).join('');
+          `;
+          return makeAccordionItem(title, sub, content, index === 0);
+        }).join('');
 
         setStatus(`宛先プレビュー取得成功。${recipients.length}件です。`, 'ok');
       } catch (error) {
@@ -992,18 +1067,19 @@ sourceName：${escapeHtml(rec.sourceName || '')}
           return;
         }
 
-        box.innerHTML = items.map(item => `
-          <div class="item">
-            <div class="item-title">${escapeHtml(item.sentAt || '')} / ${escapeHtml(item.mode || '')} / ${item.dryRun ? 'dryRun' : '本番'}</div>
+        box.innerHTML = items.map((item, index) => {
+          const title = `${escapeHtml(item.sentAt || '')} / ${escapeHtml(item.mode || '')} / ${item.dryRun ? 'dryRun' : '本番'}`;
+          const sub = `対象：${escapeHtml(item.childName || '')} / ${escapeHtml(item.category || '')}`;
+          const content = `
             <div class="item-sub">
-対象：${escapeHtml(item.childName || '')} / ${escapeHtml(item.category || '')}
 LINE userID：${escapeHtml(item.lineUserId || '')}
 結果：${escapeHtml(item.resultText || '')}
 本文：
 ${escapeHtml(item.message || '')}
             </div>
-          </div>
-        `).join('');
+          `;
+          return makeAccordionItem(title, sub, content, index === 0);
+        }).join('');
       } catch (error) {
         document.getElementById('logBox').innerHTML = '送信ログ取得に失敗しました';
         console.error('[loadDirectLogs]', error);

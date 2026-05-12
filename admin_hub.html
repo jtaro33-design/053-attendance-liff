@@ -25,8 +25,9 @@
 
     *{ box-sizing:border-box; }
 
-    body{
+    html, body{
       margin:0;
+      padding:0;
       background:var(--bg);
       color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Segoe UI",sans-serif;
@@ -34,10 +35,14 @@
       line-height:1.65;
     }
 
+    body{
+      padding-bottom:40px;
+    }
+
     .wrap{
       width:min(1120px, calc(100% - 24px));
       margin:0 auto;
-      padding:18px 0 40px;
+      padding:18px 0 0;
     }
 
     .hero{
@@ -84,6 +89,7 @@
     .nav-card:hover{
       transform:translateY(-1px);
       border-color:#bfd0e6;
+      background:#fbfdff;
     }
 
     .nav-label{
@@ -103,11 +109,13 @@
       font-size:21px;
       font-weight:800;
       margin-bottom:6px;
+      line-height:1.45;
     }
 
     .nav-sub{
       font-size:15px;
       color:var(--sub);
+      line-height:1.55;
     }
 
     .summary-grid{
@@ -172,6 +180,7 @@
       color:var(--sub);
       font-size:15px;
       margin-top:4px;
+      line-height:1.55;
     }
 
     .head-actions{
@@ -193,6 +202,7 @@
       border:1px solid #c9d7ea;
       background:#fff;
       color:var(--blue);
+      white-space:nowrap;
     }
 
     .link-btn:hover{
@@ -203,11 +213,6 @@
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:18px;
-    }
-
-    .muted{
-      color:var(--sub);
-      font-size:16px;
     }
 
     .list{
@@ -230,8 +235,6 @@
       justify-content:space-between;
       align-items:center;
       gap:12px;
-      font-weight:800;
-      font-size:18px;
       user-select:none;
     }
 
@@ -249,30 +252,42 @@
       font-weight:800;
       line-height:1.45;
       margin:0 0 2px;
+      word-break:break-word;
     }
 
     .accordion-sub{
       font-size:15px;
       color:var(--sub);
-      line-height:1.45;
+      line-height:1.5;
+      word-break:break-word;
     }
 
     .accordion-icon{
-      width:32px;
-      height:32px;
+      width:34px;
+      height:34px;
       border-radius:999px;
       background:#eef4fb;
       color:var(--blue);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:18px;
-      font-weight:900;
-      flex:0 0 32px;
+      font-size:22px;
+      font-weight:700;
+      flex:0 0 34px;
+      transition:.15s ease;
+    }
+
+    .accordion-icon::before{
+      content:"＋";
+      line-height:1;
     }
 
     .accordion-item[open] .accordion-icon{
       background:var(--blue-soft);
+    }
+
+    .accordion-item[open] .accordion-icon::before{
+      content:"−";
     }
 
     .accordion-content{
@@ -326,6 +341,9 @@
     .small{
       font-size:15px;
       color:var(--sub);
+      line-height:1.6;
+      word-break:break-word;
+      white-space:pre-wrap;
     }
 
     .empty-box{
@@ -346,6 +364,7 @@
       font-size:15px;
       font-weight:700;
       margin-bottom:14px;
+      line-height:1.6;
     }
 
     .field{
@@ -371,6 +390,14 @@
       font-size:18px;
       color:var(--text);
       padding:14px 16px;
+      outline:none;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus{
+      border-color:#aac3eb;
+      box-shadow:0 0 0 4px rgba(29,78,216,.08);
     }
 
     textarea{
@@ -399,6 +426,11 @@
       font-size:18px;
       font-weight:800;
       cursor:pointer;
+      transition:.15s ease;
+    }
+
+    button:hover{
+      transform:translateY(-1px);
     }
 
     .btn-soft{
@@ -463,6 +495,7 @@
     .check-text{
       font-size:17px;
       font-weight:800;
+      line-height:1.55;
     }
 
     .status-box,
@@ -487,6 +520,14 @@
       .mode-row,
       .nav-grid{
         grid-template-columns:1fr;
+      }
+
+      .page-title{
+        font-size:28px;
+      }
+
+      .summary-value{
+        font-size:30px;
       }
     }
   </style>
@@ -705,6 +746,17 @@
         .replace(/'/g, '&#39;');
     }
 
+    function safeArray(value) {
+      return Array.isArray(value) ? value : [];
+    }
+
+    function safeParticipants(item, key) {
+      if (!item || !item.participants || !item.participants[key] || !Array.isArray(item.participants[key])) {
+        return [];
+      }
+      return item.participants[key];
+    }
+
     function setStatus(message, type) {
       const el = document.getElementById('statusBox');
       el.className = 'status-box';
@@ -717,7 +769,8 @@
     function setMessageMode(mode) {
       document.getElementById('messageMode').value = mode;
 
-      document.querySelectorAll('.mode-btn').forEach(btn => {
+      const buttons = document.querySelectorAll('.mode-btn');
+      buttons.forEach(function(btn) {
         btn.classList.toggle('active', btn.dataset.mode === mode);
       });
 
@@ -739,7 +792,7 @@
       }
     }
 
-    function makeAccordionItem(title, sub, contentHtml, open = false) {
+    function makeAccordionItem(title, sub, contentHtml, open) {
       return `
         <details class="accordion-item" ${open ? 'open' : ''}>
           <summary>
@@ -747,7 +800,7 @@
               <div class="accordion-title">${title}</div>
               <div class="accordion-sub">${sub}</div>
             </div>
-            <div class="accordion-icon">＋</div>
+            <div class="accordion-icon"></div>
           </summary>
           <div class="accordion-content">
             ${contentHtml}
@@ -756,16 +809,21 @@
       `;
     }
 
+    function joinNames(arr) {
+      return arr.length ? escapeHtml(arr.join('、')) : 'なし';
+    }
+
     function renderMemberApplications(items) {
       const el = document.getElementById('memberApplications');
-      document.getElementById('summaryMemberCount').textContent = Array.isArray(items) ? items.length : 0;
+      const list = safeArray(items);
+      document.getElementById('summaryMemberCount').textContent = list.length;
 
-      if (!items || !items.length) {
+      if (!list.length) {
         el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map((item, index) => {
+      el.innerHTML = list.map(function(item, index) {
         const title = escapeHtml(item.childName || '氏名未設定');
         const sub = `学年：${escapeHtml(item.grade || '未設定')} / 希望区分：${escapeHtml(item.desiredCategory || '未設定')} / 状態：${escapeHtml(item.applicationStatus || '未設定')}`;
         const content = `
@@ -785,7 +843,10 @@
 
     function renderTrialApplications(items) {
       const el = document.getElementById('trialApplications');
-      const filtered = (items || []).filter(item => item.applicationStatus !== '体験完了');
+      const filtered = safeArray(items).filter(function(item) {
+        return item.applicationStatus !== '体験完了';
+      });
+
       document.getElementById('summaryTrialCount').textContent = filtered.length;
 
       if (!filtered.length) {
@@ -793,7 +854,7 @@
         return;
       }
 
-      el.innerHTML = filtered.map((item, index) => {
+      el.innerHTML = filtered.map(function(item, index) {
         const title = escapeHtml(item.childName || '氏名未設定');
         const sub = `学年：${escapeHtml(item.grade || '未設定')} / 希望日：${escapeHtml(item.requestedPracticeDate || '未設定')} / 状態：${escapeHtml(item.applicationStatus || '未設定')}`;
         const content = `
@@ -812,17 +873,18 @@
 
     function renderPractices(items) {
       const el = document.getElementById('adminPractices');
-      document.getElementById('summaryPracticeCount').textContent = Array.isArray(items) ? items.length : 0;
+      const list = safeArray(items);
+      document.getElementById('summaryPracticeCount').textContent = list.length;
 
-      if (!items || !items.length) {
+      if (!list.length) {
         el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map((item, index) => {
-        const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
-        const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
-        const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
+      el.innerHTML = list.map(function(item, index) {
+        const club = safeParticipants(item, 'クラブ');
+        const school = safeParticipants(item, 'スクール');
+        const general = safeParticipants(item, '一般');
 
         const title = `${escapeHtml(item.date || '')}｜${escapeHtml(item.title || '')}`;
         const sub = `${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}｜参加 ${Number(item.participantCount || 0)}名`;
@@ -837,17 +899,17 @@
 
           <div class="participant-group">
             <div class="participant-title">クラブ</div>
-            <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(club)}</div>
           </div>
 
           <div class="participant-group">
             <div class="participant-title">スクール</div>
-            <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(school)}</div>
           </div>
 
           <div class="participant-group">
             <div class="participant-title">一般</div>
-            <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(general)}</div>
           </div>
 
           <div class="participant-group">
@@ -855,23 +917,25 @@
             <div class="small">${escapeHtml(item.note || '') || 'なし'}</div>
           </div>
         `;
+
         return makeAccordionItem(title, sub, content, index === 0);
       }).join('');
     }
 
     function renderEvents(items) {
       const el = document.getElementById('adminEvents');
-      document.getElementById('summaryEventCount').textContent = Array.isArray(items) ? items.length : 0;
+      const list = safeArray(items);
+      document.getElementById('summaryEventCount').textContent = list.length;
 
-      if (!items || !items.length) {
+      if (!list.length) {
         el.innerHTML = '<div class="empty-box">表示対象はありません。</div>';
         return;
       }
 
-      el.innerHTML = items.map((item, index) => {
-        const club = Array.isArray(item.participants?.['クラブ']) ? item.participants['クラブ'] : [];
-        const school = Array.isArray(item.participants?.['スクール']) ? item.participants['スクール'] : [];
-        const general = Array.isArray(item.participants?.['一般']) ? item.participants['一般'] : [];
+      el.innerHTML = list.map(function(item, index) {
+        const club = safeParticipants(item, 'クラブ');
+        const school = safeParticipants(item, 'スクール');
+        const general = safeParticipants(item, '一般');
 
         const title = escapeHtml(item.eventName || 'イベント');
         const sub = `${escapeHtml(item.eventDate || '')}｜${escapeHtml(item.startTime || '')}${item.startTime && item.endTime ? '〜' : ''}${escapeHtml(item.endTime || '')}｜${escapeHtml(item.place || '')}`;
@@ -890,19 +954,20 @@
 
           <div class="participant-group">
             <div class="participant-title">クラブ</div>
-            <div class="small">${club.length ? escapeHtml(club.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(club)}</div>
           </div>
 
           <div class="participant-group">
             <div class="participant-title">スクール</div>
-            <div class="small">${school.length ? escapeHtml(school.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(school)}</div>
           </div>
 
           <div class="participant-group">
             <div class="participant-title">一般</div>
-            <div class="small">${general.length ? escapeHtml(general.join('、')) : 'なし'}</div>
+            <div class="small">${joinNames(general)}</div>
           </div>
         `;
+
         return makeAccordionItem(title, sub, content, index === 0);
       }).join('');
     }
@@ -983,7 +1048,7 @@
           throw new Error(json.message || '宛先プレビュー取得に失敗しました');
         }
 
-        const recipients = Array.isArray(json.recipients) ? json.recipients : [];
+        const recipients = safeArray(json.recipients);
         const box = document.getElementById('previewBox');
 
         if (!recipients.length) {
@@ -992,7 +1057,7 @@
           return;
         }
 
-        box.innerHTML = recipients.map((rec, index) => {
+        box.innerHTML = recipients.map(function(rec, index) {
           const title = `${escapeHtml(rec.childName || '氏名未設定')} / ${escapeHtml(rec.category || '区分未設定')}`;
           const sub = `LINE userID：${escapeHtml(rec.lineUserId || '')}`;
           const content = `
@@ -1041,7 +1106,7 @@ sourceName：${escapeHtml(rec.sourceName || '')}
 
         setStatus(
           `${dryRun ? 'dryRun' : '本番'}送信完了。成功 ${Number(json.successCount || 0)} 件 / エラー ${Number(json.errorCount || 0)} 件`,
-          json.errorCount > 0 ? 'warn' : 'ok'
+          Number(json.errorCount || 0) > 0 ? 'warn' : 'ok'
         );
 
         await loadDirectLogs();
@@ -1059,7 +1124,7 @@ sourceName：${escapeHtml(rec.sourceName || '')}
           throw new Error(json.message || '送信ログ取得に失敗しました');
         }
 
-        const items = Array.isArray(json.items) ? json.items : [];
+        const items = safeArray(json.items);
         const box = document.getElementById('logBox');
 
         if (!items.length) {
@@ -1067,7 +1132,7 @@ sourceName：${escapeHtml(rec.sourceName || '')}
           return;
         }
 
-        box.innerHTML = items.map((item, index) => {
+        box.innerHTML = items.map(function(item, index) {
           const title = `${escapeHtml(item.sentAt || '')} / ${escapeHtml(item.mode || '')} / ${item.dryRun ? 'dryRun' : '本番'}`;
           const sub = `対象：${escapeHtml(item.childName || '')} / ${escapeHtml(item.category || '')}`;
           const content = `
